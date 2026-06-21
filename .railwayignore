@@ -1,0 +1,10 @@
+node_modules
+.env
+.cursor
+.git
+.netlify
+public/_redirects
+src/scripts/check-links.js
+src/scripts/fix-extra-links.js
+README.md
+6000*
