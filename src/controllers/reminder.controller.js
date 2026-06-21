@@ -119,17 +119,31 @@ const updatePreferences = async (req, res) => {
 
 const sendTestPush = async (req, res) => {
   try {
-    if (!req.user.pushSubscription?.endpoint) {
-      return res.status(400).json({
-        success: false,
-        message: "No push subscription. Click Save reminder and allow notifications first.",
-      });
+    const results = { email: null, push: null };
+
+    try {
+      const { sendReminderEmail } = require("../services/email.service");
+      results.email = await sendReminderEmail(req.user);
+    } catch (error) {
+      results.email = { ok: false, error: error.message };
     }
 
-    const { sendPushReminder } = require("../services/push.service");
-    await sendPushReminder(req.user);
+    if (req.user.pushSubscription?.endpoint) {
+      try {
+        const { sendPushReminder } = require("../services/push.service");
+        results.push = await sendPushReminder(req.user);
+      } catch (error) {
+        results.push = { ok: false, error: error.message };
+      }
+    } else {
+      results.push = { ok: false, error: "No browser push subscription." };
+    }
 
-    res.status(200).json({ success: true, message: "Test notification sent." });
+    res.status(200).json({
+      success: true,
+      message: "Test reminder sent. Check your email inbox (and Mac notifications if push is set up).",
+      data: results,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

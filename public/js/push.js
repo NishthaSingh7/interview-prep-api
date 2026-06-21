@@ -181,7 +181,7 @@ const Push = {
       return "⚠ Reminders ON but not connected — click Save and Allow.";
     }
     if (prefs?.reminderEnabled) {
-      return `✓ Active — daily at ${this.formatTime(prefs.reminderHour, prefs.reminderMinute)}. You'll get an on-page popup when the site is open.`;
+      return `✓ Active — daily email at ${this.formatTime(prefs.reminderHour, prefs.reminderMinute)} (${prefs.timezone})`;
     }
     if (prefs?.pushSubscribed) return "Subscribed — turn on daily reminders below.";
     return "Click Save reminder, then Allow when prompted.";
@@ -217,29 +217,24 @@ const Push = {
   },
 
   async sendTestNotification() {
-    const user = Auth.getUser();
-    const firstName = user?.name?.split(" ")[0] || "there";
-    const payload = {
-      title: "AfterHours — time to grind",
-      body: `Hey ${firstName}! Solve one problem today. (This is your test reminder.)`,
-      url: "/",
-    };
+    const { message, data } = await Auth.api("/api/v1/reminders/test", {
+      method: "POST",
+    });
 
-    this.showInPageReminder(payload);
-    this.tryOsNotification(payload.title, payload.body);
+    const emailOk = data?.email?.ok;
+    const pushOk = data?.push?.ok;
 
-    try {
-      const reg = await this.registerServiceWorker();
-      await reg.showNotification(payload.title, { body: payload.body, tag: "afterhours-test" });
-    } catch {
-      // SW notification optional
+    if (pushOk) {
+      this.tryOsNotification("AfterHours — test", "Browser push test");
     }
 
-    try {
-      await Auth.api("/api/v1/reminders/test", { method: "POST" });
-    } catch {
-      // server push optional for test — in-page popup is primary
+    if (!emailOk && !pushOk) {
+      throw new Error(
+        data?.email?.error || data?.push?.error || "Could not send test reminder.",
+      );
     }
+
+    return message;
   },
 
   async checkClientReminder() {
@@ -325,8 +320,8 @@ const Push = {
         if (enabledEl.checked) {
           try {
             await this.subscribe();
-          } catch (err) {
-            statusEl.textContent = `Saved time, but push setup failed: ${err.message}. On-page reminders still work when site is open.`;
+          } catch {
+            // Email reminders still work without browser push
           }
         }
 
@@ -349,8 +344,8 @@ const Push = {
       testBtn.addEventListener("click", async () => {
         testBtn.disabled = true;
         try {
-          await this.sendTestNotification();
-          statusEl.textContent = "Test popup shown on this page! (Also check Mac Notification Centre for OS alerts.)";
+          const msg = await this.sendTestNotification();
+          statusEl.textContent = msg || "Test sent! Check your email inbox.";
         } catch (err) {
           statusEl.textContent = err.message;
         } finally {
