@@ -5,3 +5,9 @@ node_modules/
 *.log
 npm-debug.log*
 public/_redirects
+
+# Local Netlify folder
+.netlify
+
+# Local Netlify folder
+.netlify
