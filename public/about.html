@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About — AfterHours</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/js/theme.js"></script>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body data-page="about">
+    <header class="site-header">
+      <a href="/" class="logo">
+        <div class="logo-mark">AH</div>
+        <div>
+          <h1>AfterHours</h1>
+          <p>grind after dark</p>
+        </div>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="/" class="nav-link" data-nav="problems">Problems</a>
+        <a href="/progress.html" class="nav-link" data-nav="progress">Progress</a>
+        <a href="/about.html" class="nav-link" data-nav="about">About</a>
+      </nav>
+      <div class="header-actions">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <div id="guestNav" class="nav-links">
+          <a href="/login.html" class="btn btn-ghost">Log in</a>
+          <a href="/signup.html" class="btn btn-primary">Sign up</a>
+        </div>
+        <div id="userNav" class="nav-links" hidden>
+          <button id="logoutBtn" class="btn btn-ghost btn-sm">Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-main about-main">
+      <div class="about-hero panel">
+        <h2>Built for developers who grind after dark</h2>
+        <p class="about-lead">
+          AfterHours is a focused interview prep tracker — 300 curated DSA problems across 20 patterns,
+          designed for people who prep when the day job is done.
+        </p>
+      </div>
+
+      <div class="about-grid">
+        <section class="about-card panel">
+          <h3>Why I built this</h3>
+          <p>
+            I created AfterHours because most prep tools feel either too scattered or too generic.
+            I wanted one place to work through a structured pattern list, mark progress, and actually
+            come back the next night without losing momentum.
+          </p>
+          <p>
+            This isn't about grinding LeetCode blindly — it's about building pattern recognition,
+            tracking what you've solved, and revisiting problems when you need a refresh.
+          </p>
+        </section>
+
+        <section class="about-card panel">
+          <h3>What makes it different</h3>
+          <ul class="about-list">
+            <li><strong>20 patterns, 300 problems</strong> — LeetCode classics plus GFG, InterviewBit & more</li>
+            <li><strong>Progress that persists</strong> — streaks, breakdowns, and pattern-level stats</li>
+            <li><strong>Smart nudges</strong> — insights on what to solve next based on your gaps</li>
+            <li><strong>Motivation on every win</strong> — celebrate done and redo moments</li>
+            <li><strong>After-hours vibe</strong> — built for late-night sessions, not corporate dashboards</li>
+          </ul>
+        </section>
+
+        <section class="about-card panel">
+          <h3>How to use it</h3>
+          <ol class="about-steps">
+            <li>Create an account and pick a pattern from the sidebar</li>
+            <li>Solve on LeetCode, then mark problems done as you finish</li>
+            <li>Check your <a href="/progress.html">Progress</a> page for streaks and weak spots</li>
+            <li>Uncheck problems when you want to redo them — we'll cheer you on</li>
+          </ol>
+        </section>
+
+        <section class="about-card panel about-cta-card">
+          <h3>Ready to start?</h3>
+          <p>Your progress only counts when you're signed in. One problem tonight is enough to begin.</p>
+          <div class="about-cta-actions">
+            <a href="/" class="btn btn-primary">Browse problems</a>
+            <a href="/signup.html" class="btn btn-ghost" id="aboutSignupBtn">Create account</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>Built by Nishtha Singh · © 2026</p>
+    </footer>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/nav.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        Nav.init();
+        if (Auth.isLoggedIn()) {
+          const signupBtn = document.getElementById("aboutSignupBtn");
+          if (signupBtn) signupBtn.hidden = true;
+        }
+      });
+    </script>
+  </body>
+</html>

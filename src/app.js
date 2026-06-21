@@ -1,16 +1,32 @@
-// This is where we create our app using express
 const express = require("express");
+const cors = require("cors");
+const path = require("path");
 const app = express();
 
-const problemRoutes = require('./routes/problem.routes');
+const problemRoutes = require("./routes/problem.routes");
 const patternRoutes = require("./routes/pattern.routes");
+const authRoutes = require("./routes/auth.routes");
+const progressRoutes = require("./routes/progress.routes");
+const errorHandler = require("./middleware/errorHandler");
 
-// Middleware to parse JSON bodies
+app.use(cors());
 app.use(express.json());
 
-// Use the problem routes
-app.use('/api/v1/problems', problemRoutes);
+app.get("/health", (req, res) => {
+  res.status(200).json({ success: true, message: "API is running" });
+});
 
-
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/patterns", patternRoutes);
+app.use("/api/v1/problems", problemRoutes);
+app.use("/api/v1/progress", progressRoutes);
+
+app.use(express.static(path.join(__dirname, "../public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
+app.use(errorHandler);
+
 module.exports = app;

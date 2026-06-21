@@ -15,6 +15,10 @@ const patternSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
