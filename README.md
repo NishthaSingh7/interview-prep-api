@@ -1,16 +1,10 @@
 # Interview Prep API
 
-A public REST API for interview preparation. Browse coding problems organized by **algorithm pattern** (Two Pointers, Sliding Window, etc.) and **difficulty** (Easy, Medium, Hard). Users can track which problems they have practiced and add their own questions tied to a pattern.
+A REST API for interview preparation. Browse and manage coding problems organized by **algorithm pattern** (Two Pointers, Sliding Window, etc.) and **difficulty** (Easy, Medium, Hard).
 
-## What This Project Is For
+## Overview
 
-Interview prep often means grinding LeetCode-style problems across many patterns. This API gives you:
-
-- A **catalog of problems** grouped by pattern and difficulty
-- **Personal progress tracking** (coming soon) — mark what you've done and see stats by pattern
-- **User-contributed questions** (coming soon) — add problems to the catalog from your account
-
-The catalog is public. Progress and personal data stay private per user.
+This API provides a structured catalog of interview-style coding problems. Each problem is linked to an algorithm pattern, making it easier to practice by topic and track coverage across difficulty levels.
 
 ## Tech Stack
 
@@ -72,7 +66,7 @@ npm run dev
 
 Server starts at `http://localhost:6000`.
 
-## API Endpoints (Current)
+## API Reference
 
 Base URL: `/api/v1`
 
@@ -82,7 +76,7 @@ Base URL: `/api/v1`
 |--------|----------|-------------|
 | POST | `/patterns` | Create a new pattern |
 
-**Example — create a pattern:**
+**Create a pattern:**
 
 ```bash
 curl -X POST http://localhost:6000/api/v1/patterns \
@@ -99,10 +93,10 @@ curl -X POST http://localhost:6000/api/v1/patterns \
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/problems` | Create a new problem |
-| GET | `/problems` | List all problems (with filters) |
+| GET | `/problems` | List all problems (supports filters) |
 | GET | `/problems/:slug` | Get one problem by slug |
 
-**Query filters for `GET /problems`:**
+**Query parameters for `GET /problems`:**
 
 | Param | Example | Description |
 |-------|---------|-------------|
@@ -110,7 +104,7 @@ curl -X POST http://localhost:6000/api/v1/patterns \
 | `patternId` | `?patternId=abc123` | Filter by pattern ObjectId |
 | `search` | `?search=two` | Case-insensitive search on title |
 
-**Example — create a problem:**
+**Create a problem:**
 
 ```bash
 curl -X POST http://localhost:6000/api/v1/problems \
@@ -125,7 +119,7 @@ curl -X POST http://localhost:6000/api/v1/problems \
   }'
 ```
 
-**Example — list problems:**
+**List problems:**
 
 ```bash
 curl "http://localhost:6000/api/v1/problems?difficulty=Easy&search=sum"
@@ -133,7 +127,7 @@ curl "http://localhost:6000/api/v1/problems?difficulty=Easy&search=sum"
 
 ### Response Format
 
-All responses follow this shape:
+Successful responses:
 
 ```json
 {
@@ -142,13 +136,22 @@ All responses follow this shape:
 }
 ```
 
-List responses also include a count:
+List responses include a count:
 
 ```json
 {
   "success": true,
   "count": 5,
   "data": [ ]
+}
+```
+
+Error responses:
+
+```json
+{
+  "success": false,
+  "message": "Error description"
 }
 ```
 
@@ -172,59 +175,6 @@ List responses also include a count:
 | patternId | ObjectId | References a Pattern |
 | tags | [String] | Default: `[]` |
 | leetcodeLink | String | Optional |
-
-## Roadmap
-
-Work is planned in four phases to reach a fully public API:
-
-### Phase 1 — Complete the catalog API
-
-- List, update, and delete patterns
-- Update and delete problems
-- Pagination on problem list
-- Seed script with sample data
-
-### Phase 2 — User authentication
-
-- Register and login with JWT
-- Protected routes for user-specific actions
-
-### Phase 3 — Progress tracking
-
-- Mark problems as done or in progress
-- View personal progress and stats by pattern/difficulty
-- Only authenticated users can add problems
-
-### Phase 4 — Production readiness
-
-- CORS, global error handler
-- Deploy to Render or Railway
-- Full API documentation
-
-## How It Will Be Used
-
-Once complete, a typical flow will look like this:
-
-1. **Browse** — Call `GET /problems` to explore the catalog by pattern and difficulty
-2. **Sign up** — Create an account via `POST /auth/register`
-3. **Track progress** — Mark problems done via `POST /progress`
-4. **Review stats** — Check `GET /progress/stats` to see coverage by pattern before an interview
-5. **Contribute** — Add your own problems tied to a pattern from your account
-
-A frontend app (web or mobile) can consume this API. Postman or curl works for testing today.
-
-## Current Status
-
-| Feature | Status |
-|---------|--------|
-| Create patterns | Done |
-| Create & read problems | Done |
-| Filter problems | Done |
-| Pattern list / update / delete | Planned |
-| Problem update / delete | Planned |
-| User accounts | Planned |
-| Progress tracking | Planned |
-| Public deployment | Planned |
 
 ## License
 
