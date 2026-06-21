@@ -1,0 +1,381 @@
+const slugify = (title) =>
+  title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const makeProblems = (patternSlug, items) =>
+  items.map(([title, difficulty, link, tags = []]) => {
+    const baseSlug = link?.startsWith("gfg:") ? slugify(title) : link || slugify(title);
+    const row = {
+      patternSlug,
+      title,
+      slug: `${patternSlug}-${baseSlug}`,
+      difficulty,
+      tags,
+    };
+    if (!link) return row;
+    if (link.startsWith("gfg:")) {
+      row.practiceLink = `https://www.geeksforgeeks.org/problems/${link.slice(4)}/1`;
+      row.source = "GeeksforGeeks";
+    } else {
+      row.leetcodeLink = `https://leetcode.com/problems/${link}/`;
+      row.source = "LeetCode";
+    }
+    return row;
+  });
+
+const { extraProblems } = require("./extraProblems");
+
+const patterns = [
+  {
+    name: "Sliding Window",
+    slug: "sliding-window",
+    description: "Maintain a window over a contiguous subarray or substring to solve problems efficiently.",
+  },
+  {
+    name: "Two Pointers",
+    slug: "two-pointers",
+    description: "Use two indices moving toward each other or in the same direction to scan arrays or strings.",
+  },
+  {
+    name: "Fast & Slow Pointers",
+    slug: "fast-slow-pointers",
+    description: "Use two pointers moving at different speeds, often for cycle detection in linked lists.",
+  },
+  {
+    name: "Merge Intervals",
+    slug: "merge-intervals",
+    description: "Combine, insert, or analyze overlapping intervals.",
+  },
+  {
+    name: "Cyclic Sort",
+    slug: "cyclic-sort",
+    description: "Place each number at its correct index when values are in a known range.",
+  },
+  {
+    name: "Island/Matrix Traversal",
+    slug: "island-matrix-traversal",
+    description: "Traverse 2D grids to find connected components, regions, or paths.",
+  },
+  {
+    name: "In-place Reversal of Linked List",
+    slug: "in-place-reversal-linked-list",
+    description: "Reverse linked list nodes without extra space.",
+  },
+  {
+    name: "Breadth-First Search (BFS)",
+    slug: "breadth-first-search",
+    description: "Explore graphs and trees level by level using a queue.",
+  },
+  {
+    name: "Depth-First Search (DFS)",
+    slug: "depth-first-search",
+    description: "Explore graphs and trees by going deep before backtracking.",
+  },
+  {
+    name: "Two Heaps",
+    slug: "two-heaps",
+    description: "Use a max-heap and min-heap together to track medians or streaming data.",
+  },
+  {
+    name: "Subsets",
+    slug: "subsets",
+    description: "Generate combinations, permutations, and subsets using backtracking.",
+  },
+  {
+    name: "Modified Binary Search",
+    slug: "modified-binary-search",
+    description: "Apply binary search on sorted or rotated arrays and search spaces.",
+  },
+  {
+    name: "Bitwise XOR",
+    slug: "bitwise-xor",
+    description: "Use XOR and bit manipulation to find unique or missing values.",
+  },
+  {
+    name: "Top K Elements",
+    slug: "top-k-elements",
+    description: "Find the K largest, smallest, or most frequent elements using heaps.",
+  },
+  {
+    name: "K-way Merge",
+    slug: "k-way-merge",
+    description: "Merge multiple sorted lists or arrays efficiently.",
+  },
+  {
+    name: "Topological Sort",
+    slug: "topological-sort",
+    description: "Order nodes in a DAG based on dependencies.",
+  },
+  {
+    name: "0/1 Knapsack",
+    slug: "knapsack-01",
+    description: "Optimize subset selection with capacity constraints using dynamic programming.",
+  },
+  {
+    name: "Longest Common Substring (LCS)",
+    slug: "longest-common-substring",
+    description: "Compare sequences using longest common subsequence or substring techniques.",
+  },
+  {
+    name: "Dynamic Programming (Tabulation/Memoization Overview)",
+    slug: "dynamic-programming",
+    description: "Break problems into overlapping subproblems with optimal substructure.",
+  },
+  {
+    name: "Greedy Technique",
+    slug: "greedy-technique",
+    description: "Make locally optimal choices to reach a global optimum.",
+  },
+];
+
+const problems = [
+  ...makeProblems("sliding-window", [
+    ["Maximum Average Subarray I", "Easy", "maximum-average-subarray-i", ["array", "sliding-window"]],
+    ["Maximum Sum Subarray of Size K", "Easy", "gfg:subarray-with-given-sum-1587115621", ["array", "sliding-window"]],
+    ["Longest Substring Without Repeating Characters", "Medium", "longest-substring-without-repeating-characters", ["string", "sliding-window"]],
+    ["Minimum Size Subarray Sum", "Medium", "minimum-size-subarray-sum", ["array", "sliding-window"]],
+    ["Fruit Into Baskets", "Medium", "fruit-into-baskets", ["array", "sliding-window"]],
+    ["Permutation in String", "Medium", "permutation-in-string", ["string", "sliding-window"]],
+    ["Longest Repeating Character Replacement", "Medium", "longest-repeating-character-replacement", ["string", "sliding-window"]],
+    ["Sliding Window Maximum", "Hard", "sliding-window-maximum", ["array", "sliding-window"]],
+    ["Subarray Product Less Than K", "Medium", "subarray-product-less-than-k", ["array", "sliding-window"]],
+    ["Max Consecutive Ones III", "Medium", "max-consecutive-ones-iii", ["array", "sliding-window"]],
+  ]),
+  ...makeProblems("two-pointers", [
+    ["Valid Palindrome", "Easy", "valid-palindrome", ["string", "two-pointers"]],
+    ["Two Sum II", "Medium", "two-sum-ii-input-array-is-sorted", ["array", "two-pointers"]],
+    ["3Sum", "Medium", "3sum", ["array", "two-pointers"]],
+    ["Container With Most Water", "Medium", "container-with-most-water", ["array", "two-pointers"]],
+    ["Remove Duplicates from Sorted Array", "Easy", "remove-duplicates-from-sorted-array", ["array", "two-pointers"]],
+    ["Sort Colors", "Medium", "sort-colors", ["array", "two-pointers"]],
+    ["Trapping Rain Water", "Hard", "trapping-rain-water", ["array", "two-pointers"]],
+    ["Squares of a Sorted Array", "Easy", "squares-of-a-sorted-array", ["array", "two-pointers"]],
+    ["Boats to Save People", "Medium", "boats-to-save-people", ["array", "two-pointers"]],
+    ["4Sum", "Medium", "4sum", ["array", "two-pointers"]],
+  ]),
+  ...makeProblems("fast-slow-pointers", [
+    ["Linked List Cycle", "Easy", "linked-list-cycle", ["linked-list", "fast-slow-pointers"]],
+    ["Middle of the Linked List", "Easy", "middle-of-the-linked-list", ["linked-list", "fast-slow-pointers"]],
+    ["Palindrome Linked List", "Easy", "palindrome-linked-list", ["linked-list", "fast-slow-pointers"]],
+    ["Happy Number", "Easy", "happy-number", ["math", "fast-slow-pointers"]],
+    ["Linked List Cycle II", "Medium", "linked-list-cycle-ii", ["linked-list", "fast-slow-pointers"]],
+    ["Find the Duplicate Number", "Medium", "find-the-duplicate-number", ["array", "fast-slow-pointers"]],
+    ["Reorder List", "Medium", "reorder-list", ["linked-list", "fast-slow-pointers"]],
+    ["Circular Array Loop", "Medium", "circular-array-loop", ["array", "fast-slow-pointers"]],
+    ["Sort List", "Medium", "sort-list", ["linked-list", "fast-slow-pointers"]],
+    ["Split a Circular Linked List", "Medium", "gfg:split-a-circular-linked-list", ["linked-list", "fast-slow-pointers"]],
+  ]),
+  ...makeProblems("merge-intervals", [
+    ["Merge Intervals", "Medium", "merge-intervals", ["array", "intervals"]],
+    ["Insert Interval", "Medium", "insert-interval", ["array", "intervals"]],
+    ["Meeting Rooms", "Easy", "meeting-rooms", ["array", "intervals"]],
+    ["Meeting Rooms II", "Medium", "meeting-rooms-ii", ["array", "intervals"]],
+    ["Non-overlapping Intervals", "Medium", "non-overlapping-intervals", ["array", "intervals"]],
+    ["Interval List Intersections", "Medium", "interval-list-intersections", ["array", "intervals"]],
+    ["Minimum Number of Arrows to Burst Balloons", "Medium", "minimum-number-of-arrows-to-burst-balloons", ["array", "intervals"]],
+    ["Employee Free Time", "Hard", "employee-free-time", ["array", "intervals"]],
+    ["Add Interval", "Medium", "gfg:insert-interval-in-an-unsorted-array", ["array", "intervals"]],
+    ["Data Stream as Disjoint Intervals", "Hard", "data-stream-as-disjoint-intervals", ["array", "intervals"]],
+  ]),
+  ...makeProblems("cyclic-sort", [
+    ["Missing Number", "Easy", "missing-number", ["array", "cyclic-sort"]],
+    ["Find All Numbers Disappeared in an Array", "Easy", "find-all-numbers-disappeared-in-an-array", ["array", "cyclic-sort"]],
+    ["Find All Duplicates in an Array", "Medium", "find-all-duplicates-in-an-array", ["array", "cyclic-sort"]],
+    ["Find the Duplicate Number", "Medium", "find-the-duplicate-number", ["array", "cyclic-sort"]],
+    ["First Missing Positive", "Hard", "first-missing-positive", ["array", "cyclic-sort"]],
+    ["Set Mismatch", "Easy", "set-mismatch", ["array", "cyclic-sort"]],
+    ["Couples Holding Hands", "Hard", "couples-holding-hands", ["array", "cyclic-sort"]],
+    ["Shortest Unsorted Continuous Subarray", "Medium", "shortest-unsorted-continuous-subarray", ["array", "cyclic-sort"]],
+    ["Find the Corrupt Pair", "Easy", "gfg:find-missing-and-repeated-value2239", ["array", "cyclic-sort"]],
+    ["Smallest Missing Positive Integer", "Medium", "gfg:smallest-missing-positive-number", ["array", "cyclic-sort"]],
+  ]),
+  ...makeProblems("island-matrix-traversal", [
+    ["Number of Islands", "Medium", "number-of-islands", ["matrix", "dfs"]],
+    ["Max Area of Island", "Medium", "max-area-of-island", ["matrix", "dfs"]],
+    ["Surrounded Regions", "Medium", "surrounded-regions", ["matrix", "dfs"]],
+    ["Pacific Atlantic Water Flow", "Medium", "pacific-atlantic-water-flow", ["matrix", "dfs"]],
+    ["Rotting Oranges", "Medium", "rotting-oranges", ["matrix", "bfs"]],
+    ["Walls and Gates", "Medium", "walls-and-gates", ["matrix", "bfs"]],
+    ["Number of Closed Islands", "Easy", "number-of-closed-islands", ["matrix", "dfs"]],
+    ["Island Perimeter", "Easy", "island-perimeter", ["matrix", "dfs"]],
+    ["Count Sub Islands", "Medium", "count-sub-islands", ["matrix", "dfs"]],
+    ["Shortest Path in Binary Matrix", "Medium", "shortest-path-in-binary-matrix", ["matrix", "bfs"]],
+  ]),
+  ...makeProblems("in-place-reversal-linked-list", [
+    ["Reverse Linked List", "Easy", "reverse-linked-list", ["linked-list"]],
+    ["Reverse Linked List II", "Medium", "reverse-linked-list-ii", ["linked-list"]],
+    ["Reverse Nodes in k-Group", "Hard", "reverse-nodes-in-k-group", ["linked-list"]],
+    ["Swap Nodes in Pairs", "Medium", "swap-nodes-in-pairs", ["linked-list"]],
+    ["Rotate List", "Medium", "rotate-list", ["linked-list"]],
+    ["Odd Even Linked List", "Medium", "odd-even-linked-list", ["linked-list"]],
+    ["Add Two Numbers", "Medium", "add-two-numbers", ["linked-list"]],
+    ["Flatten a Multilevel Doubly Linked List", "Medium", "flatten-a-multilevel-doubly-linked-list", ["linked-list"]],
+    ["Reverse Linked List (Recursive)", "Easy", "gfg:reverse-a-linked-list", ["linked-list"]],
+    ["Reverse Alternate K Nodes", "Medium", "gfg:reverse-alternate-k-nodes-in-a-singly-linked-list", ["linked-list"]],
+  ]),
+  ...makeProblems("breadth-first-search", [
+    ["Binary Tree Level Order Traversal", "Medium", "binary-tree-level-order-traversal", ["tree", "bfs"]],
+    ["Minimum Depth of Binary Tree", "Easy", "minimum-depth-of-binary-tree", ["tree", "bfs"]],
+    ["Word Ladder", "Hard", "word-ladder", ["graph", "bfs"]],
+    ["Open the Lock", "Medium", "open-the-lock", ["graph", "bfs"]],
+    ["Perfect Squares", "Medium", "perfect-squares", ["math", "bfs"]],
+    ["Clone Graph", "Medium", "clone-graph", ["graph", "bfs"]],
+    ["Number of Provinces", "Medium", "number-of-provinces", ["graph", "bfs"]],
+    ["Snakes and Ladders", "Medium", "snakes-and-ladders", ["graph", "bfs"]],
+    ["Minimum Knight Moves", "Medium", "minimum-knight-moves", ["graph", "bfs"]],
+    ["Cut Off Trees for Golf Event", "Hard", "cut-off-trees-for-golf-event", ["graph", "bfs"]],
+  ]),
+  ...makeProblems("depth-first-search", [
+    ["Maximum Depth of Binary Tree", "Easy", "maximum-depth-of-binary-tree", ["tree", "dfs"]],
+    ["Path Sum", "Easy", "path-sum", ["tree", "dfs"]],
+    ["Path Sum II", "Medium", "path-sum-ii", ["tree", "dfs"]],
+    ["All Paths From Source to Target", "Medium", "all-paths-from-source-to-target", ["graph", "dfs"]],
+    ["Word Search", "Medium", "word-search", ["matrix", "dfs"]],
+    ["Number of Connected Components in an Undirected Graph", "Medium", "number-of-connected-components-in-an-undirected-graph", ["graph", "dfs"]],
+    ["Graph Valid Tree", "Medium", "graph-valid-tree", ["graph", "dfs"]],
+    ["Course Schedule", "Medium", "course-schedule", ["graph", "dfs"]],
+    ["Same Tree", "Easy", "same-tree", ["tree", "dfs"]],
+    ["Invert Binary Tree", "Easy", "invert-binary-tree", ["tree", "dfs"]],
+  ]),
+  ...makeProblems("two-heaps", [
+    ["Find Median from Data Stream", "Hard", "find-median-from-data-stream", ["heap"]],
+    ["Sliding Window Median", "Hard", "sliding-window-median", ["heap"]],
+    ["IPO", "Hard", "ipo", ["heap"]],
+    ["Meeting Rooms III", "Hard", "meeting-rooms-iii", ["heap"]],
+    ["Reorganize String", "Medium", "reorganize-string", ["heap"]],
+    ["Task Scheduler", "Medium", "task-scheduler", ["heap"]],
+    ["Kth Largest Element in a Stream", "Easy", "kth-largest-element-in-a-stream", ["heap"]],
+    ["Design Twitter", "Medium", "design-twitter", ["heap"]],
+    ["Maximize Capital", "Hard", "maximize-capital", ["heap"]],
+    ["Schedule Tasks on Minimum Machines", "Medium", "gfg:minimum-platforms-1587115620", ["heap"]],
+  ]),
+  ...makeProblems("subsets", [
+    ["Subsets", "Medium", "subsets", ["backtracking"]],
+    ["Subsets II", "Medium", "subsets-ii", ["backtracking"]],
+    ["Permutations", "Medium", "permutations", ["backtracking"]],
+    ["Permutations II", "Medium", "permutations-ii", ["backtracking"]],
+    ["Combination Sum", "Medium", "combination-sum", ["backtracking"]],
+    ["Combination Sum II", "Medium", "combination-sum-ii", ["backtracking"]],
+    ["Letter Combinations of a Phone Number", "Medium", "letter-combinations-of-a-phone-number", ["backtracking"]],
+    ["Generate Parentheses", "Medium", "generate-parentheses", ["backtracking"]],
+    ["Palindrome Partitioning", "Medium", "palindrome-partitioning", ["backtracking"]],
+    ["N-Queens", "Hard", "n-queens", ["backtracking"]],
+  ]),
+  ...makeProblems("modified-binary-search", [
+    ["Binary Search", "Easy", "binary-search", ["binary-search"]],
+    ["Search Insert Position", "Easy", "search-insert-position", ["binary-search"]],
+    ["Search in Rotated Sorted Array", "Medium", "search-in-rotated-sorted-array", ["binary-search"]],
+    ["Find Minimum in Rotated Sorted Array", "Medium", "find-minimum-in-rotated-sorted-array", ["binary-search"]],
+    ["Find Peak Element", "Medium", "find-peak-element", ["binary-search"]],
+    ["Search a 2D Matrix", "Medium", "search-a-2d-matrix", ["binary-search"]],
+    ["Koko Eating Bananas", "Medium", "koko-eating-bananas", ["binary-search"]],
+    ["Capacity To Ship Packages Within D Days", "Medium", "capacity-to-ship-packages-within-d-days", ["binary-search"]],
+    ["Split Array Largest Sum", "Hard", "split-array-largest-sum", ["binary-search"]],
+    ["Median of Two Sorted Arrays", "Hard", "median-of-two-sorted-arrays", ["binary-search"]],
+  ]),
+  ...makeProblems("bitwise-xor", [
+    ["Single Number", "Easy", "single-number", ["bit-manipulation"]],
+    ["Single Number II", "Medium", "single-number-ii", ["bit-manipulation"]],
+    ["Single Number III", "Medium", "single-number-iii", ["bit-manipulation"]],
+    ["Find the Difference", "Easy", "find-the-difference", ["bit-manipulation"]],
+    ["Maximum XOR of Two Numbers in an Array", "Medium", "maximum-xor-of-two-numbers-in-an-array", ["bit-manipulation"]],
+    ["Counting Bits", "Easy", "counting-bits", ["bit-manipulation"]],
+    ["Sum of Two Integers", "Medium", "sum-of-two-integers", ["bit-manipulation"]],
+    ["Reverse Bits", "Easy", "reverse-bits", ["bit-manipulation"]],
+    ["Number of 1 Bits", "Easy", "number-of-1-bits", ["bit-manipulation"]],
+    ["Missing Number (XOR)", "Easy", "missing-number", ["bit-manipulation"]],
+  ]),
+  ...makeProblems("top-k-elements", [
+    ["Kth Largest Element in an Array", "Medium", "kth-largest-element-in-an-array", ["heap"]],
+    ["Top K Frequent Elements", "Medium", "top-k-frequent-elements", ["heap"]],
+    ["K Closest Points to Origin", "Medium", "k-closest-points-to-origin", ["heap"]],
+    ["Sort Characters By Frequency", "Medium", "sort-characters-by-frequency", ["heap"]],
+    ["Kth Smallest Element in a Sorted Matrix", "Medium", "kth-smallest-element-in-a-sorted-matrix", ["heap"]],
+    ["Find K Pairs with Smallest Sums", "Medium", "find-k-pairs-with-smallest-sums", ["heap"]],
+    ["Third Maximum Number", "Easy", "third-maximum-number", ["heap"]],
+    ["Reorganize String", "Medium", "reorganize-string", ["heap"]],
+    ["Ugly Number II", "Medium", "ugly-number-ii", ["heap"]],
+    ["Top K Frequent Words", "Medium", "top-k-frequent-words", ["heap"]],
+  ]),
+  ...makeProblems("k-way-merge", [
+    ["Merge k Sorted Lists", "Hard", "merge-k-sorted-lists", ["heap", "merge"]],
+    ["Merge Sorted Array", "Easy", "merge-sorted-array", ["array", "merge"]],
+    ["Merge Two Sorted Lists", "Easy", "merge-two-sorted-lists", ["linked-list", "merge"]],
+    ["Smallest Range Covering Elements from K Lists", "Hard", "smallest-range-covering-elements-from-k-lists", ["heap", "merge"]],
+    ["Find K Pairs with Smallest Sums", "Medium", "find-k-pairs-with-smallest-sums", ["heap", "merge"]],
+    ["Kth Smallest Element in a Sorted Matrix", "Medium", "kth-smallest-element-in-a-sorted-matrix", ["heap", "merge"]],
+    ["Merge Triplets to Form Target Triplet", "Medium", "merge-triplets-to-form-target-triplet", ["array", "merge"]],
+    ["Kth Smallest Number in M Sorted Lists", "Medium", "gfg:k-th-element-of-two-sorted-arrays1315", ["heap", "merge"]],
+    ["Merge Sorted Lists from N Streams", "Hard", "gfg:merge-k-sorted-arrays", ["heap", "merge"]],
+    ["Find Smallest Range with K Lists", "Hard", "gfg:find-smallest-range-containing-elements-from-k-sorted-lists", ["heap", "merge"]],
+  ]),
+  ...makeProblems("topological-sort", [
+    ["Course Schedule", "Medium", "course-schedule", ["graph", "topological-sort"]],
+    ["Course Schedule II", "Medium", "course-schedule-ii", ["graph", "topological-sort"]],
+    ["Alien Dictionary", "Hard", "alien-dictionary", ["graph", "topological-sort"]],
+    ["Sequence Reconstruction", "Medium", "sequence-reconstruction", ["graph", "topological-sort"]],
+    ["Minimum Height Trees", "Medium", "minimum-height-trees", ["graph", "topological-sort"]],
+    ["Parallel Courses", "Hard", "parallel-courses", ["graph", "topological-sort"]],
+    ["Find Eventual Safe States", "Medium", "find-eventual-safe-states", ["graph", "topological-sort"]],
+    ["Sort Items by Groups Respecting Dependencies", "Hard", "sort-items-by-groups-respecting-dependencies", ["graph", "topological-sort"]],
+    ["Build a Matrix With Conditions", "Medium", "build-a-matrix-with-conditions", ["graph", "topological-sort"]],
+    ["Largest Color Value in a Directed Graph", "Hard", "largest-color-value-in-a-directed-graph", ["graph", "topological-sort"]],
+  ]),
+  ...makeProblems("knapsack-01", [
+    ["Partition Equal Subset Sum", "Medium", "partition-equal-subset-sum", ["dynamic-programming"]],
+    ["Target Sum", "Medium", "target-sum", ["dynamic-programming"]],
+    ["Coin Change", "Medium", "coin-change", ["dynamic-programming"]],
+    ["Coin Change II", "Medium", "coin-change-ii", ["dynamic-programming"]],
+    ["Ones and Zeroes", "Medium", "ones-and-zeroes", ["dynamic-programming"]],
+    ["Last Stone Weight II", "Medium", "last-stone-weight-ii", ["dynamic-programming"]],
+    ["Profitable Schemes", "Hard", "profitable-schemes", ["dynamic-programming"]],
+    ["Maximum Profit in Job Scheduling", "Hard", "maximum-profit-in-job-scheduling", ["dynamic-programming"]],
+    ["Minimum Difficulty of a Job Schedule", "Hard", "minimum-difficulty-of-a-job-schedule", ["dynamic-programming"]],
+    ["Split Array Largest Sum", "Hard", "split-array-largest-sum", ["dynamic-programming"]],
+  ]),
+  ...makeProblems("longest-common-substring", [
+    ["Longest Common Subsequence", "Medium", "longest-common-subsequence", ["dynamic-programming"]],
+    ["Longest Common Substring", "Medium", "gfg:longest-common-substring1452", ["dynamic-programming"]],
+    ["Edit Distance", "Medium", "edit-distance", ["dynamic-programming"]],
+    ["Shortest Common Supersequence", "Hard", "shortest-common-supersequence", ["dynamic-programming"]],
+    ["Minimum Deletions to Make Strings Equal", "Medium", "minimum-deletions-to-make-strings-equal", ["dynamic-programming"]],
+    ["Delete Operation for Two Strings", "Medium", "delete-operation-for-two-strings", ["dynamic-programming"]],
+    ["Uncrossed Lines", "Medium", "uncrossed-lines", ["dynamic-programming"]],
+    ["Distinct Subsequences", "Hard", "distinct-subsequences", ["dynamic-programming"]],
+    ["Interleaving String", "Medium", "interleaving-string", ["dynamic-programming"]],
+    ["Longest Palindromic Subsequence", "Medium", "longest-palindromic-subsequence", ["dynamic-programming"]],
+  ]),
+  ...makeProblems("dynamic-programming", [
+    ["Climbing Stairs", "Easy", "climbing-stairs", ["dynamic-programming"]],
+    ["House Robber", "Medium", "house-robber", ["dynamic-programming"]],
+    ["House Robber II", "Medium", "house-robber-ii", ["dynamic-programming"]],
+    ["Decode Ways", "Medium", "decode-ways", ["dynamic-programming"]],
+    ["Word Break", "Medium", "word-break", ["dynamic-programming"]],
+    ["Minimum Path Sum", "Medium", "minimum-path-sum", ["dynamic-programming"]],
+    ["Unique Paths", "Medium", "unique-paths", ["dynamic-programming"]],
+    ["Longest Increasing Subsequence", "Medium", "longest-increasing-subsequence", ["dynamic-programming"]],
+    ["Best Time to Buy and Sell Stock", "Easy", "best-time-to-buy-and-sell-stock", ["dynamic-programming"]],
+    ["Maximum Subarray", "Medium", "maximum-subarray", ["dynamic-programming"]],
+  ]),
+  ...makeProblems("greedy-technique", [
+    ["Jump Game", "Medium", "jump-game", ["greedy"]],
+    ["Jump Game II", "Medium", "jump-game-ii", ["greedy"]],
+    ["Gas Station", "Medium", "gas-station", ["greedy"]],
+    ["Hand of Straights", "Medium", "hand-of-straights", ["greedy"]],
+    ["Partition Labels", "Medium", "partition-labels", ["greedy"]],
+    ["Non-overlapping Intervals", "Medium", "non-overlapping-intervals", ["greedy"]],
+    ["Minimum Number of Arrows to Burst Balloons", "Medium", "minimum-number-of-arrows-to-burst-balloons", ["greedy"]],
+    ["Candy", "Hard", "candy", ["greedy"]],
+    ["Queue Reconstruction by Height", "Medium", "queue-reconstruction-by-height", ["greedy"]],
+    ["Merge Triplets to Form Target Triplet", "Medium", "merge-triplets-to-form-target-triplet", ["greedy"]],
+  ]),
+  ...extraProblems,
+];
+
+patterns.forEach((p, i) => {
+  p.order = i + 1;
+});
+
+module.exports = { patterns, problems };

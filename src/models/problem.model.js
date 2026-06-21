@@ -29,6 +29,14 @@ const problemSchema = new mongoose.Schema(
         leetcodeLink: {
             type: String,
         },
+        practiceLink: {
+            type: String,
+        },
+        source: {
+            type: String,
+            enum: ['LeetCode', 'GeeksforGeeks', 'InterviewBit', 'HackerRank', 'Codeforces', 'Educative', 'Other'],
+            default: 'LeetCode',
+        },
 
     },
     {

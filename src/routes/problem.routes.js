@@ -1,14 +1,12 @@
-const express = require('express');
-const ProbController = require('../controllers/problem.controller');
-
+const express = require("express");
 const router = express.Router();
+const problemController = require("../controllers/problem.controller");
+const { protect } = require("../middleware/auth.middleware");
 
-// Create a new problem
-router.post("/", ProbController.createProblem);
-
-// Get all problems with filters
-router.get("/", ProbController.getProblems);
-router.get("/:slug", ProbController.getProblemBySlug);
-
+router.get("/", problemController.getProblems);
+router.get("/:slug", problemController.getProblemBySlug);
+router.post("/", protect, problemController.createProblem);
+router.put("/:slug", problemController.updateProblem);
+router.delete("/:slug", problemController.deleteProblem);
 
 module.exports = router;
