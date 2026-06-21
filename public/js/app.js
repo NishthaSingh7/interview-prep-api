@@ -41,7 +41,8 @@ function updateAuthUI() {
     $("#progressText").textContent = "Log in to track your progress";
   }
 
-  Nav.init({
+  Nav.updateAuthNav();
+  Nav.bindLogout({
     onLogout: () => {
       state.progressMap.clear();
       state.patternDone = {};
@@ -464,7 +465,16 @@ function selectPatternFromUrl() {
 }
 
 async function init() {
+  await Nav.init({
+    onLogout: () => {
+      state.progressMap.clear();
+      state.patternDone = {};
+    },
+  });
   updateAuthUI();
+  if (Auth.isLoggedIn() && typeof Push !== "undefined") {
+    Push.startClientReminderChecker();
+  }
   try {
     await loadPatterns();
     await loadPatternTotals();

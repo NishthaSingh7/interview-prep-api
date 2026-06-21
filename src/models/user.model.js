@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+const pushSubscriptionSchema = new mongoose.Schema(
+  {
+    endpoint: { type: String, required: true },
+    expirationTime: { type: Number },
+    keys: {
+      p256dh: { type: String, required: true },
+      auth: { type: String, required: true },
+    },
+  },
+  { _id: false },
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -20,6 +32,31 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
       select: false,
+    },
+    pushSubscription: pushSubscriptionSchema,
+    reminderEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    reminderHour: {
+      type: Number,
+      default: 18,
+      min: 0,
+      max: 23,
+    },
+    reminderMinute: {
+      type: Number,
+      default: 30,
+      min: 0,
+      max: 59,
+    },
+    timezone: {
+      type: String,
+      default: "Asia/Kolkata",
+      trim: true,
+    },
+    lastReminderSentAt: {
+      type: Date,
     },
   },
   { timestamps: true },

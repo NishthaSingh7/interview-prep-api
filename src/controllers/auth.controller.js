@@ -7,7 +7,15 @@ const generateToken = (id) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      name,
+      email,
+      password,
+      reminderEnabled = false,
+      reminderHour = 18,
+      reminderMinute = 30,
+      timezone = "Asia/Kolkata",
+    } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -16,7 +24,23 @@ const register = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const hour = Number(reminderHour);
+    const minute = Number(reminderMinute);
+    if (
+      !Number.isInteger(hour) ||
+      hour < 0 ||
+      hour > 23 ||
+      !Number.isInteger(minute) ||
+      minute < 0 ||
+      minute > 59
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid reminder time.",
+      });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -24,7 +48,15 @@ const register = async (req, res) => {
       });
     }
 
-    const user = await User.create({ name, email, password });
+    const user = await User.create({
+      name,
+      email,
+      password,
+      reminderEnabled: Boolean(reminderEnabled),
+      reminderHour: hour,
+      reminderMinute: minute,
+      timezone,
+    });
 
     res.status(201).json({
       success: true,
@@ -32,6 +64,10 @@ const register = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        reminderEnabled: user.reminderEnabled,
+        reminderHour: user.reminderHour,
+        reminderMinute: user.reminderMinute,
+        timezone: user.timezone,
         token: generateToken(user._id),
       },
     });
@@ -74,7 +110,10 @@ const login = async (req, res) => {
 };
 
 const getMe = async (req, res) => {
-  res.status(200).json({ success: true, data: req.user });
+  const user = req.user.toObject();
+  delete user.pushSubscription;
+  user.pushSubscribed = Boolean(req.user.pushSubscription?.endpoint);
+  res.status(200).json({ success: true, data: user });
 };
 
 module.exports = { register, login, getMe };

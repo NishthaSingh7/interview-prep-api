@@ -49,7 +49,11 @@
           <a href="/signup.html" class="btn btn-primary">Sign up</a>
         </div>
         <div id="userNav" class="nav-links" hidden>
-          <button id="logoutBtn" class="btn btn-ghost btn-sm">Log out</button>
+          <div class="user-chip">
+            <span class="user-avatar" id="userAvatar" aria-hidden="true"></span>
+            <span class="user-name" id="userName"></span>
+          </div>
+          <button id="logoutBtn" class="btn btn-ghost btn-sm" type="button">Log out</button>
         </div>
       </div>
     </header>
@@ -59,6 +63,24 @@
         <h2>Your progress</h2>
         <p class="page-subtitle">Track streaks, patterns, and what to solve next</p>
       </div>
+      <div id="reminderSettings" class="stats-card panel reminder-card" hidden>
+        <h3>Daily reminder</h3>
+        <p class="reminder-desc">Free browser notification — pick your time, solve one problem each day.</p>
+        <label class="checkbox-label">
+          <input type="checkbox" id="prefReminderEnabled" />
+          Enable daily reminders
+        </label>
+        <div class="form-group" id="reminderTimeGroup">
+          <label for="prefReminderTime">Reminder time</label>
+          <input type="time" id="prefReminderTime" value="18:30" class="time-input" />
+        </div>
+        <p id="pushStatus" class="reminder-status"></p>
+        <div class="reminder-actions">
+          <button type="button" id="saveReminderBtn" class="btn btn-primary btn-sm">Save reminder</button>
+          <button type="button" id="testReminderBtn" class="btn btn-ghost btn-sm" hidden>Send test now</button>
+        </div>
+      </div>
+
       <div id="progressDashboard">
         <div class="loading panel">
           <div class="loader"></div>
@@ -73,6 +95,7 @@
 
     <script src="/js/auth.js"></script>
     <script src="/js/nav.js"></script>
+    <script src="/js/push.js"></script>
     <script src="/js/unlocks.js"></script>
     <script src="/js/insights.js"></script>
     <script src="/js/progress-page.js"></script>

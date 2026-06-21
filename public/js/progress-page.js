@@ -158,8 +158,9 @@ async function loadDashboard() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  Nav.init();
+document.addEventListener("DOMContentLoaded", async () => {
+  await Nav.init();
   if (!Nav.requireAuth()) return;
+  await Push.initSettingsPanel();
   loadDashboard();
 });
