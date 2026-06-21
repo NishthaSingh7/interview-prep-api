@@ -21,11 +21,14 @@ app.use("/api/v1/patterns", patternRoutes);
 app.use("/api/v1/problems", problemRoutes);
 app.use("/api/v1/progress", progressRoutes);
 
-app.use(express.static(path.join(__dirname, "../public")));
+// Static UI is served on Netlify in production; keep local/Railway fallback.
+if (process.env.SERVE_STATIC !== "false") {
+  app.use(express.static(path.join(__dirname, "../public")));
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
+  app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/index.html"));
+  });
+}
 
 app.use(errorHandler);
 
