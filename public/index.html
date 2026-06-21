@@ -49,7 +49,11 @@
           <a href="/signup.html" class="btn btn-primary">Sign up</a>
         </div>
         <div id="userNav" class="nav-links" hidden>
-          <button id="logoutBtn" class="btn btn-ghost btn-sm">Log out</button>
+          <div class="user-chip">
+            <span class="user-avatar" id="userAvatar" aria-hidden="true"></span>
+            <span class="user-name" id="userName"></span>
+          </div>
+          <button id="logoutBtn" class="btn btn-ghost btn-sm" type="button">Log out</button>
         </div>
       </div>
     </header>
@@ -141,6 +145,7 @@
 
     <script src="/js/auth.js"></script>
     <script src="/js/nav.js"></script>
+    <script src="/js/push.js"></script>
     <script src="/js/unlocks.js"></script>
     <script src="/js/insights.js"></script>
     <script src="/js/motivation.js"></script>

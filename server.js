@@ -14,6 +14,9 @@ const startServer = async () => {
     await connectDB(); // ✅ MUST WAIT
     console.log("MongoDB Connected");
 
+    const { startReminderCron } = require("./src/services/reminder.service");
+    startReminderCron();
+
     const PORT = process.env.PORT || 3000;
     const HOST = "0.0.0.0";
 

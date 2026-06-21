@@ -56,6 +56,17 @@
             <label for="email">Email</label>
             <input type="email" id="email" required placeholder="you@example.com" />
           </div>
+          <div class="form-group form-group-checkbox">
+            <label class="checkbox-label">
+              <input type="checkbox" id="reminderEnabled" />
+              Send me a daily browser reminder to solve one problem
+            </label>
+          </div>
+          <div class="form-group" id="reminderTimeGroup" hidden>
+            <label for="reminderTime">Reminder time</label>
+            <input type="time" id="reminderTime" value="18:30" />
+            <p class="form-hint">Uses your device timezone. You'll be asked to allow notifications.</p>
+          </div>
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" required minlength="6" placeholder="min 6 chars" />
@@ -75,13 +86,20 @@
     </footer>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/push.js"></script>
     <script>
       if (Auth.isLoggedIn()) window.location.href = "/";
+      Push.bindSignupFlow();
 
       document.getElementById("signupForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const errorEl = document.getElementById("error");
         errorEl.hidden = true;
+
+        const reminderEnabled = document.getElementById("reminderEnabled").checked;
+        const { reminderHour, reminderMinute } = Push.parseTimeInput(
+          document.getElementById("reminderTime").value,
+        );
 
         try {
           const { data } = await Auth.api("/api/v1/auth/register", {
@@ -90,9 +108,18 @@
               name: document.getElementById("name").value,
               email: document.getElementById("email").value,
               password: document.getElementById("password").value,
+              reminderEnabled,
+              reminderHour,
+              reminderMinute,
+              timezone: Push.getTimezone(),
             }),
           });
           Auth.setSession(data);
+
+          if (reminderEnabled) {
+            await Push.setupAfterSignup({ reminderEnabled, reminderHour, reminderMinute });
+          }
+
           window.location.href = "/";
         } catch (err) {
           errorEl.textContent = err.message;
