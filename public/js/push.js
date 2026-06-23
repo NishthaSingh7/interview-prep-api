@@ -216,27 +216,6 @@ const Push = {
     }
   },
 
-  async sendTestNotification() {
-    const { message, data } = await Auth.api("/api/v1/reminders/test", {
-      method: "POST",
-    });
-
-    const emailOk = data?.email?.ok;
-    const pushOk = data?.push?.ok;
-
-    if (pushOk) {
-      this.tryOsNotification("AfterHours — test", "Browser push test");
-    }
-
-    if (!emailOk && !pushOk) {
-      throw new Error(
-        data?.email?.error || data?.push?.error || "Could not send test reminder.",
-      );
-    }
-
-    return message;
-  },
-
   async checkClientReminder() {
     if (!Auth.isLoggedIn()) return;
 
@@ -293,7 +272,6 @@ const Push = {
     const timeEl = document.getElementById("prefReminderTime");
     const statusEl = document.getElementById("pushStatus");
     const saveBtn = document.getElementById("saveReminderBtn");
-    const testBtn = document.getElementById("testReminderBtn");
     const timeGroup = document.getElementById("reminderTimeGroup");
 
     if (!enabledEl || !timeEl || !saveBtn) return;
@@ -302,7 +280,6 @@ const Push = {
     enabledEl.checked = prefs.reminderEnabled;
     timeEl.value = this.formatTime(prefs.reminderHour, prefs.reminderMinute);
     statusEl.textContent = this.statusLabel(this.permissionStatus(), prefs);
-    if (testBtn) testBtn.hidden = !prefs.reminderEnabled;
 
     const syncTimeVisibility = () => {
       timeGroup.hidden = !enabledEl.checked;
@@ -332,27 +309,12 @@ const Push = {
         });
 
         statusEl.textContent = this.statusLabel(this.permissionStatus(), prefs);
-        if (testBtn) testBtn.hidden = !prefs.reminderEnabled;
       } catch (err) {
         statusEl.textContent = err.message;
       } finally {
         saveBtn.disabled = false;
       }
     });
-
-    if (testBtn) {
-      testBtn.addEventListener("click", async () => {
-        testBtn.disabled = true;
-        try {
-          const msg = await this.sendTestNotification();
-          statusEl.textContent = msg || "Test sent! Check your email inbox.";
-        } catch (err) {
-          statusEl.textContent = err.message;
-        } finally {
-          testBtn.disabled = false;
-        }
-      });
-    }
   },
 
   async savePreferencesAndReturn(prefs) {

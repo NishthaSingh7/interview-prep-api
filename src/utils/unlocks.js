@@ -2,8 +2,8 @@ const TOTAL_PROBLEMS = 300;
 const PROBLEMS_PER_PATTERN = 15;
 const FIRST_TIER_PATTERN_COUNT = 10;
 const FIRST_TIER_TOTAL = FIRST_TIER_PATTERN_COUNT * PROBLEMS_PER_PATTERN;
-const ADVANCED_PATTERNS_UNLOCK_RATIO = 0.5;
-const HARD_UNLOCK_RATIO = 0.25;
+const ADVANCED_PATTERNS_UNLOCK_RATIO = 0.7;
+const HARD_UNLOCK_RATIO = 0.15;
 
 const ADVANCED_PATTERNS_REQUIRED = Math.ceil(FIRST_TIER_TOTAL * ADVANCED_PATTERNS_UNLOCK_RATIO);
 const HARD_UNLOCK_REQUIRED = Math.ceil(TOTAL_PROBLEMS * HARD_UNLOCK_RATIO);
@@ -41,11 +41,11 @@ function isProblemLocked(problem, unlockState) {
 function getLockReason(problem, unlockState) {
   if (problem.difficulty === "Hard" && !unlockState.hardUnlocked) {
     const left = unlockState.hardUnlockRequired - unlockState.totalDone;
-    return `Complete ${left} more problem${left === 1 ? "" : "s"} (${unlockState.hardUnlockRequired} total, 25%) to unlock Hard`;
+    return `Complete ${left} more problem${left === 1 ? "" : "s"} (${unlockState.hardUnlockRequired} total, 15%) to unlock Hard`;
   }
   if (isAdvancedPattern(problem.patternId) && !unlockState.advancedPatternsUnlocked) {
     const left = unlockState.advancedPatternsRequired - unlockState.firstTierDone;
-    return `Complete ${left} more in patterns 1–10 (50%) to unlock this pattern`;
+    return `Complete ${left} more in patterns 1–10 (70%) to unlock this pattern`;
   }
   return "";
 }

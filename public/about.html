@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About — AfterHours</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>💻 About — AfterHours</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,12 +16,24 @@
   </head>
   <body data-page="about">
     <header class="site-header">
-      <a href="/" class="logo">
-        <div class="logo-mark">AH</div>
-        <div>
-          <h1>AfterHours</h1>
-          <p>grind after dark</p>
+      <a href="/" class="logo" aria-label="AfterHours — Progress Never Clocks Out.">
+        <div class="logo-mark" aria-hidden="true">
+          <svg class="logo-laptop" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="8" y="6" width="32" height="22" rx="2.5" stroke="currentColor" stroke-width="1.75" />
+            <rect x="10.5" y="8.5" width="27" height="17" rx="1.5" fill="#0d1117" />
+            <text x="24" y="14.8" text-anchor="middle" fill="currentColor" font-family="JetBrains Mono, monospace" font-size="8" font-weight="700">After</text>
+            <text x="24" y="22.5" text-anchor="middle" fill="currentColor" font-family="JetBrains Mono, monospace" font-size="8" font-weight="700">Hours</text>
+            <line x1="8" y1="28" x2="40" y2="28" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+            <path d="M5.5 28.5H42.5L45.5 35.5C45.5 36.3 44.8 37 44 37H4C3.2 37 2.5 36.3 2.5 35.5L5.5 28.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" />
+            <line x1="10" y1="30.5" x2="38" y2="30.5" stroke="currentColor" stroke-width="0.9" opacity="0.45" stroke-linecap="round" />
+            <line x1="12" y1="33" x2="36" y2="33" stroke="currentColor" stroke-width="0.9" opacity="0.35" stroke-linecap="round" />
+            <rect x="19" y="31.5" width="10" height="2.5" rx="1.25" stroke="currentColor" stroke-width="1" opacity="0.65" />
+          </svg>
         </div>
+        <p class="logo-tagline">
+          <span class="logo-tagline-line">Progress Never</span>
+          <span class="logo-tagline-line">Clocks Out.</span>
+        </p>
       </a>
       <nav class="site-nav" aria-label="Main">
         <a href="/" class="nav-link" data-nav="problems">Problems</a>
@@ -58,65 +71,144 @@
       </div>
     </header>
 
-    <main class="page-main about-main">
-      <div class="about-hero panel">
-        <h2>Built for developers who grind after dark</h2>
-        <p class="about-lead">
-          AfterHours is a focused interview prep tracker — 300 curated DSA problems across 20 patterns,
-          designed for people who prep when the day job is done.
-        </p>
-      </div>
+    <main class="about-main">
+      <div class="about-wrap">
+        <header class="about-hero panel">
+          <p class="about-eyebrow">Hey, I'm Nishtha</p>
+          <h2 class="about-title">You work all day.<br />You still want the offer.</h2>
+          <p class="about-lead">
+            AfterHours is for people like us — developers with a day job, a laptop open after dinner,
+            and a quiet goal: get interview-ready without burning out or losing track of what we've
+            already solved.
+          </p>
+          <div class="about-meta-row">
+            <span class="about-pill">300 problems</span>
+            <span class="about-pill">20 patterns</span>
+            <span class="about-pill">1 / night counts</span>
+          </div>
+        </header>
 
-      <div class="about-grid">
-        <section class="about-card panel">
-          <h3>Why I built this</h3>
-          <p>
-            I created AfterHours because most prep tools feel either too scattered or too generic.
-            I wanted one place to work through a structured pattern list, mark progress, and actually
-            come back the next night without losing momentum.
-          </p>
-          <p>
-            This isn't about grinding LeetCode blindly — it's about building pattern recognition,
-            tracking what you've solved, and revisiting problems when you need a refresh.
-          </p>
+        <section class="about-section">
+          <h3 class="about-heading">Why I built this</h3>
+          <div class="about-card panel">
+            <p>
+              I was tired of opening LeetCode, solving something, closing the tab, and forgetting where I
+              left off a week later. Spreadsheet trackers felt like homework. Big prep platforms felt
+              built for full-time students — not for someone grinding after standup and code reviews.
+            </p>
+            <blockquote class="about-quote">
+              I didn't need another 500-problem list. I needed one clear path, real progress I could see,
+              and a reason to show up tomorrow night.
+            </blockquote>
+            <p>
+              So I built AfterHours: a focused tracker around <strong>patterns</strong>, not random
+              problem hopping. Solve on LeetCode, come back here, check it off, and watch your streak
+              and badges grow. That's it. No noise.
+            </p>
+          </div>
         </section>
 
-        <section class="about-card panel">
-          <h3>What makes it different</h3>
-          <ul class="about-list">
-            <li><strong>20 patterns, 300 problems</strong> — LeetCode classics plus GFG, InterviewBit & more</li>
-            <li><strong>Progress that persists</strong> — streaks, breakdowns, and pattern-level stats</li>
-            <li><strong>Smart nudges</strong> — insights on what to solve next based on your gaps</li>
-            <li><strong>Motivation on every win</strong> — celebrate done and redo moments</li>
-            <li><strong>After-hours vibe</strong> — built for late-night sessions, not corporate dashboards</li>
-          </ul>
+        <section class="about-section">
+          <h3 class="about-heading">If this sounds like you</h3>
+          <div class="about-card-row">
+            <article class="about-mini-card panel">
+              <span class="about-mini-icon" aria-hidden="true">🌙</span>
+              <h4>After-office prep</h4>
+              <p>Your best window is 8pm–midnight, not guilt-filled weekends.</p>
+            </article>
+            <article class="about-mini-card panel">
+              <span class="about-mini-icon" aria-hidden="true">📋</span>
+              <h4>Lost progress</h4>
+              <p>You've solved problems but can't remember which patterns still feel shaky.</p>
+            </article>
+            <article class="about-mini-card panel">
+              <span class="about-mini-icon" aria-hidden="true">🎯</span>
+              <h4>One clear path</h4>
+              <p>Sliding Window today, Two Pointers tomorrow — not endless scrolling.</p>
+            </article>
+          </div>
         </section>
 
-        <section class="about-card panel">
-          <h3>How to use it</h3>
+        <section class="about-section">
+          <h3 class="about-heading">One night, three steps</h3>
           <ol class="about-steps">
-            <li>Create an account and pick a pattern from the sidebar</li>
-            <li>Solve on LeetCode, then mark problems done as you finish</li>
-            <li>Check your <a href="/progress.html">Progress</a> page for streaks and weak spots</li>
-            <li>Uncheck problems when you want to redo them — we'll cheer you on</li>
+            <li class="about-step-card panel">
+              <span class="about-step-num">1</span>
+              <h4>Pick one pattern</h4>
+              <p>Choose what's unlocked. One problem is enough.</p>
+            </li>
+            <li class="about-step-card panel">
+              <span class="about-step-num">2</span>
+              <h4>Solve it for real</h4>
+              <p>Think it through on LeetCode — struggle is where learning happens.</p>
+            </li>
+            <li class="about-step-card panel">
+              <span class="about-step-num">3</span>
+              <h4>Mark it done here</h4>
+              <p>Check it off. Streak updated. Sleep proud.</p>
+            </li>
           </ol>
         </section>
 
-        <section class="about-card panel about-cta-card">
-          <h3>Ready to start?</h3>
-          <p>Your progress only counts when you're signed in. One problem tonight is enough to begin.</p>
-          <div class="about-cta-actions">
-            <a href="/" class="btn btn-primary">Browse problems</a>
-            <a href="/signup.html" class="btn btn-ghost" id="aboutSignupBtn">Create account</a>
+        <section class="about-section">
+          <h3 class="about-heading">What's inside</h3>
+          <div class="about-features">
+            <article class="about-feature-card panel">
+              <span class="about-feature-tag">Patterns</span>
+              <p>20 interview-critical patterns, 300 curated problems.</p>
+            </article>
+            <article class="about-feature-card panel">
+              <span class="about-feature-tag">Progress</span>
+              <p>Streaks, charts, and pattern-level breakdowns.</p>
+            </article>
+            <article class="about-feature-card panel">
+              <span class="about-feature-tag">Badges</span>
+              <p>Milestones at 10, 25, 45, 75, and 100 solves.</p>
+            </article>
+            <article class="about-feature-card panel">
+              <span class="about-feature-tag">Reminders</span>
+              <p>Daily email nudge at your chosen time.</p>
+            </article>
+            <article class="about-feature-card panel">
+              <span class="about-feature-tag">Unlocks</span>
+              <p>Hard problems open as you progress — no day-one overwhelm.</p>
+            </article>
+            <article class="about-feature-card panel">
+              <span class="about-feature-tag">Redo mode</span>
+              <p>Uncheck problems when you want to revisit them.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="about-close-row">
+          <div class="about-founder-card panel">
+            <p class="about-founder-kicker">A note from me</p>
+            <p>
+              Interview prep can feel lonely when everyone around you has clocked out. If you're
+              reading this after a long day and still choosing to improve — I see you. This tool is for you.
+            </p>
+            <p class="about-founder-sign">— Nishtha Singh</p>
+          </div>
+          <div class="about-cta-card panel">
+            <h3>Your first problem tonight?</h3>
+            <p>One solve counts. The streak starts with one checkmark.</p>
+            <div class="about-cta-actions">
+              <a href="/" class="btn btn-primary">Browse problems</a>
+              <a href="/signup.html" class="btn btn-ghost" id="aboutSignupBtn">Create account</a>
+            </div>
           </div>
         </section>
       </div>
     </main>
 
     <footer class="site-footer">
-      <p>Built by Nishtha Singh · © 2026</p>
+      <div class="footer-inner">
+        <p class="footer-credit">Built by Nishtha Singh · © 2026</p>
+        <nav class="footer-social" aria-label="Social links"></nav>
+      </div>
     </footer>
 
+    <script src="/js/footer.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/nav.js"></script>
     <script>

@@ -22,6 +22,155 @@ function barRow(label, done, total, colorClass = "") {
     </div>`;
 }
 
+function donutChart(segments, options = {}) {
+  const size = options.size || 140;
+  const stroke = options.stroke || 14;
+  const radius = (size - stroke) / 2;
+  const cx = size / 2;
+  const cy = size / 2;
+  const circumference = 2 * Math.PI * radius;
+  const total = segments.reduce((sum, seg) => sum + seg.value, 0);
+  const centerLabel = options.centerLabel ?? "";
+  const centerSub = options.centerSub ?? "";
+
+  if (!total) {
+    return `
+      <div class="chart-donut" style="--chart-size: ${size}px">
+        <svg viewBox="0 0 ${size} ${size}" class="chart-donut-svg" aria-hidden="true">
+          <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" class="chart-donut-track" stroke-width="${stroke}" />
+        </svg>
+        <div class="chart-donut-center">
+          <span class="chart-donut-value">${escapeHtml(String(centerLabel))}</span>
+          ${centerSub ? `<span class="chart-donut-sub">${escapeHtml(centerSub)}</span>` : ""}
+        </div>
+      </div>`;
+  }
+
+  let accumulated = 0;
+  const arcs = segments
+    .filter((seg) => seg.value > 0)
+    .map((seg) => {
+      const fraction = seg.value / total;
+      const dash = fraction * circumference;
+      const dashOffset = -accumulated * circumference;
+      accumulated += fraction;
+      const linecap = segments.length > 1 ? "butt" : "round";
+      return `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" class="chart-donut-seg ${seg.className}" stroke-width="${stroke}" stroke-linecap="${linecap}" stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${dashOffset}" />`;
+    })
+    .join("");
+
+  return `
+    <div class="chart-donut" style="--chart-size: ${size}px">
+      <svg viewBox="0 0 ${size} ${size}" class="chart-donut-svg" aria-hidden="true">
+        <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" class="chart-donut-track" stroke-width="${stroke}" />
+        ${arcs}
+      </svg>
+      <div class="chart-donut-center">
+        <span class="chart-donut-value">${escapeHtml(String(centerLabel))}</span>
+        ${centerSub ? `<span class="chart-donut-sub">${escapeHtml(centerSub)}</span>` : ""}
+      </div>
+    </div>`;
+}
+
+function chartLegend(items) {
+  return `
+    <ul class="chart-legend">
+      ${items
+        .map(
+          (item) => `
+        <li class="chart-legend-item">
+          <span class="chart-legend-swatch ${item.className}"></span>
+          <span class="chart-legend-label">${escapeHtml(item.label)}</span>
+          <span class="chart-legend-value">${item.value}</span>
+        </li>`,
+        )
+        .join("")}
+    </ul>`;
+}
+
+function activityChart(completedDates, days = 14) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const buckets = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    buckets.push({ time: d.getTime(), count: 0, label: d.toLocaleDateString(undefined, { weekday: "narrow" }) });
+  }
+
+  for (const dateStr of completedDates) {
+    if (!dateStr) continue;
+    const d = new Date(dateStr);
+    d.setHours(0, 0, 0, 0);
+    const bucket = buckets.find((b) => b.time === d.getTime());
+    if (bucket) bucket.count += 1;
+  }
+
+  const max = Math.max(...buckets.map((b) => b.count), 1);
+  const bars = buckets
+    .map((b) => {
+      const height = b.count ? Math.max(12, Math.round((b.count / max) * 100)) : 4;
+      const title = `${b.count} solved`;
+      return `
+        <div class="activity-bar-col" title="${title}">
+          <span class="activity-bar-count">${b.count || ""}</span>
+          <div class="activity-bar" style="height: ${height}%">
+            <div class="activity-bar-fill${b.count ? "" : " activity-bar-empty"}"></div>
+          </div>
+          <span class="activity-bar-label">${b.label}</span>
+        </div>`;
+    })
+    .join("");
+
+  const weekTotal = buckets.reduce((sum, b) => sum + b.count, 0);
+
+  return `
+    <div class="activity-chart">
+      <div class="activity-bars">${bars}</div>
+      <p class="chart-caption">${weekTotal} problem${weekTotal === 1 ? "" : "s"} in the last ${days} days</p>
+    </div>`;
+}
+
+function patternStackedBar(patterns, patternDone) {
+  const segments = patterns
+    .map((p) => ({ name: p.name, value: patternDone[p._id] || 0 }))
+    .filter((s) => s.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  const total = segments.reduce((sum, s) => sum + s.value, 0);
+  if (!total) {
+    return `<div class="stacked-bar stacked-bar-empty"><span>No pattern data yet</span></div>`;
+  }
+
+  const palette = ["seg-1", "seg-2", "seg-3", "seg-4", "seg-5", "seg-6", "seg-7", "seg-8"];
+  const chunks = segments
+    .map((seg, i) => {
+      const width = (seg.value / total) * 100;
+      return `<div class="stacked-bar-seg ${palette[i % palette.length]}" style="width: ${width}%" title="${escapeHtml(seg.name)}: ${seg.value}"></div>`;
+    })
+    .join("");
+
+  const legend = segments
+    .slice(0, 6)
+    .map((seg, i) => {
+      const width = (seg.value / total) * 100;
+      return `
+        <div class="stacked-legend-item">
+          <span class="stacked-legend-swatch ${palette[i % palette.length]}"></span>
+          <span class="stacked-legend-name">${escapeHtml(seg.name)}</span>
+          <span class="stacked-legend-pct">${Math.round(width)}%</span>
+        </div>`;
+    })
+    .join("");
+
+  return `
+    <div class="stacked-bar-wrap">
+      <div class="stacked-bar" role="img" aria-label="Pattern distribution">${chunks}</div>
+      <div class="stacked-legend">${legend}</div>
+    </div>`;
+}
+
 async function loadDashboard() {
   const container = document.getElementById("progressDashboard");
   if (!container) return;
@@ -90,8 +239,23 @@ async function loadDashboard() {
           .join("")
       : '<li class="recent-empty">No problems completed yet — your first win goes here.</li>';
 
+    const difficultySegments = [
+      { value: byDifficulty.Easy || 0, className: "chart-seg-easy", label: "Easy" },
+      { value: byDifficulty.Medium || 0, className: "chart-seg-medium", label: "Medium" },
+      { value: byDifficulty.Hard || 0, className: "chart-seg-hard", label: "Hard" },
+    ];
+    const difficultyTotal = difficultySegments.reduce((sum, s) => sum + s.value, 0);
+
     container.innerHTML = `
       <div class="progress-hero panel">
+        <div class="progress-hero-visual">
+          ${donutChart([{ value: totalDone, className: "chart-seg-accent" }, { value: Math.max(Insights.TOTAL_PROBLEMS - totalDone, 0), className: "chart-seg-muted" }], {
+            size: 160,
+            stroke: 16,
+            centerLabel: `${overallPct}%`,
+            centerSub: "complete",
+          })}
+        </div>
         <div class="progress-hero-main">
           <p class="progress-greeting">Hey ${escapeHtml(user?.name || "there")}</p>
           <div class="progress-ring-large">
@@ -136,6 +300,31 @@ async function loadDashboard() {
         </div>
       </div>
 
+      <div class="charts-grid">
+        <div class="stats-card panel chart-card">
+          <h3>Activity · last 14 days</h3>
+          ${activityChart(completedDates, 14)}
+        </div>
+        <div class="stats-card panel chart-card">
+          <h3>Difficulty mix</h3>
+          <div class="chart-card-body chart-card-donut">
+            ${donutChart(difficultySegments, {
+              size: 130,
+              stroke: 14,
+              centerLabel: difficultyTotal,
+              centerSub: "solved",
+            })}
+            ${chartLegend(
+              difficultySegments.map((seg) => ({
+                className: seg.className.replace("chart-seg-", "chart-legend-"),
+                label: seg.label,
+                value: seg.value,
+              })),
+            )}
+          </div>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stats-card panel">
           <h3>By difficulty</h3>
@@ -151,6 +340,9 @@ async function loadDashboard() {
 
       <div class="stats-card panel pattern-breakdown">
         <h3>By pattern</h3>
+        <div class="pattern-chart-intro">
+          ${patternStackedBar(patterns, patternDone)}
+        </div>
         <div class="pattern-bars">${patternBars}</div>
       </div>`;
   } catch (err) {

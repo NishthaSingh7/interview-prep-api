@@ -1,4 +1,5 @@
 const Pattern = require("../models/pattern.model");
+const Problem = require("../models/problem.model");
 
 const createPattern = async (req, res) => {
   try {
@@ -11,8 +12,19 @@ const createPattern = async (req, res) => {
 
 const getPatterns = async (req, res) => {
   try {
-    const patterns = await Pattern.find().sort({ order: 1 });
-    res.status(200).json({ success: true, count: patterns.length, data: patterns });
+    const [patterns, counts] = await Promise.all([
+      Pattern.find().sort({ order: 1 }).lean(),
+      Problem.aggregate([{ $group: { _id: "$patternId", problemCount: { $sum: 1 } } }]),
+    ]);
+
+    const countByPattern = new Map(counts.map((row) => [String(row._id), row.problemCount]));
+
+    const data = patterns.map((pattern) => ({
+      ...pattern,
+      problemCount: countByPattern.get(String(pattern._id)) || 0,
+    }));
+
+    res.status(200).json({ success: true, count: data.length, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

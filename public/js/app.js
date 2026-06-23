@@ -13,6 +13,7 @@ const state = {
   patternTotals: {},
   patternDone: {},
   unlockState: null,
+  progressEntries: [],
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -28,12 +29,22 @@ function difficultyClass(d) {
   return d.toLowerCase();
 }
 
+function getTotalDone() {
+  return Object.values(state.patternDone).reduce((a, b) => a + b, 0);
+}
+
+function updateMilestones(prevCount) {
+  if (typeof Milestones === "undefined") return;
+  Milestones.update(getTotalDone(), prevCount);
+}
+
 function updateAuthUI() {
   const loggedIn = Auth.isLoggedIn();
   $("#loginPrompt").hidden = loggedIn;
   $("#progressNumbers").hidden = !loggedIn;
   $("#progressBarWrap").hidden = !loggedIn;
   $("#homeProgressMini").hidden = !loggedIn;
+  $("#milestonePanel").hidden = !loggedIn;
 
   if (loggedIn) {
     $("#progressText").textContent = "Your progress is saved to your account";
@@ -53,6 +64,10 @@ function updateAuthUI() {
 async function loadPatterns() {
   const { data } = await api("/api/v1/patterns");
   state.patterns = data;
+
+  for (const p of data) {
+    state.patternTotals[p._id] = p.problemCount ?? Unlocks.PROBLEMS_PER_PATTERN;
+  }
 
   const list = $("#patternList");
   data.forEach((p) => {
@@ -80,17 +95,11 @@ function updateAllPatternCount() {
   }
 }
 
-async function loadPatternTotals() {
-  for (const p of state.patterns) {
-    const { total } = await api(`/api/v1/problems?patternId=${p._id}&limit=1`);
-    state.patternTotals[p._id] = total;
-  }
-}
-
 async function loadProgress() {
   if (!Auth.isLoggedIn()) {
     state.progressMap.clear();
     state.patternDone = {};
+    state.progressEntries = [];
     updateProgressUI();
     return;
   }
@@ -99,6 +108,7 @@ async function loadProgress() {
     const { data } = await api("/api/v1/progress?status=done");
     state.progressMap.clear();
     state.patternDone = {};
+    state.progressEntries = data;
 
     data.forEach((entry) => {
       const problem = entry.problemId;
@@ -115,7 +125,8 @@ async function loadProgress() {
     updateProgressUI();
     refreshPatternCounts();
     updateUnlockState();
-    await loadHomeInsights();
+    if (state.problems.length) renderProblems();
+    loadHomeInsights();
   } catch {
     Auth.clearSession();
     updateAuthUI();
@@ -141,16 +152,19 @@ function renderUnlockBanners() {
   const u = state.unlockState;
   const parts = [];
 
+  const hardPct = Math.round(Unlocks.HARD_UNLOCK_RATIO * 100);
+  const tierPct = Math.round(Unlocks.ADVANCED_PATTERNS_UNLOCK_RATIO * 100);
+
   if (!u.hardUnlocked) {
     const left = u.hardUnlockRequired - u.totalDone;
     parts.push(
-      `<div class="unlock-banner"><span class="lock-icon">🔒</span> Hard problems unlock at 25% (${u.hardUnlockRequired}/${Unlocks.TOTAL_PROBLEMS}) — <strong>${left} to go</strong></div>`,
+      `<div class="unlock-banner"><span class="lock-icon">🔒</span> Hard problems unlock at ${hardPct}% (${u.hardUnlockRequired}/${Unlocks.TOTAL_PROBLEMS}) — <strong>${left} to go</strong></div>`,
     );
   }
   if (!u.advancedPatternsUnlocked) {
     const left = u.advancedPatternsRequired - u.firstTierDone;
     parts.push(
-      `<div class="unlock-banner"><span class="lock-icon">🔒</span> Patterns 11–20 unlock at 50% of tier 1 — <strong>${left} more in patterns 1–10</strong></div>`,
+      `<div class="unlock-banner"><span class="lock-icon">🔒</span> Patterns 11–20 unlock at ${tierPct}% of tier 1 — <strong>${left} more in patterns 1–10</strong></div>`,
     );
   }
 
@@ -182,7 +196,7 @@ function practiceLinkHtml(problem) {
   const source = problem.source || (problem.leetcodeLink ? "LeetCode" : "Practice");
   return `<a href="${url}" target="_blank" rel="noopener" class="link-btn">${escapeHtml(source)} ↗</a>`;
 }
-function updateProgressUI() {
+function updateProgressUI(milestonePrevCount) {
   if (!Auth.isLoggedIn()) return;
 
   let done;
@@ -192,7 +206,7 @@ function updateProgressUI() {
     done = state.patternDone[state.patternId] || 0;
     total = state.patternTotals[state.patternId] || state.total;
   } else {
-    done = Object.values(state.patternDone).reduce((a, b) => a + b, 0);
+    done = getTotalDone();
     total = Unlocks.TOTAL_PROBLEMS;
   }
 
@@ -201,18 +215,16 @@ function updateProgressUI() {
   $("#statTotal").textContent = total;
   $("#statPct").textContent = `${percent}% complete`;
   $("#progressBar").style.width = `${percent}%`;
+
+  updateMilestones(milestonePrevCount);
 }
 
 async function loadHomeInsights() {
   if (!Auth.isLoggedIn()) return;
 
   try {
-    const [{ data: stats }, { data: progressEntries }] = await Promise.all([
-      api("/api/v1/progress/stats"),
-      api("/api/v1/progress?status=done"),
-    ]);
-
-    const dates = progressEntries.map((e) => e.completedAt || e.updatedAt);
+    const { data: stats } = await api("/api/v1/progress/stats");
+    const dates = state.progressEntries.map((e) => e.completedAt || e.updatedAt);
     const streak = Insights.computeStreak(dates);
     const insight = Insights.getInsightMessage(stats, streak);
     const streakText = streak > 0 ? `${streak}-day streak · ` : "";
@@ -349,6 +361,7 @@ function renderPagination() {
 async function toggleProgress(checkbox) {
   const problemId = checkbox.dataset.id;
   const isChecked = checkbox.checked;
+  const prevDone = getTotalDone();
 
   try {
     if (isChecked) {
@@ -389,7 +402,7 @@ async function toggleProgress(checkbox) {
       }
     }
 
-    updateProgressUI();
+    updateProgressUI(isChecked ? prevDone : undefined);
     refreshPatternCounts();
     updateUnlockState();
     renderProblems();
@@ -469,6 +482,7 @@ async function init() {
     onLogout: () => {
       state.progressMap.clear();
       state.patternDone = {};
+      state.progressEntries = [];
     },
   });
   updateAuthUI();
@@ -476,14 +490,18 @@ async function init() {
     Push.startClientReminderChecker();
   }
   try {
-    await loadPatterns();
-    await loadPatternTotals();
-    await loadProgress();
+    const hasPatternParam = new URLSearchParams(window.location.search).get("pattern");
+
+    await Promise.all([
+      loadPatterns(),
+      Auth.isLoggedIn() ? loadProgress() : Promise.resolve(),
+      hasPatternParam ? Promise.resolve() : loadProblems(),
+    ]);
+
     updateUnlockState();
+    refreshPatternCounts();
+    if (state.problems.length) renderProblems();
     selectPatternFromUrl();
-    if (!new URLSearchParams(window.location.search).get("pattern")) {
-      await loadProblems();
-    }
   } catch (err) {
     $("#problemsContainer").innerHTML = `<div class="empty-state">Failed to load: ${escapeHtml(err.message)}</div>`;
   }
