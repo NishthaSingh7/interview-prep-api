@@ -204,16 +204,18 @@ async function loadDashboard() {
       if (pid) patternDone[pid] = (patternDone[pid] || 0) + 1;
     }
 
+    const patternTotals = Insights.patternTotalsFromList(patterns);
     const completedDates = progressEntries.map((e) => e.completedAt || e.updatedAt);
     const streak = Insights.computeStreak(completedDates);
-    const weakest = Insights.getWeakestPattern(patterns, patternDone);
+    const weakest = Insights.getWeakestPattern(patterns, patternDone, patternTotals);
     const insight = Insights.getInsightMessage(stats, streak);
     const nextUp = Insights.getNextUpSuggestion(weakest);
 
     const patternBars = patterns
       .map((p) => {
         const done = patternDone[p._id] || 0;
-        return barRow(p.name, done, Unlocks.PROBLEMS_PER_PATTERN);
+        const total = patternTotals[p._id] || Unlocks.PROBLEMS_PER_PATTERN;
+        return barRow(p.name, done, total);
       })
       .join("");
 

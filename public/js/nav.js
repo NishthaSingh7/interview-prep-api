@@ -65,13 +65,13 @@ const Nav = {
       progressLink.addEventListener("click", (e) => {
         if (!Auth.isLoggedIn()) {
           e.preventDefault();
-          window.location.href = "/login.html?next=progress";
+          window.location.href = "/login?next=progress";
         }
       });
     }
   },
 
-  requireAuth(redirectTo = "/login.html") {
+  requireAuth(redirectTo = "/login") {
     if (!Auth.isLoggedIn()) {
       const next = encodeURIComponent(window.location.pathname);
       window.location.href = `${redirectTo}?next=${next}`;

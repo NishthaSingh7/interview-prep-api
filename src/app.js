@@ -25,11 +25,22 @@ app.use("/api/v1/reminders", reminderRoutes);
 
 // Static UI is served on Netlify in production; keep local/Railway fallback.
 if (process.env.SERVE_STATIC !== "false") {
-  app.use(express.static(path.join(__dirname, "../public")));
+  const publicDir = path.join(__dirname, "../public");
+  app.use(express.static(publicDir));
 
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../public/index.html"));
-  });
+  const htmlPages = [
+    ["/", "index.html"],
+    ["/about", "about.html"],
+    ["/progress", "progress.html"],
+    ["/login", "login.html"],
+    ["/signup", "signup.html"],
+  ];
+
+  for (const [route, file] of htmlPages) {
+    app.get(route, (req, res) => {
+      res.sendFile(path.join(publicDir, file));
+    });
+  }
 }
 
 app.use(errorHandler);

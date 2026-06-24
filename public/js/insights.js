@@ -32,13 +32,16 @@ const Insights = {
     return streak;
   },
 
-  getWeakestPattern(patterns, patternDone) {
+  getWeakestPattern(patterns, patternDone, patternTotals = {}) {
     let weakest = null;
     let lowestRatio = 2;
 
     for (const pattern of patterns) {
       const done = patternDone[pattern._id] || 0;
-      const total = 10;
+      const total =
+        patternTotals[pattern._id] ?? pattern.problemCount ?? Unlocks?.PROBLEMS_PER_PATTERN ?? 15;
+      if (total <= 0 || done >= total) continue;
+
       const ratio = done / total;
       if (ratio < lowestRatio) {
         lowestRatio = ratio;
@@ -47,6 +50,14 @@ const Insights = {
     }
 
     return weakest;
+  },
+
+  patternTotalsFromList(patterns) {
+    const totals = {};
+    for (const pattern of patterns) {
+      totals[pattern._id] = pattern.problemCount ?? Unlocks?.PROBLEMS_PER_PATTERN ?? 15;
+    }
+    return totals;
   },
 
   getInsightMessage(stats, streak) {

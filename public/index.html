@@ -4,7 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>AfterHours</title>
+    <title>AfterHours — Late-night interview prep</title>
+    <meta
+      name="description"
+      content="300 DSA problems across 20 patterns. Track progress, unlock milestones, and grind after dark with AfterHours — free interview prep for developers with a day job."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AfterHours" />
+    <meta property="og:title" content="AfterHours — Progress Never Clocks Out" />
+    <meta
+      property="og:description"
+      content="300 problems · 20 patterns · free. Track your grind, learn each pattern, and prep for interviews after hours."
+    />
+    <meta property="og:url" content="https://afterhours-interview-prep.netlify.app/" />
+    <meta property="og:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="AfterHours — Late-night interview prep" />
+    <meta
+      name="twitter:description"
+      content="300 problems · 20 patterns · free. Track progress and grind after dark."
+    />
+    <meta name="twitter:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -37,8 +57,8 @@
       </a>
       <nav class="site-nav" aria-label="Main">
         <a href="/" class="nav-link" data-nav="problems">Problems</a>
-        <a href="/progress.html" class="nav-link" data-nav="progress">Progress</a>
-        <a href="/about.html" class="nav-link" data-nav="about">About</a>
+        <a href="/progress" class="nav-link" data-nav="progress">Progress</a>
+        <a href="/about" class="nav-link" data-nav="about">About</a>
       </nav>
       <div class="header-actions">
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
@@ -58,8 +78,8 @@
           </svg>
         </button>
         <div id="guestNav" class="nav-links">
-          <a href="/login.html" class="btn btn-ghost">Log in</a>
-          <a href="/signup.html" class="btn btn-primary">Sign up</a>
+          <a href="/login" class="btn btn-ghost">Log in</a>
+          <a href="/signup" class="btn btn-primary">Sign up</a>
         </div>
         <div id="userNav" class="nav-links" hidden>
           <div class="user-chip">
@@ -109,7 +129,7 @@
             </div>
             <div id="homeProgressMini" class="home-progress-mini" hidden>
               <span id="homeInsight" class="home-insight"></span>
-              <a href="/progress.html" class="progress-link">Full progress →</a>
+              <a href="/progress" class="progress-link">Full progress →</a>
             </div>
           </div>
 
@@ -122,6 +142,27 @@
             <div id="milestoneNext" class="milestone-next"></div>
           </div>
         </div>
+
+        <section id="continueSession" class="continue-session panel" hidden>
+          <div class="continue-session-head">
+            <p class="continue-kicker">Continue where you left off</p>
+          </div>
+          <p id="continueSessionDetail" class="continue-session-detail"></p>
+          <p class="continue-session-hint">Your filters were restored from your last visit.</p>
+        </section>
+
+        <section id="tonightsProblem" class="tonights-problem panel" hidden>
+          <div class="tonights-problem-head">
+            <p class="tonights-kicker">Tonight&rsquo;s problem</p>
+            <span id="tonightsReason" class="tonights-reason"></span>
+          </div>
+          <h3 id="tonightsTitle" class="tonights-title"></h3>
+          <p id="tonightsMeta" class="tonights-meta"></p>
+          <div class="tonights-actions">
+            <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
+            <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm">Another pick</button>
+          </div>
+        </section>
 
         <div id="unlockBanners" class="unlock-banners" hidden></div>
 
@@ -147,11 +188,15 @@
           </div>
         </div>
 
-        <div id="loginPrompt" class="login-banner panel" hidden>
-          <p>
-            <a href="/login.html">Sign in</a> to mark problems complete and track progress across
-            sessions.
-          </p>
+        <div id="loginPrompt" class="guest-cta panel" hidden>
+          <div class="guest-cta-copy">
+            <p class="guest-cta-headline">300 problems · 20 patterns · free</p>
+            <p class="guest-cta-text">Sign up to save progress and sync across devices.</p>
+          </div>
+          <div class="guest-cta-actions">
+            <a href="/signup" class="btn btn-primary btn-sm">Sign up free</a>
+            <a href="/login" class="btn btn-ghost btn-sm">Log in</a>
+          </div>
         </div>
 
         <div id="problemsContainer">

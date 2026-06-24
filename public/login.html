@@ -74,7 +74,7 @@
         </form>
 
         <p class="auth-switch">
-          No account yet? <a href="/signup.html">Sign up</a>
+          No account yet? <a href="/signup">Sign up</a>
         </p>
       </div>
     </div>
@@ -107,7 +107,7 @@
           });
           Auth.setSession(data);
           const next = new URLSearchParams(window.location.search).get("next");
-          window.location.href = next === "progress" ? "/progress.html" : "/";
+          window.location.href = next === "progress" ? "/progress" : "/";
         } catch (err) {
           errorEl.textContent = err.message;
           errorEl.hidden = false;

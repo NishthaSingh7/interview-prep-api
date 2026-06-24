@@ -14,7 +14,10 @@ const state = {
   patternDone: {},
   unlockState: null,
   progressEntries: [],
+  tonightShuffle: 0,
 };
+
+const SESSION_KEY = "afterhours_home_session";
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -49,7 +52,7 @@ function updateAuthUI() {
   if (loggedIn) {
     $("#progressText").textContent = "Your progress is saved to your account";
   } else {
-    $("#progressText").textContent = "Log in to track your progress";
+    $("#progressText").textContent = "300 problems · 20 patterns · free to browse";
   }
 
   Nav.updateAuthNav();
@@ -59,6 +62,194 @@ function updateAuthUI() {
       state.patternDone = {};
     },
   });
+}
+
+function persistSession() {
+  try {
+    localStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        patternId: state.patternId,
+        patternSlug: state.patternSlug,
+        difficulty: state.difficulty,
+        search: state.search,
+        page: state.page,
+      }),
+    );
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+function restoreSession() {
+  if (new URLSearchParams(window.location.search).get("pattern")) return false;
+
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    state.patternId = saved.patternId || "";
+    state.patternSlug = saved.patternSlug || "";
+    state.difficulty = saved.difficulty || "";
+    state.search = saved.search || "";
+    state.page = saved.page > 0 ? saved.page : 1;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function applySessionUI() {
+  const searchInput = $("#searchInput");
+  if (searchInput) searchInput.value = state.search;
+
+  $$("#difficultyFilters .filter-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.difficulty === state.difficulty);
+  });
+
+  $$(".pattern-btn").forEach((btn) => btn.classList.remove("active"));
+
+  if (state.patternSlug) {
+    const btn = document.querySelector(`.pattern-btn[data-slug="${state.patternSlug}"]`);
+    if (btn && !btn.disabled) {
+      btn.classList.add("active");
+      return;
+    }
+    state.patternId = "";
+    state.patternSlug = "";
+  }
+
+  const allBtn = document.querySelector('.pattern-btn[data-slug=""]');
+  if (allBtn) allBtn.classList.add("active");
+}
+
+function patternOrderForTonight() {
+  const weakest = Insights.getWeakestPattern(state.patterns, state.patternDone, state.patternTotals);
+  const ids = state.patterns.map((p) => p._id);
+  if (!weakest) return ids;
+
+  const rest = ids.filter((id) => id !== weakest.pattern._id);
+  if (state.tonightShuffle > 0) {
+    const offset = state.tonightShuffle % (rest.length + 1);
+    const rotated = [...rest.slice(offset), ...rest.slice(0, offset)];
+    return [weakest.pattern._id, ...rotated];
+  }
+  return [weakest.pattern._id, ...rest];
+}
+
+async function fetchTonightsProblem() {
+  if (!state.patterns.length) return null;
+
+  const unlock = state.unlockState || Unlocks.getClientState(state.patternDone, state.patterns);
+
+  if (Auth.isLoggedIn()) {
+    for (const pid of patternOrderForTonight()) {
+      const pattern = state.patterns.find((p) => p._id === pid);
+      if (!pattern) continue;
+      if (Unlocks.isAdvancedPattern(pattern) && !unlock.advancedPatternsUnlocked) continue;
+
+      const { data } = await api(`/api/v1/problems?patternId=${pid}&limit=50`);
+      const open = data.filter(
+        (p) => !state.progressMap.has(p._id) && !Unlocks.isProblemLocked(p, unlock),
+      );
+      if (!open.length) continue;
+
+      const weakest = Insights.getWeakestPattern(state.patterns, state.patternDone, state.patternTotals);
+      const pick =
+        state.tonightShuffle > 0
+          ? open[Math.floor(Math.random() * open.length)]
+          : open[0];
+      const done = state.patternDone[pid] || 0;
+      const total = state.patternTotals[pid] || Unlocks.PROBLEMS_PER_PATTERN;
+
+      return {
+        problem: pick,
+        reason:
+          weakest && pid === weakest.pattern._id
+            ? `Weakest pattern · ${done}/${total} done`
+            : `Next up · ${pattern.name}`,
+      };
+    }
+  }
+
+  const page = (state.tonightShuffle % 4) + 1;
+  const { data } = await api(`/api/v1/problems?difficulty=Easy&limit=50&page=${page}`);
+  const open = data.filter((p) => !Unlocks.isProblemLocked(p, unlock));
+  if (!open.length) return null;
+
+  const pick = open[Math.floor(Math.random() * open.length)];
+  return {
+    problem: pick,
+    reason: Auth.isLoggedIn()
+      ? "Random easy pick — patterns may be complete"
+      : "Warm-up pick · sign in to personalize",
+  };
+}
+
+function renderTonightsProblem(result) {
+  const panel = $("#tonightsProblem");
+  if (!panel) return;
+
+  if (!result?.problem) {
+    panel.hidden = true;
+    return;
+  }
+
+  const { problem, reason } = result;
+  const patternName = problem.patternId?.name || "—";
+  const url = problem.leetcodeLink || problem.practiceLink;
+  const source = problem.source || (problem.leetcodeLink ? "LeetCode" : "Practice");
+
+  $("#tonightsReason").textContent = reason;
+  $("#tonightsTitle").textContent = problem.title;
+  $("#tonightsMeta").textContent = `${problem.difficulty} · ${patternName}`;
+
+  const link = $("#tonightsLink");
+  if (url) {
+    link.href = url;
+    link.textContent = `Open on ${source} ↗`;
+    link.hidden = false;
+  } else {
+    link.hidden = true;
+  }
+
+  panel.hidden = false;
+}
+
+async function loadTonightsProblem() {
+  try {
+    const result = await fetchTonightsProblem();
+    renderTonightsProblem(result);
+  } catch {
+    $("#tonightsProblem").hidden = true;
+  }
+}
+
+function updateContinueSession(restored) {
+  const panel = $("#continueSession");
+  if (!panel) return;
+
+  if (!restored) {
+    panel.hidden = true;
+    return;
+  }
+
+  const parts = [];
+  if (state.patternSlug) {
+    const pattern = state.patterns.find((p) => p.slug === state.patternSlug);
+    parts.push(pattern?.name || "Pattern");
+  }
+  if (state.difficulty) parts.push(state.difficulty);
+  if (state.search) parts.push(`“${state.search}”`);
+  if (state.page > 1) parts.push(`Page ${state.page}`);
+
+  if (!parts.length) {
+    panel.hidden = true;
+    return;
+  }
+
+  $("#continueSessionDetail").textContent = parts.join(" · ");
+  panel.hidden = false;
 }
 
 async function loadPatterns() {
@@ -135,6 +326,7 @@ async function loadProgress() {
     updateUnlockState();
     if (state.problems.length) renderProblems();
     loadHomeInsights();
+    loadTonightsProblem();
   } catch {
     Auth.clearSession();
     updateAuthUI();
@@ -415,6 +607,7 @@ async function toggleProgress(checkbox) {
     updateUnlockState();
     renderProblems();
     loadHomeInsights();
+    loadTonightsProblem();
   } catch (err) {
     checkbox.checked = !isChecked;
     alert(err.message);
@@ -452,6 +645,7 @@ document.addEventListener("click", (e) => {
     state.patternId = patternBtn.dataset.id || "";
     state.patternSlug = patternBtn.dataset.slug || "";
     state.page = 1;
+    persistSession();
     loadProblems();
   }
 
@@ -461,8 +655,14 @@ document.addEventListener("click", (e) => {
     diffBtn.classList.add("active");
     state.difficulty = diffBtn.dataset.difficulty || "";
     state.page = 1;
+    persistSession();
     loadProblems();
   }
+});
+
+$("#tonightsShuffle")?.addEventListener("click", () => {
+  state.tonightShuffle += 1;
+  loadTonightsProblem();
 });
 
 $("#searchInput").addEventListener(
@@ -470,6 +670,7 @@ $("#searchInput").addEventListener(
   debounce((e) => {
     state.search = e.target.value.trim();
     state.page = 1;
+    persistSession();
     loadProblems();
   }, 350),
 );
@@ -477,6 +678,7 @@ $("#searchInput").addEventListener(
 $("#prevPage").addEventListener("click", () => {
   if (state.page > 1) {
     state.page--;
+    persistSession();
     loadProblems();
   }
 });
@@ -484,6 +686,7 @@ $("#prevPage").addEventListener("click", () => {
 $("#nextPage").addEventListener("click", () => {
   if (state.page < state.pages) {
     state.page++;
+    persistSession();
     loadProblems();
   }
 });
@@ -510,17 +713,26 @@ async function init() {
   }
   try {
     const hasPatternParam = new URLSearchParams(window.location.search).get("pattern");
+    const restoredSession = !hasPatternParam && restoreSession();
 
-    await Promise.all([
-      loadPatterns(),
-      Auth.isLoggedIn() ? loadProgress() : Promise.resolve(),
-      hasPatternParam ? Promise.resolve() : loadProblems(),
-    ]);
+    await loadPatterns();
+
+    if (restoredSession) applySessionUI();
+
+    if (Auth.isLoggedIn()) {
+      await loadProgress();
+    }
+
+    if (!hasPatternParam) {
+      await loadProblems();
+    }
 
     updateUnlockState();
     refreshPatternCounts();
     if (state.problems.length) renderProblems();
     selectPatternFromUrl();
+    updateContinueSession(restoredSession && !hasPatternParam);
+    await loadTonightsProblem();
   } catch (err) {
     $("#problemsContainer").innerHTML = `<div class="empty-state">Failed to load: ${escapeHtml(err.message)}</div>`;
   }

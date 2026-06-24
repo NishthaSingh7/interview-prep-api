@@ -131,7 +131,7 @@ You're getting this because you turned on daily reminders.
             <td style="padding:20px 32px;background-color:#0d1117;border-top:1px solid #30363d;">
               <p style="margin:0;font-size:12px;color:#6e7681;line-height:1.5;text-align:center;">
                 You're receiving this because you enabled daily reminders on AfterHours.<br />
-                <a href="${url}/progress.html" style="color:#f59e0b;text-decoration:none;">Manage reminder settings</a>
+                <a href="${url}/progress" style="color:#f59e0b;text-decoration:none;">Manage reminder settings</a>
               </p>
             </td>
           </tr>
