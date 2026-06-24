@@ -72,13 +72,21 @@ async function loadPatterns() {
   const list = $("#patternList");
   data.forEach((p) => {
     const li = document.createElement("li");
+    li.className = "pattern-item";
     const done = state.patternDone[p._id] || 0;
     const total = state.patternTotals[p._id] || Unlocks.PROBLEMS_PER_PATTERN;
     li.innerHTML = `
       <button class="pattern-btn" data-id="${p._id}" data-slug="${p.slug}">
         <span class="pattern-name">${escapeHtml(p.name)}</span>
         <span class="pattern-count">${Auth.isLoggedIn() ? `${done}/${total}` : total}</span>
-      </button>`;
+      </button>
+      <button
+        type="button"
+        class="pattern-info-btn"
+        data-slug="${p.slug}"
+        aria-label="About ${escapeHtml(p.name)}"
+        title="About ${escapeHtml(p.name)}"
+      >i</button>`;
     list.appendChild(li);
   });
 
@@ -426,6 +434,17 @@ function debounce(fn, ms) {
 }
 
 document.addEventListener("click", (e) => {
+  const infoBtn = e.target.closest(".pattern-info-btn");
+  if (infoBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const pattern = state.patterns.find((p) => p.slug === infoBtn.dataset.slug);
+    if (pattern && typeof PatternInfo !== "undefined") {
+      PatternInfo.open(pattern);
+    }
+    return;
+  }
+
   const patternBtn = e.target.closest(".pattern-btn");
   if (patternBtn && !patternBtn.disabled) {
     $$(".pattern-btn").forEach((b) => b.classList.remove("active"));

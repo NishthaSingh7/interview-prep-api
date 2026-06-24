@@ -421,6 +421,49 @@ a:hover {
   gap: 2px;
 }
 
+.pattern-item {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.pattern-item .pattern-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.pattern-info-btn {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--muted);
+  font-family: var(--font);
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.pattern-info-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.pattern-info-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .pattern-btn {
   width: 100%;
   display: flex;
@@ -2524,6 +2567,392 @@ body.motivation-open {
   box-shadow: var(--shadow);
   animation: motivationSlideUp 0.25s ease;
   border-top: 3px solid var(--accent);
+}
+
+.pattern-info-dialog {
+  width: min(480px, 100%);
+  max-height: min(85vh, 640px);
+  overflow-y: auto;
+  padding: 1.5rem 1.5rem 1.25rem;
+}
+
+.pattern-info-close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pattern-info-close:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.pattern-info-kicker {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
+}
+
+.pattern-info-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  padding-right: 1.5rem;
+}
+
+.pattern-info-summary {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+
+.pattern-info-diagram {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+}
+
+.pattern-info-diagram[hidden] {
+  display: none !important;
+}
+
+.pattern-diagram-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pattern-info-diagram .pd-caption {
+  fill: var(--muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+.pattern-info-diagram .pd-note,
+.pattern-info-diagram .pd-label,
+.pattern-info-diagram .pd-idx,
+.pattern-info-diagram .pd-val {
+  fill: var(--text-secondary);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.pattern-info-diagram .pd-accent-text {
+  fill: var(--accent);
+  font-weight: 700;
+}
+
+.pattern-info-diagram .pd-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.2;
+}
+
+.pattern-info-diagram .pd-cell.pd-accent,
+.pattern-info-diagram .pd-cell.pd-wrong {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.pattern-info-diagram .pd-window {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.pattern-info-diagram .pd-pointer {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.pattern-info-diagram .pd-arrow {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.2;
+}
+
+.pattern-info-diagram .pd-arrow-head {
+  fill: var(--muted);
+}
+
+.pattern-info-diagram .pd-node {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.pattern-info-diagram .pd-node.pd-accent {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.pattern-info-diagram .pd-edge {
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.pattern-info-diagram .pd-edge.pd-accent-edge {
+  stroke: var(--accent);
+}
+
+.pattern-info-diagram .pd-cycle {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 2;
+}
+
+.pattern-info-diagram .pd-dot.pd-slow {
+  fill: #3b82f6;
+}
+
+.pattern-info-diagram .pd-dot.pd-fast {
+  fill: var(--accent);
+}
+
+.pattern-info-diagram .pd-interval {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+
+.pattern-info-diagram .pd-interval.pd-overlap {
+  fill: rgba(217, 119, 6, 0.28);
+}
+
+.pattern-info-diagram .pd-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.pattern-info-diagram .pd-swap {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+
+.pattern-info-diagram .pd-grid {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.pattern-info-diagram .pd-water {
+  fill: var(--surface-muted);
+  stroke: var(--border);
+  stroke-width: 0.5;
+}
+
+.pattern-info-diagram .pd-land {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 0.5;
+}
+
+.pattern-info-diagram .pd-land.pd-accent {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.pattern-info-diagram .pd-heap {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+
+.pattern-info-diagram .pd-median {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.pattern-info-diagram .pd-heap-box,
+.pattern-info-diagram .pd-list {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.pattern-info-diagram .pd-bracket {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+
+.pattern-info-diagram .pd-strike {
+  stroke: var(--hard);
+  stroke-width: 1.2;
+}
+
+.pattern-info-diagram .pd-grid-line {
+  stroke: var(--border);
+  stroke-width: 0.8;
+}
+
+.pattern-info-diagram .pd-cell.pd-dim {
+  opacity: 0.55;
+}
+
+.pattern-info-diagram .pd-bar {
+  fill: var(--surface-muted);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.pattern-info-diagram .pd-bar.pd-accent {
+  fill: var(--accent-soft);
+  stroke: var(--accent);
+}
+
+.pattern-info-diagram .pd-check {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pattern-info-diagram .pd-path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pattern-info-section {
+  margin-bottom: 0.9rem;
+  padding-top: 0.15rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.pattern-info-section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.pattern-info-section h3 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.4rem;
+}
+
+.pattern-info-section p {
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.pattern-info-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.pattern-info-list li + li {
+  margin-top: 0.35rem;
+}
+
+.pattern-info-tips {
+  list-style: disc;
+}
+
+.pattern-info-disguises {
+  list-style: none;
+  padding-left: 0;
+}
+
+.pattern-disguise-item {
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  border: 1px solid var(--border-light);
+}
+
+.pattern-disguise-item + .pattern-disguise-item {
+  margin-top: 0.45rem;
+}
+
+.pattern-disguise-asks,
+.pattern-disguise-maps {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.pattern-disguise-maps {
+  margin-top: 0.3rem;
+  color: var(--text);
+}
+
+.pattern-disguise-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.pattern-info-disguises li {
+  font-style: normal;
+}
+
+.pattern-pseudocode {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.pattern-pseudocode code {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre;
+  display: block;
+}
+
+.pattern-info-complexity {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: 0.25rem 0 1rem;
+}
+
+[data-theme="light"] .pattern-info-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+[data-theme="light"] .pattern-info-btn:hover {
+  color: var(--accent);
 }
 
 @keyframes motivationSlideUp {
