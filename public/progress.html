@@ -88,8 +88,29 @@
     <main class="page-main">
       <div class="page-head">
         <h2>Your progress</h2>
-        <p class="page-subtitle">Track streaks, patterns, and what to solve next</p>
+        <p class="page-subtitle">Unlocks, stats, and what to solve next</p>
       </div>
+
+      <section id="continueSession" class="continue-session panel" hidden>
+        <div class="continue-session-head">
+          <p class="continue-kicker">Continue where you left off</p>
+        </div>
+        <p id="continueSessionDetail" class="continue-session-detail"></p>
+        <p class="continue-session-hint">Pick up your last filters on the problems page.</p>
+        <a href="/" id="continueSessionLink" class="btn btn-primary btn-sm">Back to problems →</a>
+      </section>
+
+      <div id="unlockBanners" class="unlock-banners" hidden></div>
+
+      <div id="milestonePanel" class="home-milestones panel" hidden>
+        <div class="milestone-panel-head">
+          <span class="milestone-kicker">Target badges</span>
+          <span id="milestoneTierLabel" class="milestone-tier-label">Still warming up</span>
+        </div>
+        <div id="milestoneBadges" class="milestone-badges"></div>
+        <div id="milestoneNext" class="milestone-next"></div>
+      </div>
+
       <div id="reminderSettings" class="stats-card panel reminder-card" hidden>
         <h3>Daily reminder</h3>
         <p class="reminder-desc">Daily email to your inbox at your chosen time — works even when the site is closed. Browser alerts are a bonus.</p>
@@ -125,10 +146,12 @@
     <script src="/js/footer.js"></script>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/milestones.js"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/push.js"></script>
     <script src="/js/unlocks.js"></script>
     <script src="/js/insights.js"></script>
+    <script src="/js/focus.js"></script>
     <script src="/js/progress-page.js"></script>
   </body>
 </html>

@@ -39,6 +39,44 @@ const Nav = {
     }
   },
 
+  ensureHeaderBadgeBar() {
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+
+    if (header.parentElement?.classList.contains("site-header-sticky")) return;
+
+    const wrap = document.createElement("div");
+    wrap.className = "site-header-sticky";
+    header.parentNode.insertBefore(wrap, header);
+    wrap.appendChild(header);
+
+    if (!document.getElementById("headerEarnedBadges")) {
+      const bar = document.createElement("div");
+      bar.id = "headerBadgeBar";
+      bar.className = "header-badge-bar";
+      bar.hidden = true;
+      bar.innerHTML =
+        '<div id="headerEarnedBadges" class="header-earned-badges" aria-label="Earned badges"></div>';
+      wrap.appendChild(bar);
+    }
+  },
+
+  async loadHeaderBadges() {
+    if (typeof Milestones === "undefined") return;
+
+    if (!Auth.isLoggedIn()) {
+      Milestones.renderHeaderBadges(0);
+      return;
+    }
+
+    try {
+      const { data: stats } = await Auth.api("/api/v1/progress/stats");
+      Milestones.renderHeaderBadges(stats.totalCompleted || 0);
+    } catch {
+      Milestones.renderHeaderBadges(0);
+    }
+  },
+
   async init(options = {}) {
     if (Auth.isLoggedIn()) {
       try {
@@ -49,8 +87,11 @@ const Nav = {
       }
     }
 
+    this.ensureHeaderBadgeBar();
     this.updateAuthNav();
     this.bindLogout(options);
+
+    await this.loadHeaderBadges();
 
     const page = document.body.dataset.page;
     if (page) {

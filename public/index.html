@@ -108,68 +108,36 @@
       </aside>
 
       <main class="main">
-        <div class="home-dashboard" id="homeDashboard">
-          <div class="home-stats panel" id="progressSection">
-            <div class="progress-header">
-              <div>
-                <p class="home-stats-kicker">Your grind</p>
-                <p id="progressText" class="progress-subtitle">sign in to save progress</p>
-              </div>
-              <div class="progress-numbers" id="progressNumbers" hidden>
-                <div class="stat-ring">
-                  <strong id="statDone">0</strong>
-                  <span class="stat-divider">of</span>
-                  <span id="statTotal">300</span>
-                </div>
-                <span class="stat-label" id="statPct">0% complete</span>
-              </div>
-            </div>
-            <div class="progress-bar-wrap" id="progressBarWrap" hidden>
-              <div class="progress-bar" id="progressBar"></div>
-            </div>
-            <div id="homeProgressMini" class="home-progress-mini" hidden>
-              <span id="homeInsight" class="home-insight"></span>
-              <a href="/progress" class="progress-link">Full progress →</a>
-            </div>
-          </div>
-
-          <div id="milestonePanel" class="home-milestones panel" hidden>
-            <div class="milestone-panel-head">
-              <span class="milestone-kicker">Target badges</span>
-              <span id="milestoneTierLabel" class="milestone-tier-label">Rookie tier</span>
-            </div>
-            <div id="milestoneBadges" class="milestone-badges"></div>
-            <div id="milestoneNext" class="milestone-next"></div>
-          </div>
-        </div>
-
-        <section id="continueSession" class="continue-session panel" hidden>
-          <div class="continue-session-head">
-            <p class="continue-kicker">Continue where you left off</p>
-          </div>
-          <p id="continueSessionDetail" class="continue-session-detail"></p>
-          <p class="continue-session-hint">Your filters were restored from your last visit.</p>
-        </section>
-
-        <section id="tonightsProblem" class="tonights-problem panel" hidden>
-          <div class="tonights-problem-head">
-            <p class="tonights-kicker">Tonight&rsquo;s problem</p>
-            <span id="tonightsReason" class="tonights-reason"></span>
-          </div>
-          <h3 id="tonightsTitle" class="tonights-title"></h3>
-          <p id="tonightsMeta" class="tonights-meta"></p>
-          <div class="tonights-actions">
-            <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
-            <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm">Another pick</button>
-          </div>
-        </section>
-
-        <div id="unlockBanners" class="unlock-banners" hidden></div>
-
         <section class="problems-section">
           <div class="problems-section-head">
-            <h2 id="viewTitle">All Problems</h2>
+            <div class="problems-section-title-block">
+              <h2 id="viewTitle">All Problems</h2>
+              <p id="homeProgressSnippet" class="home-progress-snippet" hidden></p>
+            </div>
+            <a href="/progress" id="homeProgressLink" class="home-progress-link" hidden>Your progress →</a>
           </div>
+
+          <section id="continueSession" class="continue-session panel continue-inline" hidden>
+            <div class="continue-inline-main">
+              <p class="continue-kicker">Continue where you left off</p>
+              <p id="continueSessionDetail" class="continue-session-detail"></p>
+            </div>
+          </section>
+
+          <section id="tonightsProblem" class="tonights-problem panel tonights-inline" hidden>
+            <div class="tonights-inline-main">
+              <div class="tonights-problem-head">
+                <p class="tonights-kicker">Tonight&rsquo;s problem</p>
+                <span id="tonightsReason" class="tonights-reason"></span>
+              </div>
+              <h3 id="tonightsTitle" class="tonights-title"></h3>
+              <p id="tonightsMeta" class="tonights-meta"></p>
+            </div>
+            <div class="tonights-actions">
+              <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
+              <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm">Another pick</button>
+            </div>
+          </section>
 
           <div class="toolbar panel">
           <div class="search-wrap">
@@ -188,16 +156,9 @@
           </div>
         </div>
 
-        <div id="loginPrompt" class="guest-cta panel" hidden>
-          <div class="guest-cta-copy">
-            <p class="guest-cta-headline">300 problems · 20 patterns · free</p>
-            <p class="guest-cta-text">Sign up to save progress and sync across devices.</p>
-          </div>
-          <div class="guest-cta-actions">
-            <a href="/signup" class="btn btn-primary btn-sm">Sign up free</a>
-            <a href="/login" class="btn btn-ghost btn-sm">Log in</a>
-          </div>
-        </div>
+        <p id="loginPrompt" class="guest-hint" hidden>
+          <a href="/signup">Sign up free</a> to save progress · <a href="/login">Log in</a>
+        </p>
 
         <div id="problemsContainer">
           <div class="loading">
@@ -225,12 +186,13 @@
     <script src="/js/footer.js"></script>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/milestones.js"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/push.js"></script>
     <script src="/js/unlocks.js"></script>
     <script src="/js/insights.js"></script>
     <script src="/js/motivation.js"></script>
-    <script src="/js/milestones.js"></script>
+    <script src="/js/focus.js"></script>
     <script src="/js/pattern-guides.js"></script>
     <script src="/js/pattern-diagrams.js"></script>
     <script src="/js/pattern-info.js"></script>

@@ -3,9 +3,10 @@ const Milestones = (() => {
     {
       id: "spark",
       count: 10,
-      label: "Spark",
-      tagline: "First 10 down",
-      message: "You crossed double digits. Most people never get here — you're building real momentum after hours.",
+      label: "Night Shift",
+      subtitle: "You actually opened the laptop after work",
+      unlockHint: "10 solved unlocks Night Shift — proof you're not just bookmarking problems.",
+      message: "Ten down. Most people never get past the tutorial phase — you're in it now.",
       icon: "◎",
       tierClass: "milestone-tier-spark",
       color: "#fbbf24",
@@ -13,9 +14,10 @@ const Milestones = (() => {
     {
       id: "quarter",
       count: 25,
-      label: "Quarter",
-      tagline: "25 problems crushed",
-      message: "A quarter-century of solves. The habit is real — your prep is no longer theoretical.",
+      label: "Second Wind",
+      subtitle: "The habit survived a busy week",
+      unlockHint: "25 solved unlocks Second Wind — your prep survived real life.",
+      message: "Twenty-five crushed. This isn't a phase anymore — it's a routine.",
       icon: "◉",
       tierClass: "milestone-tier-quarter",
       color: "#22d3ee",
@@ -23,9 +25,10 @@ const Milestones = (() => {
     {
       id: "stride",
       count: 45,
-      label: "Stride",
-      tagline: "45 problems deep",
-      message: "Forty-five solved. You're moving with purpose — hard problems are in reach now.",
+      label: "Flow State",
+      subtitle: "Patterns start feeling familiar",
+      unlockHint: "45 solved unlocks Flow State — you're connecting dots, not just counting reps.",
+      message: "Forty-five logged. Hard problems aren't scary — they're next.",
       icon: "◈",
       tierClass: "milestone-tier-stride",
       color: "#fb923c",
@@ -33,9 +36,10 @@ const Milestones = (() => {
     {
       id: "vanguard",
       count: 75,
-      label: "Vanguard",
-      tagline: "75 problems logged",
-      message: "Seventy-five down. You're ahead of most candidates — keep pressing while others coast.",
+      label: "Final Boss Energy",
+      subtitle: "Ahead of most people interviewing",
+      unlockHint: "75 solved unlocks Final Boss Energy — the grind most candidates talk about but never do.",
+      message: "Seventy-five done. You're playing a different game than the average applicant.",
       icon: "◆",
       tierClass: "milestone-tier-vanguard",
       color: "#f472b6",
@@ -43,9 +47,10 @@ const Milestones = (() => {
     {
       id: "century",
       count: 100,
-      label: "Century",
-      tagline: "100 problems conquered",
-      message: "One hundred solved. Elite territory — your main page just leveled up because you earned it.",
+      label: "Offer Season",
+      subtitle: "Triple digits. Serious prep territory.",
+      unlockHint: "100 solved unlocks Offer Season — the tier where interviews get interesting.",
+      message: "One hundred solved. You earned this — keep pushing toward 300.",
       icon: "✦",
       tierClass: "milestone-tier-century",
       color: "#a78bfa",
@@ -94,14 +99,76 @@ const Milestones = (() => {
     return THRESHOLDS.find((m) => prevCount < m.count && newCount >= m.count) || null;
   }
 
+  function setHeaderBarVisible(visible) {
+    const bar = document.getElementById("headerBadgeBar");
+    if (!bar) return;
+    bar.hidden = !visible;
+    bar.classList.toggle("is-visible", visible);
+  }
+
+  function headerBadgeHtml(milestone) {
+    return `<span class="header-badge header-badge-${milestone.id}" style="--badge-glow: ${milestone.color}" title="${milestone.subtitle}">
+      <span class="header-badge-count" aria-label="${milestone.count} problems">${milestone.count}</span>
+      <span class="header-badge-copy">
+        <span class="header-badge-name">${milestone.label}</span>
+      </span>
+    </span>`;
+  }
+
+  function renderHeaderBadges(totalDone) {
+    const el = document.getElementById("headerEarnedBadges");
+    if (!el) return;
+
+    if (!Auth.isLoggedIn()) {
+      setHeaderBarVisible(false);
+      el.innerHTML = "";
+      return;
+    }
+
+    const earned = getEarned(totalDone);
+    if (!earned.length) {
+      setHeaderBarVisible(false);
+      el.innerHTML = "";
+      return;
+    }
+
+    el.innerHTML = earned.map(headerBadgeHtml).join("");
+    setHeaderBarVisible(true);
+  }
+
   function badgeHtml(milestone, earned) {
     const stateClass = earned ? "earned" : "locked";
     const style = earned ? ` style="--badge-glow: ${milestone.color}"` : "";
+    const sub = earned ? milestone.subtitle : `Unlock at ${milestone.count} problems`;
+    const thresholdClass = earned ? "milestone-badge-threshold milestone-badge-threshold--earned" : "milestone-badge-threshold";
+
     return `
-      <div class="milestone-badge ${stateClass} milestone-badge-${milestone.id}"${style} title="${milestone.tagline}">
-        <span class="milestone-badge-icon" aria-hidden="true">${milestone.icon}</span>
-        <span class="milestone-badge-count">${milestone.count}</span>
-        <span class="milestone-badge-label">${milestone.label}</span>
+      <div class="milestone-badge ${stateClass} milestone-badge-${milestone.id}"${style} title="${milestone.unlockHint}">
+        <span class="${thresholdClass}" aria-label="${milestone.count} problems">${milestone.count}</span>
+        <div class="milestone-badge-copy">
+          <span class="milestone-badge-label">${milestone.label}</span>
+          <span class="milestone-badge-sub">${sub}</span>
+        </div>
+      </div>`;
+  }
+
+  function nextTargetHtml(next, totalDone) {
+    const remaining = next.count - totalDone;
+    const progress = Math.round((totalDone / next.count) * 100);
+    return `
+      <div class="milestone-target">
+        <div class="milestone-target-head">
+          <span class="milestone-target-kicker">Next up</span>
+          <span class="milestone-target-name">${next.label}</span>
+        </div>
+        <p class="milestone-target-desc">${next.unlockHint}</p>
+        <div class="milestone-target-meta">
+          <span class="milestone-target-left">${totalDone} / ${next.count} problems · ${remaining} left</span>
+          <span class="milestone-target-pct">${progress}%</span>
+        </div>
+        <div class="milestone-target-track">
+          <div class="milestone-target-fill" style="width: ${progress}%"></div>
+        </div>
       </div>`;
   }
 
@@ -125,42 +192,29 @@ const Milestones = (() => {
     badgesEl.innerHTML = THRESHOLDS.map((m) => badgeHtml(m, totalDone >= m.count)).join("");
 
     if (tierLabel) {
-      tierLabel.textContent = highest ? `${highest.label} tier` : "Rookie tier";
+      tierLabel.textContent = highest ? highest.label : "Still warming up";
       tierLabel.className = `milestone-tier-label${highest ? ` tier-${highest.id}` : ""}`;
     }
 
     if (next) {
-      const remaining = next.count - totalDone;
-      const progress = Math.round((totalDone / next.count) * 100);
-      nextEl.innerHTML = `
-        <div class="milestone-target">
-          <div class="milestone-target-head">
-            <span class="milestone-target-kicker">Next target</span>
-            <span class="milestone-target-name">${next.label} · ${next.count} problems</span>
-          </div>
-          <div class="milestone-target-meta">
-            <span class="milestone-target-left">${remaining} to go</span>
-            <span class="milestone-target-pct">${progress}%</span>
-          </div>
-          <div class="milestone-target-track">
-            <div class="milestone-target-fill" style="width: ${progress}%"></div>
-          </div>
-        </div>`;
+      nextEl.innerHTML = nextTargetHtml(next, totalDone);
       nextEl.hidden = false;
     } else {
+      const last = THRESHOLDS[THRESHOLDS.length - 1];
       nextEl.innerHTML = `
         <div class="milestone-target milestone-target-complete">
-          <span class="milestone-target-kicker">All targets cleared</span>
-          <span class="milestone-target-name">Century club — keep climbing toward 300</span>
+          <span class="milestone-target-kicker">All badges earned</span>
+          <span class="milestone-target-name">${last.label}</span>
+          <p class="milestone-target-desc">${totalDone} problems solved. Every badge unlocked — keep climbing toward 300.</p>
         </div>`;
       nextEl.hidden = false;
     }
   }
 
   function applyTier(totalDone) {
-    const dashboard = document.getElementById("homeDashboard");
-    const section = document.getElementById("progressSection");
-    const targets = [dashboard, section].filter(Boolean);
+    const dashboard = document.getElementById("progressDashboard");
+    const hero = document.querySelector(".progress-hero");
+    const targets = [dashboard, hero].filter(Boolean);
     const highest = getHighest(totalDone);
 
     targets.forEach((el) => {
@@ -185,7 +239,7 @@ const Milestones = (() => {
         <p class="motivation-problem" id="milestoneModalTagline"></p>
         <h3 class="motivation-headline" id="milestoneHeadline"></h3>
         <p class="motivation-message" id="milestoneModalMessage"></p>
-        <p class="motivation-footer milestone-modal-footer">Your main page just upgraded — badge unlocked.</p>
+        <p class="motivation-footer milestone-modal-footer">Badge unlocked — check the bar below the navbar.</p>
         <button type="button" class="btn btn-primary motivation-cta" id="milestoneModalCta">Let's go →</button>
       </div>`;
 
@@ -209,8 +263,8 @@ const Milestones = (() => {
     markCelebrated(milestone.id);
     const modal = ensureModal();
     modal.className = `motivation-modal milestone-modal milestone-celebrate-${milestone.id}`;
-    modal.querySelector("#milestoneModalBadge").textContent = `Target · ${milestone.count}`;
-    modal.querySelector("#milestoneModalTagline").textContent = `${milestone.icon} ${milestone.tagline}`;
+    modal.querySelector("#milestoneModalBadge").textContent = milestone.label;
+    modal.querySelector("#milestoneModalTagline").textContent = `${milestone.icon} ${milestone.subtitle}`;
     modal.querySelector("#milestoneHeadline").textContent = `${milestone.label} unlocked`;
     modal.querySelector("#milestoneModalMessage").textContent = milestone.message;
     modal.querySelector(".milestone-dialog").style.borderTopColor = milestone.color;
@@ -232,14 +286,11 @@ const Milestones = (() => {
   }
 
   function update(totalDone, prevCount) {
-    if (!Auth.isLoggedIn()) {
-      const panel = document.getElementById("milestonePanel");
-      if (panel) panel.hidden = true;
-      return;
-    }
-
+    renderHeaderBadges(totalDone);
     renderPanel(totalDone);
     applyTier(totalDone);
+
+    if (!Auth.isLoggedIn()) return;
 
     if (typeof prevCount === "number" && prevCount < totalDone) {
       const crossed = getNewlyCrossed(prevCount, totalDone);
@@ -256,6 +307,7 @@ const Milestones = (() => {
     getNext,
     getNewlyCrossed,
     update,
+    renderHeaderBadges,
     celebrate,
     hideCelebration,
   };

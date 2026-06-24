@@ -17,7 +17,15 @@ const state = {
   tonightShuffle: 0,
 };
 
-const SESSION_KEY = "afterhours_home_session";
+const SESSION_KEY = typeof Focus !== "undefined" ? Focus.SESSION_KEY : "afterhours_home_session";
+
+const TONIGHT_IDS = {
+  panel: "tonightsProblem",
+  reason: "tonightsReason",
+  title: "tonightsTitle",
+  meta: "tonightsMeta",
+  link: "tonightsLink",
+};
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -43,16 +51,16 @@ function updateMilestones(prevCount) {
 
 function updateAuthUI() {
   const loggedIn = Auth.isLoggedIn();
-  $("#loginPrompt").hidden = loggedIn;
-  $("#progressNumbers").hidden = !loggedIn;
-  $("#progressBarWrap").hidden = !loggedIn;
-  $("#homeProgressMini").hidden = !loggedIn;
-  $("#milestonePanel").hidden = !loggedIn;
+  const loginPrompt = $("#loginPrompt");
+  const progressLink = $("#homeProgressLink");
+  const progressSnippet = $("#homeProgressSnippet");
 
-  if (loggedIn) {
-    $("#progressText").textContent = "Your progress is saved to your account";
-  } else {
-    $("#progressText").textContent = "300 problems · 20 patterns · free to browse";
+  if (loginPrompt) loginPrompt.hidden = loggedIn;
+  if (progressLink) progressLink.hidden = !loggedIn;
+  if (progressSnippet) progressSnippet.hidden = !loggedIn;
+
+  if (!loggedIn && typeof Milestones !== "undefined") {
+    Milestones.renderHeaderBadges(0);
   }
 
   Nav.updateAuthNav();
@@ -60,8 +68,10 @@ function updateAuthUI() {
     onLogout: () => {
       state.progressMap.clear();
       state.patternDone = {};
+      updateHomeProgressSnippet();
     },
   });
+  updateHomeProgressSnippet();
 }
 
 function persistSession() {
@@ -79,6 +89,17 @@ function persistSession() {
   } catch {
     /* ignore quota / private mode */
   }
+  updateContinueSession();
+}
+
+function updateContinueSession() {
+  if (typeof Focus === "undefined") return;
+  Focus.renderContinue(
+    $("#continueSession"),
+    $("#continueSessionDetail"),
+    state.patterns,
+    state,
+  );
 }
 
 function restoreSession() {
@@ -123,133 +144,34 @@ function applySessionUI() {
   if (allBtn) allBtn.classList.add("active");
 }
 
-function patternOrderForTonight() {
-  const weakest = Insights.getWeakestPattern(state.patterns, state.patternDone, state.patternTotals);
-  const ids = state.patterns.map((p) => p._id);
-  if (!weakest) return ids;
+function updateHomeProgressSnippet() {
+  const el = $("#homeProgressSnippet");
+  if (!el || !Auth.isLoggedIn()) return;
 
-  const rest = ids.filter((id) => id !== weakest.pattern._id);
-  if (state.tonightShuffle > 0) {
-    const offset = state.tonightShuffle % (rest.length + 1);
-    const rotated = [...rest.slice(offset), ...rest.slice(0, offset)];
-    return [weakest.pattern._id, ...rotated];
-  }
-  return [weakest.pattern._id, ...rest];
-}
-
-async function fetchTonightsProblem() {
-  if (!state.patterns.length) return null;
-
-  const unlock = state.unlockState || Unlocks.getClientState(state.patternDone, state.patterns);
-
-  if (Auth.isLoggedIn()) {
-    for (const pid of patternOrderForTonight()) {
-      const pattern = state.patterns.find((p) => p._id === pid);
-      if (!pattern) continue;
-      if (Unlocks.isAdvancedPattern(pattern) && !unlock.advancedPatternsUnlocked) continue;
-
-      const { data } = await api(`/api/v1/problems?patternId=${pid}&limit=50`);
-      const open = data.filter(
-        (p) => !state.progressMap.has(p._id) && !Unlocks.isProblemLocked(p, unlock),
-      );
-      if (!open.length) continue;
-
-      const weakest = Insights.getWeakestPattern(state.patterns, state.patternDone, state.patternTotals);
-      const pick =
-        state.tonightShuffle > 0
-          ? open[Math.floor(Math.random() * open.length)]
-          : open[0];
-      const done = state.patternDone[pid] || 0;
-      const total = state.patternTotals[pid] || Unlocks.PROBLEMS_PER_PATTERN;
-
-      return {
-        problem: pick,
-        reason:
-          weakest && pid === weakest.pattern._id
-            ? `Weakest pattern · ${done}/${total} done`
-            : `Next up · ${pattern.name}`,
-      };
-    }
-  }
-
-  const page = (state.tonightShuffle % 4) + 1;
-  const { data } = await api(`/api/v1/problems?difficulty=Easy&limit=50&page=${page}`);
-  const open = data.filter((p) => !Unlocks.isProblemLocked(p, unlock));
-  if (!open.length) return null;
-
-  const pick = open[Math.floor(Math.random() * open.length)];
-  return {
-    problem: pick,
-    reason: Auth.isLoggedIn()
-      ? "Random easy pick — patterns may be complete"
-      : "Warm-up pick · sign in to personalize",
-  };
-}
-
-function renderTonightsProblem(result) {
-  const panel = $("#tonightsProblem");
-  if (!panel) return;
-
-  if (!result?.problem) {
-    panel.hidden = true;
-    return;
-  }
-
-  const { problem, reason } = result;
-  const patternName = problem.patternId?.name || "—";
-  const url = problem.leetcodeLink || problem.practiceLink;
-  const source = problem.source || (problem.leetcodeLink ? "LeetCode" : "Practice");
-
-  $("#tonightsReason").textContent = reason;
-  $("#tonightsTitle").textContent = problem.title;
-  $("#tonightsMeta").textContent = `${problem.difficulty} · ${patternName}`;
-
-  const link = $("#tonightsLink");
-  if (url) {
-    link.href = url;
-    link.textContent = `Open on ${source} ↗`;
-    link.hidden = false;
-  } else {
-    link.hidden = true;
-  }
-
-  panel.hidden = false;
+  const done = getTotalDone();
+  const total = Unlocks.TOTAL_PROBLEMS;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+  el.textContent = `${done} of ${total} solved · ${percent}%`;
 }
 
 async function loadTonightsProblem() {
+  if (typeof Focus === "undefined") return;
+
   try {
-    const result = await fetchTonightsProblem();
-    renderTonightsProblem(result);
+    const result = await Focus.fetchTonightsProblem({
+      patterns: state.patterns,
+      patternDone: state.patternDone,
+      patternTotals: state.patternTotals,
+      progressMap: state.progressMap,
+      unlockState: state.unlockState,
+      tonightShuffle: state.tonightShuffle,
+      apiFn: (path) => api(path),
+    });
+    Focus.renderTonightsProblem(result, TONIGHT_IDS);
   } catch {
-    $("#tonightsProblem").hidden = true;
+    const panel = $("#tonightsProblem");
+    if (panel) panel.hidden = true;
   }
-}
-
-function updateContinueSession(restored) {
-  const panel = $("#continueSession");
-  if (!panel) return;
-
-  if (!restored) {
-    panel.hidden = true;
-    return;
-  }
-
-  const parts = [];
-  if (state.patternSlug) {
-    const pattern = state.patterns.find((p) => p.slug === state.patternSlug);
-    parts.push(pattern?.name || "Pattern");
-  }
-  if (state.difficulty) parts.push(state.difficulty);
-  if (state.search) parts.push(`“${state.search}”`);
-  if (state.page > 1) parts.push(`Page ${state.page}`);
-
-  if (!parts.length) {
-    panel.hidden = true;
-    return;
-  }
-
-  $("#continueSessionDetail").textContent = parts.join(" · ");
-  panel.hidden = false;
 }
 
 async function loadPatterns() {
@@ -325,8 +247,8 @@ async function loadProgress() {
     refreshPatternCounts();
     updateUnlockState();
     if (state.problems.length) renderProblems();
-    loadHomeInsights();
-    loadTonightsProblem();
+    updateHomeProgressSnippet();
+    await loadTonightsProblem();
   } catch {
     Auth.clearSession();
     updateAuthUI();
@@ -335,41 +257,7 @@ async function loadProgress() {
 
 function updateUnlockState() {
   state.unlockState = Unlocks.getClientState(state.patternDone, state.patterns);
-  renderUnlockBanners();
   refreshPatternLocks();
-}
-
-function renderUnlockBanners() {
-  const wrap = document.getElementById("unlockBanners");
-  if (!wrap || !state.unlockState) return;
-
-  if (!Auth.isLoggedIn()) {
-    wrap.hidden = true;
-    wrap.innerHTML = "";
-    return;
-  }
-
-  const u = state.unlockState;
-  const parts = [];
-
-  const hardPct = Math.round(Unlocks.HARD_UNLOCK_RATIO * 100);
-  const tierPct = Math.round(Unlocks.ADVANCED_PATTERNS_UNLOCK_RATIO * 100);
-
-  if (!u.hardUnlocked) {
-    const left = u.hardUnlockRequired - u.totalDone;
-    parts.push(
-      `<div class="unlock-banner"><span class="lock-icon">🔒</span> Hard problems unlock at ${hardPct}% (${u.hardUnlockRequired}/${Unlocks.TOTAL_PROBLEMS}) — <strong>${left} to go</strong></div>`,
-    );
-  }
-  if (!u.advancedPatternsUnlocked) {
-    const left = u.advancedPatternsRequired - u.firstTierDone;
-    parts.push(
-      `<div class="unlock-banner"><span class="lock-icon">🔒</span> Patterns 11–20 unlock at ${tierPct}% of tier 1 — <strong>${left} more in patterns 1–10</strong></div>`,
-    );
-  }
-
-  wrap.innerHTML = parts.join("");
-  wrap.hidden = parts.length === 0;
 }
 
 function refreshPatternLocks() {
@@ -398,40 +286,8 @@ function practiceLinkHtml(problem) {
 }
 function updateProgressUI(milestonePrevCount) {
   if (!Auth.isLoggedIn()) return;
-
-  let done;
-  let total;
-
-  if (state.patternId) {
-    done = state.patternDone[state.patternId] || 0;
-    total = state.patternTotals[state.patternId] || state.total;
-  } else {
-    done = getTotalDone();
-    total = Unlocks.TOTAL_PROBLEMS;
-  }
-
-  const percent = total ? Math.round((done / total) * 100) : 0;
-  $("#statDone").textContent = done;
-  $("#statTotal").textContent = total;
-  $("#statPct").textContent = `${percent}% complete`;
-  $("#progressBar").style.width = `${percent}%`;
-
+  updateHomeProgressSnippet();
   updateMilestones(milestonePrevCount);
-}
-
-async function loadHomeInsights() {
-  if (!Auth.isLoggedIn()) return;
-
-  try {
-    const { data: stats } = await api("/api/v1/progress/stats");
-    const dates = state.progressEntries.map((e) => e.completedAt || e.updatedAt);
-    const streak = Insights.computeStreak(dates);
-    const insight = Insights.getInsightMessage(stats, streak);
-    const streakText = streak > 0 ? `${streak}-day streak · ` : "";
-    $("#homeInsight").textContent = `${streakText}${insight}`;
-  } catch {
-    $("#homeInsight").textContent = "";
-  }
 }
 
 function refreshPatternCounts() {
@@ -606,7 +462,6 @@ async function toggleProgress(checkbox) {
     refreshPatternCounts();
     updateUnlockState();
     renderProblems();
-    loadHomeInsights();
     loadTonightsProblem();
   } catch (err) {
     checkbox.checked = !isChecked;
@@ -731,7 +586,7 @@ async function init() {
     refreshPatternCounts();
     if (state.problems.length) renderProblems();
     selectPatternFromUrl();
-    updateContinueSession(restoredSession && !hasPatternParam);
+    updateContinueSession();
     await loadTonightsProblem();
   } catch (err) {
     $("#problemsContainer").innerHTML = `<div class="empty-state">Failed to load: ${escapeHtml(err.message)}</div>`;

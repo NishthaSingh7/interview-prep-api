@@ -171,6 +171,18 @@ function patternStackedBar(patterns, patternDone) {
     </div>`;
 }
 
+async function loadFocusPanels(patterns, patternDone) {
+  const unlockState = Unlocks.getClientState(patternDone, patterns);
+
+  Focus.renderContinue(
+    document.getElementById("continueSession"),
+    document.getElementById("continueSessionDetail"),
+    patterns,
+  );
+
+  Focus.renderUnlockBanners(unlockState, "unlockBanners");
+}
+
 async function loadDashboard() {
   const container = document.getElementById("progressDashboard");
   if (!container) return;
@@ -210,6 +222,12 @@ async function loadDashboard() {
     const weakest = Insights.getWeakestPattern(patterns, patternDone, patternTotals);
     const insight = Insights.getInsightMessage(stats, streak);
     const nextUp = Insights.getNextUpSuggestion(weakest);
+
+    await loadFocusPanels(patterns, patternDone);
+
+    if (typeof Milestones !== "undefined") {
+      Milestones.update(totalDone);
+    }
 
     const patternBars = patterns
       .map((p) => {
@@ -347,6 +365,10 @@ async function loadDashboard() {
         </div>
         <div class="pattern-bars">${patternBars}</div>
       </div>`;
+
+    if (typeof Milestones !== "undefined") {
+      Milestones.update(totalDone);
+    }
   } catch (err) {
     container.innerHTML = `<div class="empty-state panel">Failed to load progress: ${escapeHtml(err.message)}</div>`;
   }
