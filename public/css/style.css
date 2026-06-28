@@ -862,6 +862,46 @@ a:hover {
   text-decoration: underline;
 }
 
+.daily-quote {
+  padding: 0.85rem 1rem 0.9rem;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(167, 139, 250, 0.06) 100%);
+  border: 1px solid rgba(34, 211, 238, 0.18);
+}
+
+.daily-quote-kicker {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 0.35rem;
+}
+
+.daily-quote-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text);
+  font-style: italic;
+}
+
+.daily-quote-author {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+}
+
 .continue-chip {
   font-size: 0.78rem;
   color: var(--text-secondary);
