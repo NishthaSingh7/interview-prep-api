@@ -5223,3 +5223,192 @@ body.motivation-open {
 [data-theme="light"] .milestone-target-name {
   color: #1e293b;
 }
+
+/* ── Consistency-first UI ── */
+
+.today-card {
+  padding: 1rem 1.15rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.06), rgba(167, 139, 250, 0.04));
+}
+
+.today-status {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 0.35rem;
+}
+
+.today-status-done {
+  color: var(--easy);
+}
+
+.today-hint,
+.today-done-msg {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.streak-hero-val {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.streak-hero-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.plan-summary-muted .plan-summary-val {
+  font-size: 1.15rem;
+  color: var(--muted);
+}
+
+.cal-legend-binary {
+  gap: 0.35rem;
+}
+
+.pattern-drawer-toggle {
+  display: none;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-drawer-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .pattern-drawer-toggle {
+    display: inline-flex;
+  }
+
+  .pattern-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 199;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 200;
+    width: min(300px, 88vw);
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  body.pattern-drawer-open {
+    overflow: hidden;
+  }
+}
+
+.table-info-btn {
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+
+.notes-btn {
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.35rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+.notes-btn:hover {
+  opacity: 1;
+}
+
+.notes-input {
+  width: 100%;
+  margin: 0.75rem 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.motivation-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.onboarding-steps {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.onboarding-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.onboarding-dot.active {
+  background: var(--accent);
+}
+
+.pwa-install-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+}
+
+.pwa-install-banner p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.review-queue-card {
+  margin-bottom: 1rem;
+}
+
+.insight-disguise {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 700px) {
+  .insight-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .insight-disguise {
+    grid-column: span 2;
+  }
+}

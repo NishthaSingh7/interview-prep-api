@@ -58,7 +58,7 @@
     <div class="auth-container">
       <div class="auth-card panel">
         <h1>Create account</h1>
-        <p class="auth-subtitle">300 problems · 20 patterns · your pace</p>
+        <p class="auth-subtitle">One problem after work · 20 patterns · your pace</p>
 
         <form id="signupForm">
           <div class="form-group">
@@ -138,7 +138,7 @@
             await Push.setupAfterSignup({ reminderEnabled, reminderHour, reminderMinute });
           }
 
-          window.location.href = "/";
+          window.location.href = "/?onboarding=1";
         } catch (err) {
           errorEl.textContent = err.message;
           errorEl.hidden = false;

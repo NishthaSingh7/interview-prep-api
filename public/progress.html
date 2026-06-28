@@ -17,7 +17,7 @@
     <meta property="og:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Your Progress — AfterHours" />
-    <meta name="twitter:description" content="Streaks, charts, and pattern progress for your grind." />
+    <meta name="twitter:description" content="Streaks, consistency, and pattern progress for your after-hours habit." />
     <meta name="twitter:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -93,7 +93,7 @@
 
       <nav class="progress-tabs panel" role="tablist" aria-label="Progress views">
         <button type="button" class="progress-tab active" role="tab" id="tabMap" aria-selected="true" aria-controls="progressTabMap" data-tab="map">
-          Grind Map
+          Journey Map
         </button>
         <button type="button" class="progress-tab" role="tab" id="tabPlan" aria-selected="false" aria-controls="progressTabPlan" data-tab="plan">
           Game Plan
@@ -104,7 +104,7 @@
         <div id="progressOverview">
           <div class="loading panel">
             <div class="loader"></div>
-            loading your grind map...
+            loading your journey map...
           </div>
         </div>
       </div>
@@ -120,6 +120,32 @@
         </section>
 
         <div id="unlockBanners" class="unlock-banners" hidden></div>
+
+        <section id="todayCard" class="today-card panel" hidden>
+          <p id="todayStatus" class="today-status">Tonight's one problem</p>
+          <div id="todayBody" class="today-body"></div>
+        </section>
+
+        <section id="tonightsProblem" class="tonights-problem panel tonights-inline" hidden>
+          <div class="tonights-inline-main">
+            <div class="tonights-problem-head">
+              <p class="tonights-kicker">Tonight&rsquo;s problem</p>
+              <span id="tonightsReason" class="tonights-reason"></span>
+            </div>
+            <h3 id="tonightsTitle" class="tonights-title"></h3>
+            <p id="tonightsMeta" class="tonights-meta"></p>
+          </div>
+          <div class="tonights-actions">
+            <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
+            <a href="/" class="btn btn-ghost btn-sm">Go to problems</a>
+          </div>
+        </section>
+
+        <div id="reviewQueue" class="stats-card panel review-queue-card" hidden>
+          <h3>Due for review</h3>
+          <p class="plan-desc">Problems you solved 7+ days ago — one quality revisit beats ten new ones.</p>
+          <ul id="reviewQueueList" class="recent-list"></ul>
+        </div>
 
         <div id="reminderSettings" class="stats-card panel reminder-card" hidden>
           <h3>Daily reminder</h3>
@@ -154,6 +180,8 @@
       </div>
     </footer>
 
+    <script src="/js/header.js"></script>
+    <script src="/js/analytics.js"></script>
     <script src="/js/footer.js"></script>
 
     <script src="/js/auth.js"></script>
@@ -162,6 +190,7 @@
     <script src="/js/push.js"></script>
     <script src="/js/unlocks.js"></script>
     <script src="/js/insights.js"></script>
+    <script src="/js/pattern-guides.js"></script>
     <script src="/js/focus.js"></script>
     <script src="/js/progress-page.js"></script>
   </body>

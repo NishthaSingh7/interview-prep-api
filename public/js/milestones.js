@@ -49,7 +49,7 @@ const Milestones = (() => {
       count: 75,
       label: "Final Boss Energy",
       subtitle: "Ahead of most people interviewing",
-      unlockHint: "75 solved unlocks Final Boss Energy — the grind most candidates talk about but never do.",
+      unlockHint: "75 solved unlocks Final Boss Energy — the milestone most candidates talk about but never reach.",
       message: "Seventy-five done. You're playing a different game than the average applicant.",
       icon: "◆",
       tierClass: "milestone-tier-vanguard",
@@ -227,7 +227,7 @@ const Milestones = (() => {
         <div class="milestone-target milestone-target-complete">
           <span class="milestone-target-kicker">All badges earned</span>
           <span class="milestone-target-name">${last.label}</span>
-          <p class="milestone-target-desc">${totalDone} problems solved. Every badge unlocked — keep climbing toward 300.</p>
+          <p class="milestone-target-desc">${totalDone} problems solved. Every badge unlocked — your after-hours habit built something real.</p>
         </div>`;
       nextEl.hidden = false;
     }
@@ -266,8 +266,11 @@ const Milestones = (() => {
         <p class="motivation-problem" id="milestoneModalTagline"></p>
         <h3 class="motivation-headline" id="milestoneHeadline"></h3>
         <p class="motivation-message" id="milestoneModalMessage"></p>
-        <p class="motivation-footer milestone-modal-footer">Badge unlocked — check the bar below the navbar.</p>
-        <button type="button" class="btn btn-primary motivation-cta" id="milestoneModalCta">Let's go →</button>
+        <p class="motivation-footer milestone-modal-footer">Badge unlocked — journey marker on your path.</p>
+        <div class="motivation-actions">
+          <button type="button" class="btn btn-ghost btn-sm" id="milestoneShareBtn">Share win</button>
+          <button type="button" class="btn btn-primary motivation-cta" id="milestoneModalCta">Let's go →</button>
+        </div>
       </div>`;
 
     document.body.appendChild(modalEl);
@@ -276,6 +279,15 @@ const Milestones = (() => {
       el.addEventListener("click", hideCelebration);
     });
     modalEl.querySelector("#milestoneModalCta").addEventListener("click", hideCelebration);
+    modalEl.querySelector("#milestoneShareBtn").addEventListener("click", () => {
+      const headline = modalEl.querySelector("#milestoneHeadline")?.textContent || "Badge unlocked";
+      const text = `${headline} on AfterHours — one problem after work, every night. Progress Never Clocks Out.`;
+      if (navigator.share) {
+        navigator.share({ title: "AfterHours milestone", text, url: location.origin }).catch(() => {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+    });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && modalEl && !modalEl.hidden) hideCelebration();
@@ -314,7 +326,6 @@ const Milestones = (() => {
 
   function update(totalDone, prevCount) {
     renderHeaderBadges(totalDone);
-    renderPanel(totalDone);
     applyTier(totalDone);
 
     if (!Auth.isLoggedIn()) return;

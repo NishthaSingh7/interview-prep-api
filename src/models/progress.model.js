@@ -20,6 +20,13 @@ const progressSchema = new mongoose.Schema(
     completedAt: {
       type: Date,
     },
+    reviewAt: {
+      type: Date,
+    },
+    struggled: {
+      type: Boolean,
+      default: false,
+    },
     notes: {
       type: String,
       default: "",

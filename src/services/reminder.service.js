@@ -71,6 +71,39 @@ async function processDueReminders() {
   }
 }
 
+async function processWeeklyRecaps() {
+  const Progress = require("../models/progress.model");
+  const { sendWeeklyRecapEmail } = require("./email.service");
+  const {
+    computeStreak,
+    activeDaysThisWeek,
+  } = require("../utils/consistency");
+
+  try {
+    const users = await User.find({ reminderEnabled: true }).select("name email timezone");
+
+    for (const user of users) {
+      try {
+        const progress = await Progress.find({ userId: user._id, status: "done" }).select(
+          "completedAt updatedAt",
+        );
+        const completedDates = progress.map((p) => p.completedAt || p.updatedAt).filter(Boolean);
+        const timezone = user.timezone || "Asia/Kolkata";
+
+        await sendWeeklyRecapEmail(user, {
+          streak: computeStreak(completedDates, timezone),
+          activeDays: activeDaysThisWeek(completedDates, timezone),
+          totalDone: progress.length,
+        });
+      } catch (error) {
+        console.error(`[weekly] Failed for ${user.email}:`, error.message);
+      }
+    }
+  } catch (error) {
+    console.error("[weekly] Job error:", error.message);
+  }
+}
+
 function startReminderCron() {
   if (process.env.REMINDER_CRON_ENABLED !== "true") {
     console.log("[reminder] Cron disabled (set REMINDER_CRON_ENABLED=true)");
@@ -78,7 +111,8 @@ function startReminderCron() {
   }
 
   cron.schedule("* * * * *", processDueReminders);
-  console.log("[reminder] Daily reminder cron started (email + push)");
+  cron.schedule("0 9 * * 0", processWeeklyRecaps);
+  console.log("[reminder] Daily + weekly (Sunday 09:00 UTC) cron started");
 }
 
-module.exports = { startReminderCron, processDueReminders };
+module.exports = { startReminderCron, processDueReminders, processWeeklyRecaps };

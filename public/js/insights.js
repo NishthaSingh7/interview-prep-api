@@ -1,17 +1,22 @@
 const Insights = {
   TOTAL_PROBLEMS: 300,
 
-  computeStreak(completedDates) {
-    const days = new Set(
+  dayKey(dateInput) {
+    const d = new Date(dateInput);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  },
+
+  uniqueDayKeys(completedDates) {
+    return new Set(
       completedDates
         .filter(Boolean)
-        .map((d) => {
-          const date = new Date(d);
-          date.setHours(0, 0, 0, 0);
-          return date.getTime();
-        }),
+        .map((d) => this.dayKey(d)),
     );
+  },
 
+  computeStreak(completedDates) {
+    const days = this.uniqueDayKeys(completedDates);
     if (!days.size) return 0;
 
     const oneDay = 86400000;
@@ -30,6 +35,51 @@ const Insights = {
     }
 
     return streak;
+  },
+
+  completedToday(completedDates) {
+    const today = this.dayKey(new Date());
+    return completedDates.some((d) => d && this.dayKey(d) === today);
+  },
+
+  activeDaysInRange(completedDates, startMs, endMs) {
+    const days = this.uniqueDayKeys(completedDates);
+    let count = 0;
+    for (const key of days) {
+      if (key >= startMs && key <= endMs) count++;
+    }
+    return count;
+  },
+
+  activeDaysThisWeek(completedDates) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const start = new Date(today);
+    start.setDate(start.getDate() - 6);
+    return this.activeDaysInRange(completedDates, start.getTime(), today.getTime());
+  },
+
+  activeDaysThisMonth(completedDates) {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    start.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return this.activeDaysInRange(completedDates, start.getTime(), today.getTime());
+  },
+
+  formatConsistencySnippet(completedDates, streak, opts = {}) {
+    const s = streak ?? this.computeStreak(completedDates);
+    const monthDays = opts.activeDaysThisMonth ?? this.activeDaysThisMonth(completedDates);
+    const todayDone = opts.completedToday ?? this.completedToday(completedDates);
+
+    if (!completedDates.length) {
+      return "Tonight's win: waiting for you";
+    }
+    if (todayDone) {
+      return `${s}-day streak · showed up ${monthDays} days this month · today's win logged`;
+    }
+    return `${s}-day streak · showed up ${monthDays} days this month · tonight's win pending`;
   },
 
   getWeakestPattern(patterns, patternDone, patternTotals = {}) {
@@ -60,45 +110,45 @@ const Insights = {
     return totals;
   },
 
-  getInsightMessage(stats, streak) {
+  getInsightMessage(stats, streak, completedDates = []) {
     const { totalCompleted, byDifficulty } = stats;
-    const pct = Math.round((totalCompleted / this.TOTAL_PROBLEMS) * 100);
+    const todayDone = this.completedToday(completedDates);
 
     if (totalCompleted === 0) {
-      return "Your journey starts with one checkbox. Pick an easy problem tonight and log your first win.";
+      return "Your journey starts with one problem tonight. Pick one, solve it, and log your first win.";
     }
-    if (totalCompleted === 1) {
-      return "First problem down. Most people never get this far — you're already ahead.";
+    if (todayDone && streak >= 7) {
+      return `${streak}-day streak and today's win is logged. Consistency is your edge — same time tomorrow.`;
     }
-    if (pct >= 100) {
-      return "300/300. You ran the full AfterHours curriculum. Time to redo, optimize, and mock interviews.";
+    if (todayDone && streak >= 3) {
+      return `${streak} days in a row with today's rep done. You're building the habit that interviews reward.`;
     }
-    if (pct >= 75) {
-      return "You're in the final stretch. The last 25% is where interview confidence becomes real.";
-    }
-    if (pct >= 50) {
-      return "Halfway there. Your pattern recognition is compounding — keep the nightly reps going.";
+    if (todayDone) {
+      return "Today's win is logged. Rest up — your brain is wiring what you just solved.";
     }
     if (streak >= 7) {
-      return `${streak}-day streak. Consistency beats cramming — you're building interview muscle memory.`;
+      return `${streak}-day streak on the line. One problem tonight keeps the chain alive.`;
     }
     if (streak >= 3) {
-      return `${streak} days in a row. This rhythm is exactly what separates prepared candidates from everyone else.`;
+      return `${streak} days strong. Show up tonight and keep the rhythm going.`;
+    }
+    if (totalCompleted === 1) {
+      return "First win logged. Come back tomorrow — one problem at a time is the whole strategy.";
     }
     if ((byDifficulty?.Hard || 0) === 0 && totalCompleted >= 10) {
-      return "Solid easy and medium reps. Consider tackling a hard problem this week to level up.";
+      return "Solid easy and medium reps. When you're ready, one hard problem a week builds real depth.";
     }
     if ((byDifficulty?.Easy || 0) > (byDifficulty?.Medium || 0) * 2) {
-      return "Strong on easy wins. Mix in more medium problems to sharpen your interview edge.";
+      return "Strong on fundamentals. Balance with a medium problem when you have the energy.";
     }
-    return `${pct}% complete. Show up after hours, stack small wins, and the graph will climb.`;
+    return "One quality problem after work beats ten rushed ones. Pick tonight's and show up.";
   },
 
   getNextUpSuggestion(weakest) {
     if (!weakest) {
       return {
         title: "Start anywhere",
-        detail: "Pick a pattern from the sidebar and solve your first problem tonight.",
+        detail: "Pick a pattern from the sidebar and solve one problem tonight.",
         cta: "Browse problems",
         href: "/",
       };
@@ -110,7 +160,7 @@ const Insights = {
     if (remaining <= 0) {
       return {
         title: "Explore a new pattern",
-        detail: "This pattern is complete. Branch out and keep your reps diverse.",
+        detail: "This pattern is complete. Branch out for breadth on your next night.",
         cta: "View all problems",
         href: "/",
       };
@@ -118,8 +168,8 @@ const Insights = {
 
     return {
       title: pattern.name,
-      detail: `${done}/${total} done in this pattern — ${remaining} left. Focus here to balance your progress.`,
-      cta: "Solve next in pattern",
+      detail: `${done} done in this pattern — ${remaining} left. A good focus for tonight's single rep.`,
+      cta: "Solve in pattern",
       href: `/?pattern=${pattern.slug}`,
     };
   },

@@ -1,5 +1,11 @@
 const Progress = require("../models/progress.model");
 const Problem = require("../models/problem.model");
+const {
+  computeStreak,
+  completedToday,
+  activeDaysInMonth,
+  activeDaysThisWeek,
+} = require("../utils/consistency");
 const Pattern = require("../models/pattern.model");
 const {
   computeUnlockState,
@@ -36,7 +42,7 @@ async function getUserUnlockContext(userId) {
 
 const createProgress = async (req, res) => {
   try {
-    const { problemId, status = "done", notes = "" } = req.body;
+    const { problemId, status = "done", notes = "", struggled = false } = req.body;
 
     if (!problemId) {
       return res.status(400).json({
@@ -60,6 +66,9 @@ const createProgress = async (req, res) => {
       }
     }
 
+    const reviewAt =
+      status === "done" ? new Date(Date.now() + 7 * 86400000) : null;
+
     const progress = await Progress.findOneAndUpdate(
       { userId: req.user._id, problemId },
       {
@@ -67,7 +76,9 @@ const createProgress = async (req, res) => {
         problemId,
         status,
         notes,
+        struggled: Boolean(struggled),
         completedAt: status === "done" ? new Date() : null,
+        reviewAt: status === "done" ? reviewAt : null,
       },
       { new: true, upsert: true, runValidators: true },
     ).populate({
@@ -114,10 +125,14 @@ const getProgressStats = async (req, res) => {
 
     const byPattern = {};
     const byDifficulty = { Easy: 0, Medium: 0, Hard: 0 };
+    const completedDates = [];
 
     for (const entry of progress) {
       const problem = entry.problemId;
       if (!problem) continue;
+
+      if (entry.completedAt) completedDates.push(entry.completedAt);
+      else if (entry.updatedAt) completedDates.push(entry.updatedAt);
 
       const patternName = problem.patternId?.name || "Unknown";
       byPattern[patternName] = (byPattern[patternName] || 0) + 1;
@@ -127,13 +142,21 @@ const getProgressStats = async (req, res) => {
       }
     }
 
+    const timezone = req.user.timezone || "Asia/Kolkata";
+    const totalProblems = await Problem.countDocuments();
+
     res.status(200).json({
       success: true,
       data: {
         totalCompleted: progress.length,
+        totalProblems,
         byPattern,
         byDifficulty,
         unlocks: unlockState,
+        streak: computeStreak(completedDates, timezone),
+        completedToday: completedToday(completedDates, timezone),
+        activeDaysThisMonth: activeDaysInMonth(completedDates, timezone),
+        activeDaysThisWeek: activeDaysThisWeek(completedDates, timezone),
       },
     });
   } catch (error) {
@@ -152,10 +175,25 @@ const updateProgress = async (req, res) => {
       return res.status(404).json({ success: false, message: "Progress entry not found" });
     }
 
-    const { status, notes } = req.body;
+    const { status, notes, struggled } = req.body;
     if (status) progress.status = status;
     if (notes !== undefined) progress.notes = notes;
-    if (status === "done") progress.completedAt = new Date();
+    if (struggled !== undefined) progress.struggled = Boolean(struggled);
+
+    if (status === "done") {
+      const problem = await Problem.findById(progress.problemId).populate("patternId");
+      if (problem) {
+        const unlockState = await getUserUnlockContext(req.user._id);
+        if (isProblemLocked(problem, unlockState)) {
+          return res.status(403).json({
+            success: false,
+            message: "This problem is locked. Complete more problems to unlock it.",
+          });
+        }
+      }
+      progress.completedAt = new Date();
+      progress.reviewAt = new Date(Date.now() + 7 * 86400000);
+    }
 
     await progress.save();
 

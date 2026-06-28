@@ -451,9 +451,21 @@ const Motivation = (() => {
   };
 
   const CTA_LABELS = {
-    done: "Keep grinding →",
+    done: "See you tomorrow →",
     redo: "Let's go →",
   };
+
+  const DONE_FOOTERS = [
+    "You showed up today. Same time tomorrow.",
+    "Tonight's rep is logged. Rest up — consistency wins.",
+    "One problem after work. That's the whole game.",
+    "Done for tonight. Your streak will thank you tomorrow.",
+    "Small win, big habit. See you at your next after-hours slot.",
+  ];
+
+  function pickDoneFooter() {
+    return DONE_FOOTERS[Math.floor(Math.random() * DONE_FOOTERS.length)];
+  }
 
   let modalEl = null;
 
@@ -506,7 +518,7 @@ const Motivation = (() => {
         <h3 class="motivation-headline" id="motivationHeadline"></h3>
         <p class="motivation-message" id="motivationMessage"></p>
         <p class="motivation-footer" id="motivationFooter"></p>
-        <button type="button" class="btn btn-primary motivation-cta" id="motivationCta">Keep grinding →</button>
+        <button type="button" class="btn btn-primary motivation-cta" id="motivationCta">See you tomorrow →</button>
       </div>`;
 
     document.body.appendChild(modalEl);
@@ -539,7 +551,8 @@ const Motivation = (() => {
       : "";
     modal.querySelector("#motivationHeadline").textContent = quote.headline;
     modal.querySelector("#motivationMessage").textContent = quote.message;
-    modal.querySelector("#motivationFooter").textContent = quote.footer;
+    modal.querySelector("#motivationFooter").textContent =
+      type === "done" ? pickDoneFooter() : quote.footer;
     modal.querySelector("#motivationCta").textContent = CTA_LABELS[type] || CTA_LABELS.done;
 
     modal.hidden = false;

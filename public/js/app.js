@@ -15,6 +15,7 @@ const state = {
   unlockState: null,
   progressEntries: [],
   tonightShuffle: 0,
+  consistencyStats: null,
 };
 
 const SESSION_KEY = typeof Focus !== "undefined" ? Focus.SESSION_KEY : "afterhours_home_session";
@@ -144,18 +145,36 @@ function applySessionUI() {
   if (allBtn) allBtn.classList.add("active");
 }
 
+function getCompletedDates() {
+  return state.progressEntries.map((e) => e.completedAt || e.updatedAt).filter(Boolean);
+}
+
 function updateHomeProgressSnippet() {
   const el = $("#homeProgressSnippet");
   if (!el || !Auth.isLoggedIn()) return;
 
-  const done = getTotalDone();
-  const total = Unlocks.TOTAL_PROBLEMS;
-  const percent = total ? Math.round((done / total) * 100) : 0;
-  el.textContent = `${done} of ${total} solved · ${percent}%`;
+  const dates = getCompletedDates();
+  const stats = state.consistencyStats;
+  const streak = stats?.streak ?? Insights.computeStreak(dates);
+  el.textContent = Insights.formatConsistencySnippet(dates, streak, {
+    activeDaysThisMonth: stats?.activeDaysThisMonth,
+    completedToday: stats?.completedToday,
+  });
+}
+
+async function refreshConsistencyStats() {
+  if (!Auth.isLoggedIn()) return;
+  try {
+    const { data } = await api("/api/v1/progress/stats");
+    state.consistencyStats = data;
+    updateHomeProgressSnippet();
+  } catch {
+    /* keep client-side fallback */
+  }
 }
 
 async function loadTonightsProblem() {
-  if (typeof Focus === "undefined") return;
+  if (typeof Focus === "undefined") return null;
 
   try {
     const result = await Focus.fetchTonightsProblem({
@@ -167,10 +186,30 @@ async function loadTonightsProblem() {
       tonightShuffle: state.tonightShuffle,
       apiFn: (path) => api(path),
     });
-    Focus.renderTonightsProblem(result, TONIGHT_IDS);
+    if (result?.patternSlug) {
+      try {
+        localStorage.setItem("afterhours_tonight_slug", result.patternSlug);
+      } catch {
+        /* ignore */
+      }
+    }
+    const dates = getCompletedDates();
+    Focus.renderTodayCard({
+      completedDates: dates,
+      tonightResult: result,
+      tonightIds: TONIGHT_IDS,
+    });
+    if (!Insights.completedToday(dates)) {
+      Focus.renderTonightsProblem(result, TONIGHT_IDS);
+    }
+    if (typeof Analytics !== "undefined") {
+      Analytics.track("tonight_problem_view", { pattern: result?.patternSlug || "" });
+    }
+    return result;
   } catch {
     const panel = $("#tonightsProblem");
     if (panel) panel.hidden = true;
+    return null;
   }
 }
 
@@ -210,9 +249,9 @@ function updateAllPatternCount() {
   const el = $("#allPatternCount");
   if (Auth.isLoggedIn()) {
     const done = Object.values(state.patternDone).reduce((a, b) => a + b, 0);
-    el.textContent = `${done}/${Unlocks.TOTAL_PROBLEMS}`;
+    el.textContent = `${done} solved`;
   } else {
-    el.textContent = String(Unlocks.TOTAL_PROBLEMS);
+    el.textContent = `${Unlocks.TOTAL_PROBLEMS} problems`;
   }
 }
 
@@ -226,7 +265,11 @@ async function loadProgress() {
   }
 
   try {
-    const { data } = await api("/api/v1/progress?status=done");
+    const [{ data }, { data: stats }] = await Promise.all([
+      api("/api/v1/progress?status=done"),
+      api("/api/v1/progress/stats"),
+    ]);
+    state.consistencyStats = stats;
     state.progressMap.clear();
     state.patternDone = {};
     state.progressEntries = data;
@@ -235,7 +278,7 @@ async function loadProgress() {
       const problem = entry.problemId;
       if (!problem) return;
       const problemId = problem._id;
-      state.progressMap.set(problemId, { id: entry._id, status: entry.status });
+      state.progressMap.set(problemId, { id: entry._id, status: entry.status, notes: entry.notes || "" });
 
       const pid = problem.patternId?._id || problem.patternId;
       if (pid) {
@@ -297,9 +340,7 @@ function refreshPatternCounts() {
 
     if (btn.dataset.id === "") {
       const done = Object.values(state.patternDone).reduce((a, b) => a + b, 0);
-      countEl.textContent = Auth.isLoggedIn()
-        ? `${done}/${Unlocks.TOTAL_PROBLEMS}`
-        : String(Unlocks.TOTAL_PROBLEMS);
+      countEl.textContent = Auth.isLoggedIn() ? `${done} solved` : `${Unlocks.TOTAL_PROBLEMS} problems`;
       return;
     }
 
@@ -372,9 +413,16 @@ function renderProblems() {
         <tr class="problem-row ${isDone ? "row-done" : ""} ${locked ? "row-locked" : ""}" data-id="${p._id}">
           <td class="col-status">${statusCell}</td>
           <td class="col-num">${offset + i + 1}</td>
-          <td class="col-title"><span>${escapeHtml(p.title)}</span>${locked ? `<span class="lock-hint">${escapeHtml(lockReason)}</span>` : ""}</td>
+          <td class="col-title">
+            <span>${escapeHtml(p.title)}</span>
+            ${isDone && progress?.id ? `<button type="button" class="notes-btn" data-progress-id="${progress.id}" data-problem-id="${p._id}" title="Add notes">📝</button>` : ""}
+            ${locked ? `<span class="lock-hint">${escapeHtml(lockReason)}</span>` : ""}
+          </td>
           <td class="col-difficulty"><span class="badge ${difficultyClass(p.difficulty)}">${p.difficulty}</span></td>
-          <td class="col-pattern">${escapeHtml(p.patternId?.name || "—")}</td>
+          <td class="col-pattern">
+            <span>${escapeHtml(p.patternId?.name || "—")}</span>
+            ${p.patternId?.slug ? `<button type="button" class="pattern-info-btn table-info-btn" data-slug="${p.patternId.slug}" aria-label="About ${escapeHtml(p.patternId.name)}" title="Pattern guide">i</button>` : ""}
+          </td>
           <td class="col-link">${locked ? `<span class="muted-text" title="${escapeHtml(lockReason)}">locked</span>` : link}</td>
         </tr>`;
     })
@@ -399,6 +447,10 @@ function renderProblems() {
 
   container.querySelectorAll(".done-check").forEach((cb) => {
     cb.addEventListener("change", () => toggleProgress(cb));
+  });
+
+  container.querySelectorAll(".notes-btn").forEach((btn) => {
+    btn.addEventListener("click", () => openNotesModal(btn.dataset.progressId, btn.dataset.problemId));
   });
 }
 
@@ -425,18 +477,34 @@ async function toggleProgress(checkbox) {
         method: "POST",
         body: JSON.stringify({ problemId, status: "done" }),
       });
-      state.progressMap.set(problemId, { id: data._id, status: "done" });
+      state.progressMap.set(problemId, { id: data._id, status: "done", notes: data.notes || "" });
 
       const problem = state.problems.find((p) => p._id === problemId);
+      if (problem) {
+        state.progressEntries.unshift({
+          _id: data._id,
+          problemId: problem,
+          completedAt: data.completedAt || new Date().toISOString(),
+          status: "done",
+          reviewAt: data.reviewAt,
+        });
+      }
       const pid = problem?.patternId?._id || problem?.patternId;
       if (pid) state.patternDone[pid] = (state.patternDone[pid] || 0) + 1;
 
-      if (problem?.difficulty) {
+      const newDone = getTotalDone();
+      const crossed =
+        typeof Milestones !== "undefined" ? Milestones.getNewlyCrossed(prevDone, newDone) : null;
+
+      if (problem?.difficulty && !crossed) {
         Motivation.show({
           difficulty: problem.difficulty,
           problemTitle: problem.title,
           type: "done",
         });
+        if (typeof Analytics !== "undefined") {
+          Analytics.track("check_in", { difficulty: problem.difficulty });
+        }
       }
     } else {
       const progress = state.progressMap.get(problemId);
@@ -462,6 +530,7 @@ async function toggleProgress(checkbox) {
     refreshPatternCounts();
     updateUnlockState();
     renderProblems();
+    await refreshConsistencyStats();
     loadTonightsProblem();
   } catch (err) {
     checkbox.checked = !isChecked;
@@ -548,10 +617,111 @@ $("#nextPage").addEventListener("click", () => {
 
 
 function selectPatternFromUrl() {
-  const slug = new URLSearchParams(window.location.search).get("pattern");
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get("pattern");
   if (!slug) return;
   const btn = document.querySelector(`.pattern-btn[data-slug="${slug}"]`);
   if (btn) btn.click();
+}
+
+function openNotesModal(progressId, problemId) {
+  const entry = state.progressEntries.find((e) => e._id === progressId);
+  const progress = state.progressMap.get(problemId);
+  const existing = progress?.notes || entry?.notes || "";
+
+  const modal = document.createElement("div");
+  modal.className = "motivation-modal notes-modal";
+  modal.innerHTML = `
+    <div class="motivation-backdrop" data-notes-close></div>
+    <div class="motivation-dialog" role="dialog" aria-modal="true">
+      <h3 class="motivation-headline">Problem notes</h3>
+      <p class="motivation-message">What clicked, what stuck, what to revisit — quality over checkbox speed.</p>
+      <textarea id="notesInput" class="notes-input" rows="4" maxlength="500" placeholder="Edge case I missed, approach that worked…"></textarea>
+      <div class="motivation-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-notes-close>Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="notesSaveBtn">Save</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+  document.body.classList.add("motivation-open");
+  modal.querySelector("#notesInput").value = existing;
+
+  const close = () => {
+    modal.remove();
+    document.body.classList.remove("motivation-open");
+  };
+
+  modal.querySelectorAll("[data-notes-close]").forEach((el) => el.addEventListener("click", close));
+
+  modal.querySelector("#notesSaveBtn").addEventListener("click", async () => {
+    const notes = modal.querySelector("#notesInput").value.trim();
+    try {
+      await api(`/api/v1/progress/${progressId}`, {
+        method: "PUT",
+        body: JSON.stringify({ notes }),
+      });
+      if (progress) progress.notes = notes;
+      if (entry) entry.notes = notes;
+      close();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+}
+
+function initPatternDrawer() {
+  const toggle = $("#patternDrawerToggle");
+  const sidebar = $("#patternSidebar");
+  const backdrop = $("#patternDrawerBackdrop");
+  if (!toggle || !sidebar) return;
+
+  const setOpen = (open) => {
+    sidebar.classList.toggle("sidebar-open", open);
+    if (backdrop) backdrop.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    document.body.classList.toggle("pattern-drawer-open", open);
+  };
+
+  toggle.addEventListener("click", () => setOpen(!sidebar.classList.contains("sidebar-open")));
+  backdrop?.addEventListener("click", () => setOpen(false));
+}
+
+function initPwaInstall() {
+  const banner = $("#pwaInstallBanner");
+  const installBtn = $("#pwaInstallBtn");
+  const dismissBtn = $("#pwaInstallDismiss");
+  if (!banner) return;
+
+  let deferredPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    try {
+      if (localStorage.getItem("afterhours_pwa_dismissed")) return;
+    } catch {
+      /* ignore */
+    }
+    banner.hidden = false;
+  });
+
+  installBtn?.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    banner.hidden = true;
+  });
+
+  dismissBtn?.addEventListener("click", () => {
+    banner.hidden = true;
+    try {
+      localStorage.setItem("afterhours_pwa_dismissed", "1");
+    } catch {
+      /* ignore */
+    }
+  });
 }
 
 async function init() {
@@ -589,6 +759,9 @@ async function init() {
     selectPatternFromUrl();
     updateContinueSession();
     await loadTonightsProblem();
+    if (typeof Onboarding !== "undefined") Onboarding.init();
+    initPatternDrawer();
+    initPwaInstall();
   } catch (err) {
     $("#problemsContainer").innerHTML = `<div class="empty-state">Failed to load: ${escapeHtml(err.message)}</div>`;
   }
