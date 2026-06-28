@@ -131,45 +131,6 @@ function activityChart(completedDates, days = 14) {
     </div>`;
 }
 
-function patternStackedBar(patterns, patternDone) {
-  const segments = patterns
-    .map((p) => ({ name: p.name, value: patternDone[p._id] || 0 }))
-    .filter((s) => s.value > 0)
-    .sort((a, b) => b.value - a.value);
-
-  const total = segments.reduce((sum, s) => sum + s.value, 0);
-  if (!total) {
-    return `<div class="stacked-bar stacked-bar-empty"><span>No pattern data yet</span></div>`;
-  }
-
-  const palette = ["seg-1", "seg-2", "seg-3", "seg-4", "seg-5", "seg-6", "seg-7", "seg-8"];
-  const chunks = segments
-    .map((seg, i) => {
-      const width = (seg.value / total) * 100;
-      return `<div class="stacked-bar-seg ${palette[i % palette.length]}" style="width: ${width}%" title="${escapeHtml(seg.name)}: ${seg.value}"></div>`;
-    })
-    .join("");
-
-  const legend = segments
-    .slice(0, 6)
-    .map((seg, i) => {
-      const width = (seg.value / total) * 100;
-      return `
-        <div class="stacked-legend-item">
-          <span class="stacked-legend-swatch ${palette[i % palette.length]}"></span>
-          <span class="stacked-legend-name">${escapeHtml(seg.name)}</span>
-          <span class="stacked-legend-pct">${seg.value} · ${Math.round(width)}%</span>
-        </div>`;
-    })
-    .join("");
-
-  return `
-    <div class="stacked-bar-wrap">
-      <div class="stacked-bar" role="img" aria-label="Pattern distribution">${chunks}</div>
-      <div class="stacked-legend">${legend}</div>
-    </div>`;
-}
-
 function weekSolveCount(completedDates) {
   const weekAgo = Date.now() - 7 * 86400000;
   return completedDates.filter((d) => d && new Date(d).getTime() >= weekAgo).length;
@@ -279,32 +240,6 @@ function cumulativeLineChart(completedDates, weekCount = 10) {
     </div>`;
 }
 
-function difficultyBarChart(byDifficulty, difficultyTotals) {
-  const items = [
-    { label: "Easy", done: byDifficulty.Easy || 0, total: difficultyTotals.Easy, cls: "fill-easy", color: "var(--easy)" },
-    { label: "Medium", done: byDifficulty.Medium || 0, total: difficultyTotals.Medium, cls: "fill-medium", color: "var(--medium)" },
-    { label: "Hard", done: byDifficulty.Hard || 0, total: difficultyTotals.Hard, cls: "fill-hard", color: "var(--hard)" },
-  ];
-  const max = Math.max(...items.map((i) => i.total), 1);
-
-  return `
-    <div class="difficulty-bar-chart">
-      ${items
-        .map(
-          (i) => `
-        <div class="difficulty-bar-row">
-          <span class="difficulty-bar-label">${i.label}</span>
-          <div class="difficulty-bar-track">
-            <div class="difficulty-bar-cap" style="width: ${(i.total / max) * 100}%"></div>
-            <div class="difficulty-bar-fill ${i.cls}" style="width: ${(i.done / max) * 100}%"></div>
-          </div>
-          <span class="difficulty-bar-val">${i.done}/${i.total}</span>
-        </div>`,
-        )
-        .join("")}
-    </div>`;
-}
-
 function getNextBadgeProgress(totalDone) {
   if (typeof Milestones === "undefined") {
     return { label: "Night Shift", pct: 0, remaining: 10, icon: "◎", color: "#fbbf24", target: 10 };
@@ -404,24 +339,8 @@ function streakFlamesVisual(streak) {
     </div>`;
 }
 
-function difficultyColumnsVisual(byDifficulty) {
-  const easy = byDifficulty.Easy || 0;
-  const medium = byDifficulty.Medium || 0;
-  const hard = byDifficulty.Hard || 0;
-  const max = Math.max(easy, medium, hard, 1);
-  const col = (val, cls, label) => {
-    const h = Math.max(12, Math.round((val / max) * 100));
-    return `<div class="diff-col" title="${label}: ${val}">
-      <span class="diff-col-val">${val}</span>
-      <div class="diff-col-bar ${cls}" style="height:${h}%"></div>
-      <span class="diff-col-label ${cls}">${label}</span>
-    </div>`;
-  };
-  return `<div class="diff-cols">${col(easy, "easy", "Easy")}${col(medium, "medium", "Med")}${col(hard, "hard", "Hard")}</div>`;
-}
-
 function visualBoard(data) {
-  const { totalDone, streak, byDifficulty } = data;
+  const { totalDone, streak } = data;
   const badge = getNextBadgeProgress(totalDone);
 
   return `
@@ -433,15 +352,10 @@ function visualBoard(data) {
           ${badgeRingVisual(badge, totalDone)}
           ${nextBadgeMosaic(totalDone, badge)}
         </div>
-        <div class="visual-tile visual-tile-streak">
+        <div class="visual-tile visual-tile-streak visual-span-2">
           ${tileLabel("Streak")}
           ${vizHint("One lit flame = one active day")}
           ${streakFlamesVisual(streak)}
-        </div>
-        <div class="visual-tile visual-tile-diff">
-          ${tileLabel("Difficulty")}
-          ${vizHint("Taller bar = more solved at that level")}
-          ${difficultyColumnsVisual(byDifficulty)}
         </div>
         <div class="visual-tile visual-tile-trail visual-span-full">
           ${tileLabel("Badge path")}
@@ -578,14 +492,7 @@ async function fetchProgressData() {
 }
 
 function renderOverview(container, data) {
-  const { byDifficulty, patterns, patternDone, patternTotals, completedDates, difficultyTotals } = data;
-
-  const difficultySegments = [
-    { value: byDifficulty.Easy || 0, className: "chart-seg-easy", label: "Easy" },
-    { value: byDifficulty.Medium || 0, className: "chart-seg-medium", label: "Medium" },
-    { value: byDifficulty.Hard || 0, className: "chart-seg-hard", label: "Hard" },
-  ];
-  const difficultyTotal = difficultySegments.reduce((sum, s) => sum + s.value, 0);
+  const { patterns, patternDone, patternTotals, completedDates } = data;
 
   container.innerHTML = `
     ${visualBoard(data)}
@@ -598,55 +505,6 @@ function renderOverview(container, data) {
     <div class="viz-grid">
       ${vizPanel("📊 Daily", activityChart(completedDates, 14), "viz-bars", "Bar height = problems finished that day")}
       ${vizPanel("📈 Growth", cumulativeLineChart(completedDates, 10), "viz-line", "Line going up = your total solved over time")}
-    </div>
-
-    <div class="viz-grid">
-      ${vizPanel(
-        "◐ Difficulty",
-        `<div class="viz-split-labeled">
-          ${difficultyBarChart(byDifficulty, difficultyTotals)}
-          <div class="chart-card-donut">
-            ${donutChart(difficultySegments, { size: 120, stroke: 14, centerLabel: difficultyTotal, centerSub: "total" })}
-            ${chartLegend(
-              difficultySegments.map((seg) => ({
-                className: seg.className.replace("chart-seg-", "chart-legend-"),
-                label: seg.label,
-                value: seg.value,
-              })),
-            )}
-          </div>
-        </div>`,
-        "viz-diff",
-        "Bars = solved vs available · donut = your easy/med/hard split",
-      )}
-      ${vizPanel("🎨 Mix", patternStackedBar(patterns, patternDone), "viz-stack", "Each color = share of your solves in that pattern")}
-    </div>`;
-}
-
-function milestoneGridPlan(totalDone) {
-  const thresholds = typeof Milestones !== "undefined" ? Milestones.THRESHOLDS : [];
-  if (!thresholds.length) return "";
-
-  const items = thresholds
-    .map((m) => {
-      const earned = totalDone >= m.count;
-      const progress = Math.min(100, Math.round((totalDone / m.count) * 100));
-      return `
-        <div class="milestone-grid-item ${earned ? "earned" : "locked"}" style="--milestone-color: ${m.color}">
-          <div class="milestone-grid-ring" style="--ring-pct: ${progress}%">
-            <span class="milestone-grid-icon" aria-hidden="true">${m.icon}</span>
-          </div>
-          <span class="milestone-grid-label">${escapeHtml(m.label)}</span>
-          <span class="milestone-grid-meta">${earned ? "Unlocked ✓" : `${totalDone} / ${m.count}`}</span>
-        </div>`;
-    })
-    .join("");
-
-  return `
-    <div class="stats-card panel milestone-grid-card">
-      <h3>Badge milestones</h3>
-      <p class="plan-desc">Badges unlock at 10, 25, 45, 60, 75, 90, and 100 — on your own clock, not a race to 300.</p>
-      <div class="milestone-grid">${items}</div>
     </div>`;
 }
 
@@ -656,26 +514,13 @@ function renderPlan(container, data) {
     totalDone,
     byDifficulty,
     difficultyTotals,
-    patterns,
-    patternDone,
-    patternTotals,
     progressEntries,
     insight,
     nextUp,
-    streak,
     completedDates,
   } = data;
 
-  const badge = getNextBadgeProgress(totalDone);
   const thisWeek = weekSolveCount(completedDates);
-
-  const patternBars = patterns
-    .map((p) => {
-      const done = patternDone[p._id] || 0;
-      const total = patternTotals[p._id] || Unlocks.PROBLEMS_PER_PATTERN;
-      return barRow(p.name, done, total);
-    })
-    .join("");
 
   const recent = progressEntries.slice(0, 5);
   const recentHtml = recent.length
@@ -700,27 +545,17 @@ function renderPlan(container, data) {
     : '<li class="recent-empty">No problems completed yet — your first win goes here.</li>';
 
   container.innerHTML = `
-    <p class="plan-greeting">Hey ${escapeHtml(user?.name || "there")} — your numbers, badges, and what to do next.</p>
+    <p class="plan-greeting">Hey ${escapeHtml(user?.name || "there")} — your stats and what to do next.</p>
     <div class="plan-summary panel">
       <div class="plan-summary-stat">
         <span class="plan-summary-val">${totalDone}</span>
         <span class="plan-summary-label">problems done</span>
       </div>
       <div class="plan-summary-stat">
-        <span class="plan-summary-val">${streak}</span>
-        <span class="plan-summary-label">day streak</span>
-      </div>
-      <div class="plan-summary-stat">
         <span class="plan-summary-val">${thisWeek}</span>
         <span class="plan-summary-label">this week</span>
       </div>
-      <div class="plan-summary-stat plan-summary-next" style="--badge-color: ${badge.color}">
-        <span class="plan-summary-val">${badge.remaining || "✓"}</span>
-        <span class="plan-summary-label">to ${escapeHtml(badge.label)}</span>
-      </div>
     </div>
-
-    ${milestoneGridPlan(totalDone)}
 
     <div class="insight-grid">
       <div class="insight-card panel">
@@ -746,11 +581,6 @@ function renderPlan(container, data) {
         <h3>Recent wins</h3>
         <ul class="recent-list">${recentHtml}</ul>
       </div>
-    </div>
-
-    <div class="stats-card panel pattern-breakdown">
-      <h3>By pattern</h3>
-      <div class="pattern-bars">${patternBars}</div>
     </div>`;
 }
 
