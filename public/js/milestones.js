@@ -34,6 +34,17 @@ const Milestones = (() => {
       color: "#fb923c",
     },
     {
+      id: "overtime",
+      count: 60,
+      label: "Deep Dive",
+      subtitle: "You're staying past the easy wins",
+      unlockHint: "60 solved unlocks Deep Dive — past the point most people quit.",
+      message: "Sixty in the books. You're not surface-level prepping anymore.",
+      icon: "◇",
+      tierClass: "milestone-tier-overtime",
+      color: "#4ade80",
+    },
+    {
       id: "vanguard",
       count: 75,
       label: "Final Boss Energy",
@@ -45,12 +56,23 @@ const Milestones = (() => {
       color: "#f472b6",
     },
     {
+      id: "stretch",
+      count: 90,
+      label: "Home Stretch",
+      subtitle: "Triple digits are in sight",
+      unlockHint: "90 solved unlocks Home Stretch — the last push before Offer Season.",
+      message: "Ninety crushed. Offer Season is one sprint away.",
+      icon: "◐",
+      tierClass: "milestone-tier-stretch",
+      color: "#e879f9",
+    },
+    {
       id: "century",
       count: 100,
       label: "Offer Season",
       subtitle: "Triple digits. Serious prep territory.",
       unlockHint: "100 solved unlocks Offer Season — the tier where interviews get interesting.",
-      message: "One hundred solved. You earned this — keep pushing toward 300.",
+      message: "One hundred solved. You earned this — keep climbing.",
       icon: "✦",
       tierClass: "milestone-tier-century",
       color: "#a78bfa",
@@ -212,8 +234,13 @@ const Milestones = (() => {
   }
 
   function applyTier(totalDone) {
-    const dashboard = document.getElementById("progressDashboard");
-    const hero = document.querySelector(".progress-hero");
+    const dashboard = document.getElementById("progressOverview") || document.getElementById("progressDashboard");
+    const hero =
+      document.querySelector(".visual-board") ||
+      document.querySelector(".grind-map-hero") ||
+      document.querySelector(".night-sky-hero") ||
+      document.querySelector(".map-hero") ||
+      document.querySelector(".progress-hero");
     const targets = [dashboard, hero].filter(Boolean);
     const highest = getHighest(totalDone);
 
