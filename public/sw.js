@@ -8,8 +8,8 @@ self.addEventListener("activate", (event) => {
 
 function parsePushPayload(event) {
   const defaults = {
-    title: "AfterHours — time to grind",
-    body: "Solve one problem today and keep building your streak.",
+    title: "AfterHours — your after-hours slot is open",
+    body: "Solve one problem today and keep your streak alive.",
     url: "/",
   };
 

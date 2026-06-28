@@ -98,7 +98,11 @@ const Push = {
 
     modal.querySelector("#reminderTitle").textContent = title;
     modal.querySelector("#reminderBody").textContent = body;
-    modal.querySelector("#reminderCta").href = url;
+    const cta = modal.querySelector("#reminderCta");
+    cta.href = url;
+    cta.onclick = () => {
+      if (typeof Analytics !== "undefined") Analytics.track("reminder_click", { url });
+    };
     modal.hidden = false;
     document.body.classList.add("motivation-open");
   },
@@ -235,10 +239,12 @@ const Push = {
       localStorage.setItem(shownKey, "1");
       const user = Auth.getUser();
       const firstName = user?.name?.split(" ")[0] || "there";
+      const slug = localStorage.getItem("afterhours_tonight_slug");
+      const reminderUrl = slug ? `/?pattern=${encodeURIComponent(slug)}&tonight=1` : "/";
       const payload = {
-        title: "AfterHours — time to grind",
-        body: `Hey ${firstName}! Solve one problem today and keep building your streak.`,
-        url: "/",
+        title: "AfterHours — your after-hours slot is open",
+        body: `Hey ${firstName}! Tonight's one problem is waiting — log your win when you're done.`,
+        url: reminderUrl,
       };
       this.showInPageReminder(payload);
       this.tryOsNotification(payload.title, payload.body);

@@ -7,14 +7,14 @@
     <title>AfterHours — Late-night interview prep</title>
     <meta
       name="description"
-      content="300 DSA problems across 20 patterns. Track progress, unlock milestones, and grind after dark with AfterHours — free interview prep for developers with a day job."
+      content="One DSA problem after work — build consistency, not burnout. AfterHours helps 9–5 developers prep after hours with patterns, streaks, and small wins."
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="AfterHours" />
     <meta property="og:title" content="AfterHours — Progress Never Clocks Out" />
     <meta
       property="og:description"
-      content="300 problems · 20 patterns · free. Track your grind, learn each pattern, and prep for interviews after hours."
+      content="One problem after work · 20 patterns · free. Build your after-hours habit and track consistency with AfterHours."
     />
     <meta property="og:url" content="https://afterhours-interview-prep.netlify.app/" />
     <meta property="og:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
@@ -22,7 +22,7 @@
     <meta name="twitter:title" content="AfterHours — Late-night interview prep" />
     <meta
       name="twitter:description"
-      content="300 problems · 20 patterns · free. Track progress and grind after dark."
+      content="One problem after work · 20 patterns · free. Build consistency with AfterHours."
     />
     <meta name="twitter:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,6 +31,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
@@ -92,7 +93,11 @@
     </header>
 
     <div class="layout">
-      <aside class="sidebar panel">
+      <button type="button" id="patternDrawerToggle" class="pattern-drawer-toggle btn btn-ghost btn-sm" aria-expanded="false" aria-controls="patternSidebar">
+        Patterns
+      </button>
+      <div id="patternDrawerBackdrop" class="pattern-drawer-backdrop" hidden></div>
+      <aside id="patternSidebar" class="sidebar panel">
         <div class="sidebar-head">
           <h2>Patterns</h2>
           <span class="sidebar-badge">20</span>
@@ -119,6 +124,11 @@
 
           <aside id="dailyQuote" class="daily-quote panel" hidden aria-label="Daily motivation"></aside>
 
+          <section id="todayCard" class="today-card panel" hidden>
+            <p id="todayStatus" class="today-status">Tonight's one problem</p>
+            <div id="todayBody" class="today-body"></div>
+          </section>
+
           <section id="continueSession" class="continue-session panel continue-inline" hidden>
             <div class="continue-inline-main">
               <p class="continue-kicker">Continue where you left off</p>
@@ -137,7 +147,7 @@
             </div>
             <div class="tonights-actions">
               <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
-              <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm">Another pick</button>
+              <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm" title="Default pick is intentional — use only if you need a different problem">Different pick</button>
             </div>
           </section>
 
@@ -159,8 +169,14 @@
         </div>
 
         <p id="loginPrompt" class="guest-hint" hidden>
-          <a href="/signup">Sign up free</a> to save progress · <a href="/login">Log in</a>
+          One problem after work · 20 patterns · free · <a href="/signup">Sign up</a> to save streaks · <a href="/login">Log in</a>
         </p>
+
+        <div id="pwaInstallBanner" class="pwa-install-banner panel" hidden>
+          <p>Add AfterHours to your home screen for one-tap after-hours prep.</p>
+          <button type="button" id="pwaInstallBtn" class="btn btn-primary btn-sm">Install</button>
+          <button type="button" id="pwaInstallDismiss" class="btn btn-ghost btn-sm">Not now</button>
+        </div>
 
         <div id="problemsContainer">
           <div class="loading">
@@ -185,6 +201,8 @@
       </div>
     </footer>
 
+    <script src="/js/header.js"></script>
+    <script src="/js/analytics.js"></script>
     <script src="/js/footer.js"></script>
 
     <script src="/js/auth.js"></script>
@@ -200,6 +218,7 @@
     <script src="/js/pattern-guides.js"></script>
     <script src="/js/pattern-diagrams.js"></script>
     <script src="/js/pattern-info.js"></script>
+    <script src="/js/onboarding.js"></script>
     <script src="/js/app.js"></script>
   </body>
 </html>

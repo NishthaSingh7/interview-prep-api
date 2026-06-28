@@ -42,12 +42,9 @@ const Unlocks = {
   },
 
   getLockReason(problem, unlockState) {
-    const hardPct = Math.round(this.HARD_UNLOCK_RATIO * 100);
-    const tierPct = Math.round(this.ADVANCED_PATTERNS_UNLOCK_RATIO * 100);
-
     if (problem.difficulty === "Hard" && !unlockState.hardUnlocked) {
       const left = Math.max(0, unlockState.hardUnlockRequired - unlockState.totalDone);
-      return `Solve ${left} more (${unlockState.hardUnlockRequired} total · ${hardPct}%) to unlock Hard`;
+      return `Solve ${left} more (${unlockState.hardUnlockRequired} total) to unlock Hard`;
     }
     if (
       problem.patternId &&
@@ -55,7 +52,7 @@ const Unlocks = {
       !unlockState.advancedPatternsUnlocked
     ) {
       const left = Math.max(0, unlockState.advancedPatternsRequired - unlockState.firstTierDone);
-      return `Complete ${left} more in patterns 1–10 (${tierPct}%) to unlock advanced patterns`;
+      return `Complete ${left} more in patterns 1–10 to unlock advanced patterns`;
     }
     return "";
   },

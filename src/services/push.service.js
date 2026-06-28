@@ -31,8 +31,8 @@ function getPublicKey() {
 function buildReminderPayload(user) {
   const firstName = String(user.name || "there").split(" ")[0];
   return JSON.stringify({
-    title: "AfterHours — time to grind",
-    body: `Hey ${firstName}! Solve one problem today and keep building your streak.`,
+    title: "AfterHours — your after-hours slot is open",
+    body: `Hey ${firstName}! Tonight's one problem is waiting — log your win when you're done.`,
     url: APP_URL,
   });
 }

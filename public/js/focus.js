@@ -106,6 +106,7 @@ const Focus = (() => {
 
         return {
           problem: pick,
+          patternSlug: pattern.slug,
           reason:
             weakest && pid === weakest.pattern._id
               ? `Weakest pattern · ${done}/${total} done`
@@ -122,8 +123,9 @@ const Focus = (() => {
     const pick = open[Math.floor(Math.random() * open.length)];
     return {
       problem: pick,
+      patternSlug: pick.patternId?.slug || "",
       reason: Auth.isLoggedIn()
-        ? "Random easy pick — patterns may be complete"
+        ? "Warm-up pick — patterns may be complete"
         : "Warm-up pick · sign in to personalize",
     };
   }
@@ -162,6 +164,50 @@ const Focus = (() => {
     }
 
     panel.hidden = false;
+    return result;
+  }
+
+  function tonightDeepLink(result) {
+    if (!result?.patternSlug) return "/";
+    return `/?pattern=${encodeURIComponent(result.patternSlug)}&tonight=1`;
+  }
+
+  function renderTodayCard({ completedDates = [], tonightResult = null, tonightIds = null } = {}) {
+    const card = document.getElementById("todayCard");
+    if (!card) return;
+
+    const streak = Insights.computeStreak(completedDates);
+    const todayDone = Insights.completedToday(completedDates);
+    const statusEl = document.getElementById("todayStatus");
+    const bodyEl = document.getElementById("todayBody");
+
+    if (todayDone) {
+      if (statusEl) {
+        statusEl.textContent = "Today's win logged";
+        statusEl.className = "today-status today-status-done";
+      }
+      if (bodyEl) {
+        bodyEl.innerHTML = `
+          <p class="today-done-msg">${streak}-day streak · you showed up today. Same time tomorrow.</p>`;
+      }
+      card.hidden = false;
+      const tonightPanel = tonightIds?.panel ? document.getElementById(tonightIds.panel) : null;
+      if (tonightPanel) tonightPanel.hidden = true;
+      return;
+    }
+
+    if (statusEl) {
+      statusEl.textContent = "Tonight's one problem";
+      statusEl.className = "today-status";
+    }
+    if (bodyEl) {
+      bodyEl.innerHTML = `<p class="today-hint">One quality rep after work — mark done when you finish.</p>`;
+    }
+    card.hidden = false;
+
+    if (tonightResult && tonightIds) {
+      renderTonightsProblem(tonightResult, tonightIds);
+    }
   }
 
   function renderUnlockBanners(unlockState, wrapId = "unlockBanners") {
@@ -176,19 +222,17 @@ const Focus = (() => {
 
     const u = unlockState;
     const parts = [];
-    const hardPct = Math.round(Unlocks.HARD_UNLOCK_RATIO * 100);
-    const tierPct = Math.round(Unlocks.ADVANCED_PATTERNS_UNLOCK_RATIO * 100);
 
     if (!u.hardUnlocked) {
       const left = u.hardUnlockRequired - u.totalDone;
       parts.push(
-        `<div class="unlock-banner"><span class="lock-icon" aria-hidden="true">🔒</span> Hard problems unlock at ${hardPct}% (${u.hardUnlockRequired}/${Unlocks.TOTAL_PROBLEMS}) — <strong>${left} to go</strong></div>`,
+        `<div class="unlock-banner"><span class="lock-icon" aria-hidden="true">🔒</span> Hard problems unlock after ${u.hardUnlockRequired} solves — <strong>${left} to go</strong></div>`,
       );
     }
     if (!u.advancedPatternsUnlocked) {
       const left = u.advancedPatternsRequired - u.firstTierDone;
       parts.push(
-        `<div class="unlock-banner"><span class="lock-icon" aria-hidden="true">🔒</span> Patterns 11–20 unlock at ${tierPct}% of tier 1 — <strong>${left} more in patterns 1–10</strong></div>`,
+        `<div class="unlock-banner"><span class="lock-icon" aria-hidden="true">🔒</span> Patterns 11–20 unlock after ${u.advancedPatternsRequired} in tier 1 — <strong>${left} more in patterns 1–10</strong></div>`,
       );
     }
 
@@ -205,6 +249,8 @@ const Focus = (() => {
     renderContinue,
     fetchTonightsProblem,
     renderTonightsProblem,
+    renderTodayCard,
+    tonightDeepLink,
     renderUnlockBanners,
   };
 })();

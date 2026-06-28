@@ -13,7 +13,7 @@ const DailyQuote = (() => {
       author: "AfterHours",
     },
     {
-      text: "The grind is quiet. The results aren't.",
+      text: "Consistency after dark beats intensity that burns out by Friday.",
       author: "AfterHours",
     },
     {
@@ -65,7 +65,7 @@ const DailyQuote = (() => {
       author: "AfterHours",
     },
     {
-      text: "The best engineers grind when nobody's watching. You're one of them.",
+      text: "The best engineers show up when nobody's watching. You're one of them.",
       author: "AfterHours",
     },
     {
@@ -77,7 +77,7 @@ const DailyQuote = (() => {
       author: "AfterHours",
     },
     {
-      text: "One more problem before bed. That's how gaps become strengths.",
+      text: "Rest after tonight's win. Tomorrow's problem will be there.",
       author: "AfterHours",
     },
     {
@@ -105,7 +105,7 @@ const DailyQuote = (() => {
       author: "AfterHours",
     },
     {
-      text: "The grind map doesn't lie. Neither does your progress bar.",
+      text: "Your journey map doesn't lie. Neither does your streak.",
       author: "AfterHours",
     },
     {

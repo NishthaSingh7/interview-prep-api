@@ -131,6 +131,92 @@ function activityChart(completedDates, days = 14) {
     </div>`;
 }
 
+function consistencyWeekChart(completedDates, days = 14) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daySet = Insights.uniqueDayKeys(completedDates);
+
+  const buckets = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    buckets.push({
+      time: d.getTime(),
+      active: daySet.has(d.getTime()),
+      label: d.toLocaleDateString(undefined, { weekday: "narrow" }),
+    });
+  }
+
+  const bars = buckets
+    .map((b) => {
+      const height = b.active ? 100 : 8;
+      return `
+        <div class="activity-bar-col" title="${b.active ? "Showed up" : "No activity"}">
+          <span class="activity-bar-count">${b.active ? "✓" : ""}</span>
+          <div class="activity-bar" style="height: ${height}%">
+            <div class="activity-bar-fill${b.active ? "" : " activity-bar-empty"}"></div>
+          </div>
+          <span class="activity-bar-label">${b.label}</span>
+        </div>`;
+    })
+    .join("");
+
+  const activeCount = buckets.filter((b) => b.active).length;
+
+  return `
+    <div class="activity-chart">
+      <div class="activity-bars">${bars}</div>
+      <p class="chart-caption">${activeCount} active day${activeCount === 1 ? "" : "s"} in the last ${days} days</p>
+    </div>`;
+}
+
+function weeklyActiveDaysChart(completedDates, weekCount = 8) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daySet = Insights.uniqueDayKeys(completedDates);
+
+  const buckets = [];
+  for (let i = weekCount - 1; i >= 0; i--) {
+    const end = new Date(today);
+    end.setDate(end.getDate() - i * 7);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 6);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    let active = 0;
+    for (const key of daySet) {
+      if (key >= start.getTime() && key <= end.getTime()) active++;
+    }
+
+    buckets.push({
+      active,
+      label: end.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+    });
+  }
+
+  const max = Math.max(...buckets.map((b) => b.active), 1);
+  const bars = buckets
+    .map((b) => {
+      const height = b.active ? Math.max(12, Math.round((b.active / max) * 100)) : 8;
+      return `
+        <div class="activity-bar-col" title="${b.active} active day${b.active === 1 ? "" : "s"}">
+          <span class="activity-bar-count">${b.active || ""}</span>
+          <div class="activity-bar" style="height: ${height}%">
+            <div class="activity-bar-fill${b.active ? "" : " activity-bar-empty"}"></div>
+          </div>
+          <span class="activity-bar-label">${b.label}</span>
+        </div>`;
+    })
+    .join("");
+
+  return `
+    <div class="activity-chart">
+      <div class="activity-bars">${bars}</div>
+      <p class="chart-caption">Active days per week — consistency over volume</p>
+    </div>`;
+}
+
 function weekSolveCount(completedDates) {
   const weekAgo = Date.now() - 7 * 86400000;
   return completedDates.filter((d) => d && new Date(d).getTime() >= weekAgo).length;
@@ -329,13 +415,15 @@ function badgeTrailVisual(totalDone) {
 }
 
 function streakFlamesVisual(streak) {
-  const max = 7;
+  const lit = Math.min(streak, 7);
   return `
     <div class="flame-block">
+      <span class="streak-hero-val">${streak}</span>
+      <span class="streak-hero-label">day${streak === 1 ? "" : "s"} streak</span>
       <div class="flame-row">
-        ${Array.from({ length: max }, (_, i) => `<span class="flame${i < streak ? " lit" : ""}"></span>`).join("")}
+        ${Array.from({ length: 7 }, (_, i) => `<span class="flame${i < lit ? " lit" : ""}"></span>`).join("")}
       </div>
-      <span class="viz-micro">${streak ? `${streak} day${streak === 1 ? "" : "s"} in a row` : "Solve today to start a streak"}</span>
+      <span class="viz-micro">${streak ? "Show up tomorrow to keep it going" : "Solve today to start a streak"}</span>
     </div>`;
 }
 
@@ -367,13 +455,11 @@ function visualBoard(data) {
 }
 
 function calendarLegend() {
-  return `<div class="cal-legend">
-    <span>Less</span>
+  return `<div class="cal-legend cal-legend-binary">
+    <span>Missed</span>
     <span class="cal-cell cal-l0"></span>
     <span class="cal-cell cal-l1"></span>
-    <span class="cal-cell cal-l2"></span>
-    <span class="cal-cell cal-l3"></span>
-    <span>More</span>
+    <span>Showed up</span>
   </div>`;
 }
 
@@ -403,14 +489,7 @@ function grindCalendar(completedDates, weeks = 18) {
   const start = new Date(today);
   start.setDate(start.getDate() - weeks * 7 + 1);
 
-  const dayMap = new Map();
-  for (const dateStr of completedDates) {
-    if (!dateStr) continue;
-    const d = new Date(dateStr);
-    d.setHours(0, 0, 0, 0);
-    const key = d.getTime();
-    dayMap.set(key, (dayMap.get(key) || 0) + 1);
-  }
+  const daySet = Insights.uniqueDayKeys(completedDates);
 
   const cells = [];
   for (let w = 0; w < weeks; w++) {
@@ -418,9 +497,11 @@ function grindCalendar(completedDates, weeks = 18) {
       const cell = new Date(start);
       cell.setDate(cell.getDate() + w * 7 + d);
       if (cell > today) continue;
-      const count = dayMap.get(cell.getTime()) || 0;
-      const level = count === 0 ? 0 : count === 1 ? 1 : count === 2 ? 2 : 3;
-      const title = cell.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + `: ${count}`;
+      const active = daySet.has(cell.getTime());
+      const level = active ? 1 : 0;
+      const title =
+        cell.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+        `: ${active ? "showed up" : "rest day"}`;
       cells.push(`<span class="cal-cell cal-l${level}" title="${title}"></span>`);
     }
   }
@@ -467,9 +548,13 @@ async function fetchProgressData() {
 
   const patternTotals = Insights.patternTotalsFromList(patterns);
   const completedDates = progressEntries.map((e) => e.completedAt || e.updatedAt);
-  const streak = Insights.computeStreak(completedDates);
+  const streak = stats.streak ?? Insights.computeStreak(completedDates);
+  const activeDaysThisWeek =
+    stats.activeDaysThisWeek ?? Insights.activeDaysThisWeek(completedDates);
+  const activeDaysThisMonth =
+    stats.activeDaysThisMonth ?? Insights.activeDaysThisMonth(completedDates);
   const weakest = Insights.getWeakestPattern(patterns, patternDone, patternTotals);
-  const insight = Insights.getInsightMessage(stats, streak);
+  const insight = Insights.getInsightMessage(stats, streak, completedDates);
   const nextUp = Insights.getNextUpSuggestion(weakest);
 
   return {
@@ -478,13 +563,14 @@ async function fetchProgressData() {
     patterns,
     progressEntries,
     totalDone,
-    overallPct: pct(totalDone, Insights.TOTAL_PROBLEMS),
     byDifficulty,
     difficultyTotals,
     patternDone,
     patternTotals,
     completedDates,
     streak,
+    activeDaysThisWeek,
+    activeDaysThisMonth,
     weakest,
     insight,
     nextUp,
@@ -498,13 +584,13 @@ function renderOverview(container, data) {
     ${visualBoard(data)}
 
     <div class="viz-grid viz-grid-wide">
-      ${vizPanel("📅 Calendar", grindCalendar(completedDates, 18), "viz-cal", "Each square = one day · darker teal = more solved")}
+      ${vizPanel("📅 Calendar", grindCalendar(completedDates, 18), "viz-cal", "Lit square = you showed up that day")}
       ${vizPanel("▦ Patterns", patternHeatGrid(patterns, patternDone, patternTotals), "viz-patterns", "Brighter = more done in that pattern · hover for full name")}
     </div>
 
     <div class="viz-grid">
-      ${vizPanel("📊 Daily", activityChart(completedDates, 14), "viz-bars", "Bar height = problems finished that day")}
-      ${vizPanel("📈 Growth", cumulativeLineChart(completedDates, 10), "viz-line", "Line going up = your total solved over time")}
+      ${vizPanel("📊 Consistency", consistencyWeekChart(completedDates, 14), "viz-bars", "✓ = at least one solve that day")}
+      ${vizPanel("📈 Weekly habit", weeklyActiveDaysChart(completedDates, 8), "viz-line", "Bar height = active days that week")}
     </div>`;
 }
 
@@ -518,9 +604,11 @@ function renderPlan(container, data) {
     insight,
     nextUp,
     completedDates,
+    streak,
+    activeDaysThisWeek,
+    activeDaysThisMonth,
+    weakest,
   } = data;
-
-  const thisWeek = weekSolveCount(completedDates);
 
   const recent = progressEntries.slice(0, 5);
   const recentHtml = recent.length
@@ -545,15 +633,23 @@ function renderPlan(container, data) {
     : '<li class="recent-empty">No problems completed yet — your first win goes here.</li>';
 
   container.innerHTML = `
-    <p class="plan-greeting">Hey ${escapeHtml(user?.name || "there")} — your stats and what to do next.</p>
+    <p class="plan-greeting">Hey ${escapeHtml(user?.name || "there")} — your habit stats and what to do next.</p>
     <div class="plan-summary panel">
       <div class="plan-summary-stat">
-        <span class="plan-summary-val">${totalDone}</span>
-        <span class="plan-summary-label">problems done</span>
+        <span class="plan-summary-val">${streak}</span>
+        <span class="plan-summary-label">day streak</span>
       </div>
       <div class="plan-summary-stat">
-        <span class="plan-summary-val">${thisWeek}</span>
-        <span class="plan-summary-label">this week</span>
+        <span class="plan-summary-val">${activeDaysThisWeek}/7</span>
+        <span class="plan-summary-label">active days this week</span>
+      </div>
+      <div class="plan-summary-stat">
+        <span class="plan-summary-val">${activeDaysThisMonth}</span>
+        <span class="plan-summary-label">active days this month</span>
+      </div>
+      <div class="plan-summary-stat plan-summary-muted">
+        <span class="plan-summary-val">${totalDone}</span>
+        <span class="plan-summary-label">lifetime solves</span>
       </div>
     </div>
 
@@ -568,6 +664,7 @@ function renderPlan(container, data) {
         <p class="insight-text">${escapeHtml(nextUp.detail)}</p>
         <a href="${nextUp.href}" class="btn btn-primary btn-sm">${escapeHtml(nextUp.cta)}</a>
       </div>
+      ${disguiseHint(weakest)}
     </div>
 
     <div class="stats-grid">
@@ -584,16 +681,119 @@ function renderPlan(container, data) {
     </div>`;
 }
 
-async function loadFocusPanels(patterns, patternDone) {
+async function loadFocusPanels(data) {
+  const { patterns, patternDone, patternTotals, progressEntries, completedDates } = data;
   const unlockState = Unlocks.getClientState(patternDone, patterns);
+  const session = typeof Focus !== "undefined" ? Focus.readSession() : null;
 
   Focus.renderContinue(
     document.getElementById("continueSession"),
     document.getElementById("continueSessionDetail"),
     patterns,
+    session
+      ? {
+          patternSlug: session.patternSlug || "",
+          difficulty: session.difficulty || "",
+          search: session.search || "",
+          page: session.page > 0 ? session.page : 1,
+        }
+      : null,
   );
 
   Focus.renderUnlockBanners(unlockState, "unlockBanners");
+  renderReviewQueue(progressEntries);
+
+  if (typeof Focus === "undefined") return;
+
+  const progressMap = new Map();
+  progressEntries.forEach((entry) => {
+    const p = entry.problemId;
+    if (p?._id) progressMap.set(p._id, { id: entry._id, status: entry.status });
+  });
+
+  const tonightIds = {
+    panel: "tonightsProblem",
+    reason: "tonightsReason",
+    title: "tonightsTitle",
+    meta: "tonightsMeta",
+    link: "tonightsLink",
+  };
+
+  try {
+    const result = await Focus.fetchTonightsProblem({
+      patterns,
+      patternDone,
+      patternTotals,
+      progressMap,
+      unlockState,
+      tonightShuffle: 0,
+      apiFn: (path) => Auth.api(path),
+    });
+    if (result?.patternSlug) {
+      try {
+        localStorage.setItem("afterhours_tonight_slug", result.patternSlug);
+      } catch {
+        /* ignore */
+      }
+    }
+    Focus.renderTodayCard({ completedDates, tonightResult: result, tonightIds });
+    if (!Insights.completedToday(completedDates)) {
+      Focus.renderTonightsProblem(result, tonightIds);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+function renderReviewQueue(progressEntries) {
+  const panel = document.getElementById("reviewQueue");
+  const list = document.getElementById("reviewQueueList");
+  if (!panel || !list) return;
+
+  const now = Date.now();
+  const due = progressEntries.filter((entry) => {
+    if (!entry.reviewAt) return false;
+    return new Date(entry.reviewAt).getTime() <= now;
+  });
+
+  if (!due.length) {
+    panel.hidden = true;
+    list.innerHTML = "";
+    return;
+  }
+
+  list.innerHTML = due
+    .slice(0, 8)
+    .map((entry) => {
+      const p = entry.problemId;
+      if (!p) return "";
+      const url = p.leetcodeLink || p.practiceLink || "#";
+      return `
+        <li class="recent-item">
+          <span class="badge ${p.difficulty.toLowerCase()}">${p.difficulty}</span>
+          <span class="recent-title">${escapeHtml(p.title)}</span>
+          <a href="${url}" class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer">Review ↗</a>
+        </li>`;
+    })
+    .join("");
+
+  panel.hidden = false;
+}
+
+function disguiseHint(weakest) {
+  if (!weakest?.pattern?.slug || typeof PatternGuides === "undefined") return "";
+  const guide = PatternGuides.get(weakest.pattern.slug);
+  const disguise = guide?.disguises?.[0];
+  if (!disguise) return "";
+  const text =
+    typeof disguise === "string"
+      ? disguise
+      : disguise.mapsTo || disguise.question || "";
+  return `
+    <div class="insight-card panel insight-disguise">
+      <h3>Pattern in disguise</h3>
+      <p class="insight-text"><strong>${escapeHtml(weakest.pattern.name)}</strong> — ${escapeHtml(text)}</p>
+    </div>`;
 }
 
 const TAB_KEY = "afterhours_progress_tab";
@@ -666,7 +866,7 @@ async function loadProgress() {
     renderOverview(overviewEl, data);
     renderPlan(planEl, data);
 
-    await loadFocusPanels(data.patterns, data.patternDone);
+    await loadFocusPanels(data);
 
     if (typeof Milestones !== "undefined") {
       Milestones.update(data.totalDone);
