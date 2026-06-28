@@ -1,78 +1,123 @@
 const Confetti = (() => {
-  const COLORS = ["#22d3ee", "#fbbf24", "#f97316", "#a78bfa", "#34d399", "#fb7185"];
-  const PARTICLE_COUNT = 90;
+  const COLORS = ["#22d3ee", "#fbbf24", "#f97316", "#a78bfa", "#34d399", "#fb7185", "#fde047", "#e879f9"];
+  const BURSTS = 3;
+  const PARTICLES_PER_BURST = 70;
 
   let canvas = null;
   let ctx = null;
+  let container = null;
   let particles = [];
   let raf = null;
 
-  function ensureCanvas() {
-    if (canvas) return;
+  function ensureCanvas(parent) {
+    if (canvas && container === parent) return;
 
+    if (canvas) {
+      canvas.remove();
+      canvas = null;
+      ctx = null;
+    }
+
+    container = parent;
     canvas = document.createElement("canvas");
     canvas.id = "confettiCanvas";
     canvas.className = "confetti-canvas";
     canvas.setAttribute("aria-hidden", "true");
-    document.body.appendChild(canvas);
+    parent.insertBefore(canvas, parent.firstChild);
     ctx = canvas.getContext("2d");
     resize();
-    window.addEventListener("resize", resize);
   }
 
   function resize() {
-    if (!canvas) return;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    if (!canvas || !container) return;
+    const rect = container.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
   }
 
-  function spawnParticle() {
+  function spawnParticle(originX, originY) {
+    const angle = (Math.random() * Math.PI * 2);
+    const speed = Math.random() * 9 + 4;
+    const type = Math.random();
+
     return {
-      x: Math.random() * canvas.width,
-      y: -12 - Math.random() * canvas.height * 0.15,
-      vx: (Math.random() - 0.5) * 7,
-      vy: Math.random() * 2.5 + 1.5,
+      x: originX + (Math.random() - 0.5) * 40,
+      y: originY + (Math.random() - 0.5) * 20,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - (Math.random() * 6 + 4),
       rot: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 0.25,
-      w: Math.random() * 7 + 5,
-      h: Math.random() * 4 + 3,
+      spin: (Math.random() - 0.5) * 0.35,
+      w: Math.random() * 9 + 4,
+      h: Math.random() * 5 + 3,
+      shape: type < 0.35 ? "circle" : type < 0.7 ? "rect" : "ribbon",
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       life: 1,
-      decay: Math.random() * 0.007 + 0.005,
+      decay: Math.random() * 0.006 + 0.004,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: Math.random() * 0.15 + 0.05,
     };
   }
 
-  function burst() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    ensureCanvas();
+  function fireBurst(parent) {
+    ensureCanvas(parent);
+    resize();
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      particles.push(spawnParticle());
+    const originX = canvas.width * 0.5;
+    const originY = canvas.height * 0.62;
+
+    for (let i = 0; i < PARTICLES_PER_BURST; i++) {
+      particles.push(spawnParticle(originX, originY));
     }
 
     if (!raf) tick();
   }
 
-  function tick() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function burst(options = {}) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const parent = options.container || document.body;
+    particles = [];
+
+    fireBurst(parent);
+    setTimeout(() => fireBurst(parent), 180);
+    setTimeout(() => fireBurst(parent), 360);
+  }
+
+  function drawParticle(p) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(p.life, 0);
+    ctx.fillStyle = p.color;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+
+    if (p.shape === "circle") {
+      ctx.beginPath();
+      ctx.arc(0, 0, p.w * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (p.shape === "ribbon") {
+      ctx.fillRect(-p.w * 0.15, -p.h * 2, p.w * 0.3, p.h * 4);
+    } else {
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    }
+
+    ctx.restore();
+  }
+
+  function tick() {
+    if (!canvas || !ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     particles = particles.filter((p) => p.life > 0);
 
     for (const p of particles) {
-      p.x += p.vx;
+      p.wobble += p.wobbleSpeed;
+      p.x += p.vx + Math.sin(p.wobble) * 0.6;
       p.y += p.vy;
-      p.vy += 0.12;
-      p.vx *= 0.99;
+      p.vy += 0.18;
+      p.vx *= 0.985;
       p.rot += p.spin;
       p.life -= p.decay;
-
-      ctx.save();
-      ctx.globalAlpha = Math.max(p.life, 0);
-      ctx.fillStyle = p.color;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx.restore();
+      drawParticle(p);
     }
 
     if (particles.length) {
@@ -83,5 +128,24 @@ const Confetti = (() => {
     }
   }
 
-  return { burst };
+  function stop() {
+    particles = [];
+    if (raf) {
+      cancelAnimationFrame(raf);
+      raf = null;
+    }
+    if (ctx && canvas) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    if (canvas) {
+      canvas.remove();
+      canvas = null;
+      ctx = null;
+      container = null;
+    }
+  }
+
+  window.addEventListener("resize", resize);
+
+  return { burst, stop };
 })();
