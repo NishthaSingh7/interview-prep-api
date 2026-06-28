@@ -545,11 +545,17 @@ const Motivation = (() => {
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("motivation-open");
+
+    if (type === "done" && typeof Confetti !== "undefined") {
+      Confetti.burst({ container: modal });
+    }
+
     modal.querySelector("#motivationCta").focus();
   }
 
   function hide() {
     if (!modalEl || modalEl.hidden) return;
+    if (typeof Confetti !== "undefined") Confetti.stop();
     modalEl.hidden = true;
     modalEl.setAttribute("aria-hidden", "true");
     document.body.classList.remove("motivation-open");

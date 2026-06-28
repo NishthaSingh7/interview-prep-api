@@ -432,7 +432,6 @@ async function toggleProgress(checkbox) {
       if (pid) state.patternDone[pid] = (state.patternDone[pid] || 0) + 1;
 
       if (problem?.difficulty) {
-        if (typeof Confetti !== "undefined") Confetti.burst();
         Motivation.show({
           difficulty: problem.difficulty,
           problemTitle: problem.title,
