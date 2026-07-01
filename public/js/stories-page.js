@@ -301,7 +301,7 @@ const StoriesPage = (() => {
     },
   };
 
-  const SPEECH_RATE = { en: 0.78, hi: 0.76 };
+  const SPEECH_RATE = { en: 0.86, hi: 0.84 };
 
   const SPEAKER_ICON = `<svg class="stories-listen-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
 
@@ -314,6 +314,8 @@ const StoriesPage = (() => {
   let pendingStoryId = null;
   let pendingListenBtn = null;
   let voicesCache = null;
+  let speechSession = 0;
+  let voicesReadyPromise = null;
 
   function escapeHtml(str) {
     return String(str)
@@ -375,14 +377,122 @@ const StoriesPage = (() => {
     return voicesCache;
   }
 
+  function ensureVoicesReady() {
+    if (!canListen()) return Promise.resolve([]);
+    const existing = loadVoices();
+    if (existing.length) return Promise.resolve(existing);
+
+    if (!voicesReadyPromise) {
+      voicesReadyPromise = new Promise((resolve) => {
+        const finish = () => {
+          voicesCache = window.speechSynthesis.getVoices();
+          resolve(voicesCache);
+        };
+        const timer = setTimeout(finish, 600);
+        window.speechSynthesis.onvoiceschanged = () => {
+          clearTimeout(timer);
+          finish();
+        };
+      });
+    }
+    return voicesReadyPromise;
+  }
+
+  function voiceScore(voice, lang) {
+    const name = voice.name.toLowerCase();
+    const locale = voice.lang.toLowerCase().replace("_", "-");
+    let score = 0;
+
+    if (lang === "en") {
+      if (locale.startsWith("en-in")) score += 120;
+      else if (locale.startsWith("en-gb")) score += 35;
+      else if (locale.startsWith("en-us")) score += 5;
+
+      for (const hint of ["rishi", "veena", "lekha", "heera", "en-in"]) {
+        if (name.includes(hint)) score += 80;
+      }
+      if (name.includes("google") && name.includes("english") && (name.includes("india") || locale.includes("in"))) {
+        score += 65;
+      }
+      if (name.includes("samantha") || name.includes("fred") || name.includes("alex")) score -= 40;
+    } else {
+      if (locale.startsWith("hi-in") || locale === "hi") score += 120;
+      for (const hint of ["lekha", "swati", "neerja", "google hindi", "hindi", "heera"]) {
+        if (name.includes(hint)) score += 80;
+      }
+      if (name.includes("google") && name.includes("hindi")) score += 70;
+      if (name.includes("english") && !name.includes("hindi")) score -= 50;
+    }
+
+    if (voice.localService) score += 12;
+    return score;
+  }
+
   function pickVoice(lang) {
     const voices = loadVoices();
-    const prefix = lang === "hi" ? "hi" : "en";
-    return (
-      voices.find((v) => v.lang.toLowerCase().startsWith(prefix) && v.localService) ||
-      voices.find((v) => v.lang.toLowerCase().startsWith(prefix)) ||
-      null
-    );
+    if (!voices.length) return null;
+    return voices.slice().sort((a, b) => voiceScore(b, lang) - voiceScore(a, lang))[0] || null;
+  }
+
+  function hardCancelSpeech() {
+    if (!canListen()) return;
+    const syn = window.speechSynthesis;
+    syn.cancel();
+    syn.pause();
+    syn.cancel();
+  }
+
+  function splitSpeechChunks(text) {
+    const sentences = text.match(/[^.!?।]+[.!?।]+|[^.!?।]+$/g) || [text];
+    const chunks = [];
+    let current = "";
+
+    for (const sentence of sentences) {
+      const piece = sentence.trim();
+      if (!piece) continue;
+      const next = current ? `${current} ${piece}` : piece;
+      if (next.length > 200 && current) {
+        chunks.push(current.trim());
+        current = piece;
+      } else {
+        current = next;
+      }
+    }
+
+    if (current.trim()) chunks.push(current.trim());
+    return chunks.length ? chunks : [text];
+  }
+
+  function speakChunk(text, lang, voice, rate, session) {
+    return new Promise((resolve) => {
+      if (session !== speechSession) {
+        resolve();
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang === "hi" ? "hi-IN" : "en-IN";
+      utterance.rate = rate;
+      utterance.pitch = lang === "hi" ? 0.96 : 1;
+      if (voice) utterance.voice = voice;
+
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        resolve();
+      };
+
+      utterance.onend = finish;
+      utterance.onerror = finish;
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  function pauseBetweenChunks(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
   }
 
   function markListenButton(btn, speaking) {
@@ -399,7 +509,8 @@ const StoriesPage = (() => {
   }
 
   function stopSpeaking() {
-    if (canListen()) window.speechSynthesis.cancel();
+    speechSession += 1;
+    hardCancelSpeech();
     activeStoryId = null;
     activeLang = null;
     if (activeListenBtn) {
@@ -435,10 +546,10 @@ const StoriesPage = (() => {
         <p class="stories-listen-hint">Choose a language. We'll read slowly so you can follow along.</p>
         <div class="stories-listen-langs">
           <button type="button" class="stories-listen-lang" data-lang="en">
-            <span class="stories-listen-lang-flag" aria-hidden="true">🇬🇧</span>
+            <span class="stories-listen-lang-flag" aria-hidden="true">🇮🇳</span>
             <span class="stories-listen-lang-text">
-              <strong>English</strong>
-              <small>Slow, clear narration</small>
+              <strong>English (India)</strong>
+              <small>Clear Indian English · easy pace</small>
             </span>
           </button>
           <button type="button" class="stories-listen-lang" data-lang="hi">
@@ -479,6 +590,9 @@ const StoriesPage = (() => {
     const story = STORIES.find((s) => s.id === storyId);
     if (!story) return;
 
+    stopSpeaking();
+    closeListenDrawer();
+
     const drawer = ensureListenDrawer();
     pendingStoryId = storyId;
     pendingListenBtn = btn || null;
@@ -488,7 +602,7 @@ const StoriesPage = (() => {
     drawer.querySelector('[data-lang="en"]').focus();
   }
 
-  function startListening(storyId, lang, btn) {
+  async function startListening(storyId, lang, btn) {
     if (!canListen()) {
       alert("Listen is not supported in this browser. Try Chrome or Safari.");
       return;
@@ -503,24 +617,28 @@ const StoriesPage = (() => {
     }
 
     stopSpeaking();
+    const session = speechSession;
 
-    const utterance = new SpeechSynthesisUtterance(storySpeechText(story, lang));
-    utterance.lang = lang === "hi" ? "hi-IN" : "en-US";
-    utterance.rate = SPEECH_RATE[lang] || 0.78;
-    utterance.pitch = 1;
+    await ensureVoicesReady();
+    if (session !== speechSession) return;
 
     const voice = pickVoice(lang);
-    if (voice) utterance.voice = voice;
-
-    utterance.onend = stopSpeaking;
-    utterance.onerror = stopSpeaking;
+    const rate = SPEECH_RATE[lang] || 0.85;
+    const chunks = splitSpeechChunks(storySpeechText(story, lang));
 
     activeStoryId = storyId;
     activeLang = lang;
     activeListenBtn = btn || null;
     if (btn) markListenButton(btn, true);
 
-    window.speechSynthesis.speak(utterance);
+    for (const chunk of chunks) {
+      if (session !== speechSession) break;
+      await speakChunk(chunk, lang, voice, rate, session);
+      if (session !== speechSession) break;
+      await pauseBetweenChunks(lang === "hi" ? 160 : 120);
+    }
+
+    if (session === speechSession) stopSpeaking();
   }
 
   function onListenClick(storyId, btn) {
@@ -529,7 +647,7 @@ const StoriesPage = (() => {
       return;
     }
 
-    if (activeStoryId === storyId && window.speechSynthesis.speaking) {
+    if (activeStoryId === storyId) {
       stopSpeaking();
       return;
     }
@@ -639,6 +757,9 @@ const StoriesPage = (() => {
   }
 
   function openModal(storyId) {
+    stopSpeaking();
+    closeListenDrawer();
+
     const story = STORIES.find((s) => s.id === storyId);
     if (!story) return;
 
@@ -757,7 +878,7 @@ const StoriesPage = (() => {
     });
 
     if (canListen()) {
-      loadVoices();
+      ensureVoicesReady();
       window.speechSynthesis.onvoiceschanged = () => {
         voicesCache = window.speechSynthesis.getVoices();
       };
