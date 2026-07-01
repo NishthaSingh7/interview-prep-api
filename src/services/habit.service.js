@@ -89,9 +89,10 @@ async function useStreakFreeze(user) {
   return user;
 }
 
-async function buildHabitStats(user, timezoneOverride) {
+async function buildHabitStats(user, timezoneOverride, completedDatesOverride) {
   const timezone = timezoneOverride || user.timezone || "Asia/Kolkata";
-  const completedDates = await getCompletedDates(user._id);
+  const completedDates =
+    completedDatesOverride || (await getCompletedDates(user._id));
   const freezeDays = user.streakFreezeDays || [];
 
   const streak = computeStreak(completedDates, timezone, freezeDays);

@@ -630,6 +630,39 @@ function vizPanel(tag, content, className = "", hint = "") {
     </div>`;
 }
 
+function resolveHabitMetrics(stats, completedDates, timezone) {
+  const hasProgress = completedDates.length > 0 || (stats.totalCompleted || 0) > 0;
+  const apiLooksEmpty =
+    hasProgress &&
+    (stats.streak ?? 0) === 0 &&
+    (stats.activeDaysThisWeek ?? 0) === 0 &&
+    (stats.activeDaysThisMonth ?? 0) === 0;
+
+  if (!apiLooksEmpty) {
+    const streak = stats.streak ?? 0;
+    return {
+      streak,
+      bestStreak: Math.max(stats.bestStreak ?? 0, streak),
+      activeDaysThisWeek: stats.activeDaysThisWeek ?? 0,
+      activeDaysThisMonth: stats.activeDaysThisMonth ?? 0,
+      monthDelta: stats.monthDelta ?? 0,
+    };
+  }
+
+  const streak = Insights.streakInTimezone(completedDates, timezone);
+  const activeDaysThisWeek = Insights.activeDaysThisWeekInTimezone(completedDates, timezone);
+  const activeDaysThisMonth = Insights.activeDaysThisMonthInTimezone(completedDates, timezone);
+  const activeDaysLastMonth = Insights.activeDaysLastMonthInTimezone(completedDates, timezone);
+
+  return {
+    streak,
+    bestStreak: Math.max(stats.bestStreak ?? 0, streak),
+    activeDaysThisWeek,
+    activeDaysThisMonth,
+    monthDelta: activeDaysThisMonth - activeDaysLastMonth,
+  };
+}
+
 async function fetchProgressData() {
   const [{ data: stats }, { data: patterns }, { data: progressEntries }, easyRes, mediumRes, hardRes] =
     await Promise.all([
@@ -650,7 +683,7 @@ async function fetchProgressData() {
   }
 
   const user = Auth.getUser();
-  const totalDone = stats.totalCompleted || 0;
+  const totalDone = Math.max(stats.totalCompleted || 0, progressEntries.length);
   const byDifficulty = stats.byDifficulty || { Easy: 0, Medium: 0, Hard: 0 };
   const difficultyTotals = {
     Easy: easyRes.total || 0,
@@ -667,19 +700,32 @@ async function fetchProgressData() {
   }
 
   const patternTotals = Insights.patternTotalsFromList(patterns);
-  const completedDates = progressEntries.map((e) => e.completedAt || e.updatedAt || e.createdAt);
-  const streak = stats.streak ?? 0;
-  const activeDaysThisWeek = stats.activeDaysThisWeek ?? 0;
-  const activeDaysThisMonth = stats.activeDaysThisMonth ?? 0;
+  const completedDates = progressEntries.map((e) => e.completedAt || e.updatedAt || e.createdAt).filter(Boolean);
+  const habit = resolveHabitMetrics(stats, completedDates, timezone);
+
+  const streak = habit.streak;
+  const activeDaysThisWeek = habit.activeDaysThisWeek;
+  const activeDaysThisMonth = habit.activeDaysThisMonth;
+
+  const mergedStats = {
+    ...stats,
+    streak: habit.streak,
+    bestStreak: habit.bestStreak,
+    activeDaysThisWeek: habit.activeDaysThisWeek,
+    activeDaysThisMonth: habit.activeDaysThisMonth,
+    monthDelta: habit.monthDelta,
+    timezone,
+  };
+
   const weakest = Insights.getWeakestPattern(patterns, patternDone, patternTotals);
-  const insight = Insights.getInsightMessage(stats, streak, completedDates, {
+  const insight = Insights.getInsightMessage(mergedStats, streak, completedDates, {
     daysSinceLastActive: stats.daysSinceLastActive,
   });
   const nextUp = Insights.getNextUpSuggestion(weakest);
 
   return {
     user,
-    stats,
+    stats: mergedStats,
     patterns,
     progressEntries,
     totalDone,

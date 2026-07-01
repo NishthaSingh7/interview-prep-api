@@ -29,6 +29,66 @@ const Insights = {
     return keys;
   },
 
+  prevDateKey(dateKey) {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() - 1);
+    return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+  },
+
+  streakInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const keys = this.uniqueDateKeysInTimezone(completedDates, timezone);
+    if (!keys.size) return 0;
+
+    let cursor = this.dateKeyInTimezone(new Date(), timezone);
+    if (!keys.has(cursor)) {
+      cursor = this.prevDateKey(cursor);
+    }
+
+    let streak = 0;
+    while (keys.has(cursor)) {
+      streak++;
+      cursor = this.prevDateKey(cursor);
+    }
+    return streak;
+  },
+
+  activeDaysThisWeekInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const keys = [...this.uniqueDateKeysInTimezone(completedDates, timezone)].sort();
+    if (!keys.length) return 0;
+
+    const todayKey = this.dateKeyInTimezone(new Date(), timezone);
+    const [y, m, d] = todayKey.split("-").map(Number);
+    const start = new Date(Date.UTC(y, m - 1, d));
+    start.setUTCDate(start.getUTCDate() - 6);
+    const startKey = `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, "0")}-${String(start.getUTCDate()).padStart(2, "0")}`;
+
+    return keys.filter((k) => k >= startKey && k <= todayKey).length;
+  },
+
+  activeDaysThisMonthInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const nowKey = this.dateKeyInTimezone(new Date(), timezone);
+    const prefix = nowKey.slice(0, 7);
+    return [...this.uniqueDateKeysInTimezone(completedDates, timezone)].filter((k) =>
+      k.startsWith(prefix),
+    ).length;
+  },
+
+  activeDaysLastMonthInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const nowKey = this.dateKeyInTimezone(new Date(), timezone);
+    const [y, m] = nowKey.split("-").map(Number);
+    let year = y;
+    let month = m - 1;
+    if (month <= 0) {
+      month += 12;
+      year -= 1;
+    }
+    const prefix = `${year}-${String(month).padStart(2, "0")}`;
+    return [...this.uniqueDateKeysInTimezone(completedDates, timezone)].filter((k) =>
+      k.startsWith(prefix),
+    ).length;
+  },
+
   uniqueDayKeys(completedDates) {
     return new Set(
       completedDates

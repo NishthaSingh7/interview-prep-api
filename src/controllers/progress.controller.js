@@ -141,11 +141,19 @@ const getProgressStats = async (req, res) => {
     const timezone = resolveTimezone(req.user, req);
     if (req.user.timezone !== timezone) {
       req.user.timezone = timezone;
-      await req.user.save();
+      try {
+        await req.user.save();
+      } catch (saveErr) {
+        console.warn("[stats] timezone save skipped:", saveErr.message);
+      }
     }
 
+    const completedDates = progress
+      .map((entry) => entry.completedAt || entry.updatedAt || entry.createdAt)
+      .filter(Boolean);
+
     const totalProblems = await Problem.countDocuments();
-    const habit = await buildHabitStats(req.user, timezone);
+    const habit = await buildHabitStats(req.user, timezone, completedDates);
 
     res.status(200).json({
       success: true,
