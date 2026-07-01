@@ -128,7 +128,7 @@ const Milestones = (() => {
   }
 
   function headerBadgeHtml(milestone) {
-    return `<a href="/#milestonePanel" class="header-badge header-badge-${milestone.id}" style="--badge-glow: ${milestone.color}" title="${milestone.label} · ${milestone.count} wins — ${milestone.subtitle}">
+    return `<a href="/progress" class="header-badge header-badge-${milestone.id}" style="--badge-glow: ${milestone.color}" title="${milestone.label} · ${milestone.count} wins — ${milestone.subtitle}">
       <span class="header-badge-count" aria-hidden="true">${milestone.count}</span>
       <span class="header-badge-copy">
         <span class="header-badge-name">${milestone.label}</span>
@@ -234,14 +234,13 @@ const Milestones = (() => {
 
   function applyTier(totalDone) {
     const dashboard = document.getElementById("progressOverview") || document.getElementById("progressDashboard");
-    const homePanel = document.getElementById("milestonePanel");
     const hero =
       document.querySelector(".visual-board") ||
       document.querySelector(".grind-map-hero") ||
       document.querySelector(".night-sky-hero") ||
       document.querySelector(".map-hero") ||
       document.querySelector(".progress-hero");
-    const targets = [dashboard, hero, homePanel].filter(Boolean);
+    const targets = [dashboard, hero].filter(Boolean);
     const highest = getHighest(totalDone);
 
     targets.forEach((el) => {
@@ -332,7 +331,6 @@ const Milestones = (() => {
 
   function update(totalDone, prevCount) {
     renderHeaderBadges(totalDone);
-    renderPanel(totalDone);
     applyTier(totalDone);
 
     if (!Auth.isLoggedIn()) return;
