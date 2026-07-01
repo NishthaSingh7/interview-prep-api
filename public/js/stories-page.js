@@ -1,197 +1,200 @@
 const StoriesPage = (() => {
   const CATEGORIES = [
     { id: "all", label: "All" },
-    { id: "motivation", label: "Motivation" },
-    { id: "interview", label: "Interview" },
-    { id: "discipline", label: "Discipline" },
-    { id: "mindset", label: "Mindset" },
+    { id: "wisdom", label: "Wisdom" },
+    { id: "fables", label: "Fables" },
+    { id: "tales", label: "Tales" },
+    { id: "folk", label: "Folk" },
   ];
 
   const STORIES = [
     {
-      id: "venkatesh-google",
-      category: "interview",
-      icon: "🌙",
-      title: "One problem a day while working full-time",
-      teaser: "Venkatesh Dhongadi prepped at PANW nights, stuck to one daily problem, and landed Google.",
-      author: "Venkatesh Dhongadi",
-      source: "Medium — My Journey to Cracking Google",
+      id: "birbal-khichdi",
+      category: "wisdom",
+      icon: "👑",
+      title: "Birbal's Khichdi",
+      teaser: "A hungry emperor learns that some lessons only arrive when you wait.",
+      origin: "Akbar & Birbal",
       readMin: 2,
+      moral: "Patience and presence matter more than empty promises.",
       body: [
-        "Venkatesh was a year into his full-time role at Palo Alto Networks when he decided to seriously chase Google again. He started with one LeetCode problem per day — but consistency was brutal until he found a structured sheet he could trust and stopped drowning in random resources.",
-        "For months his life shrank to three things: work, gym, and study. Friends noticed he 'disappeared.' He took focused leave before rounds, drilled high-frequency tagged questions, and ran four virtual on-sites in four days.",
-        "In March 2025 the offer came through. His lesson for working engineers: you don't need to quit your job — you need one trusted path and the discipline to show up most nights, even when progress feels invisible.",
+        "One winter evening, Emperor Akbar and Birbal walked by a frozen lake. Akbar dipped his finger in the water and pulled it back, shivering. 'No one could sit in that lake all night for gold,' he declared.",
+        "A poor man accepted the challenge. At dawn he stood before the emperor, dry and calm. Akbar was stunned — until Birbal asked how he had survived. The man pointed to a distant lamp. 'I kept my eyes on that light through the night.'",
+        "Birbal smiled. 'The lamp was beside a kitchen. He smelled khichdi cooking hour after hour. He did not sit in cold alone — he sat with hope.' Akbar laughed at himself and rewarded the man's clever honesty.",
       ],
     },
     {
-      id: "james-clear-never-twice",
-      category: "discipline",
-      icon: "🔗",
-      title: "Never miss twice",
-      teaser: "James Clear's recovery rule: one slip is an accident; two in a row is a new habit.",
-      author: "James Clear",
-      source: "Atomic Habits",
+      id: "birbal-crows",
+      category: "wisdom",
+      icon: "🐦",
+      title: "How Many Crows?",
+      teaser: "Birbal answers an impossible question with calm wit.",
+      origin: "Akbar & Birbal",
       readMin: 2,
+      moral: "Confidence and humor can dissolve a trap question.",
       body: [
-        "James Clear popularized a rule that changed how many people think about streaks: missing once is normal. Missing twice is when you start becoming someone who doesn't do the habit.",
-        "On the recovery day, the job isn't to 'make up' for yesterday. It's to do the smallest possible version — one push-up, one page, one problem — so the loop fires again.",
-        "For interview prep after work, that means a bad night doesn't erase you. It means tomorrow you open the laptop, solve something small, and log it. Perfection isn't the metric. Restart speed is.",
+        "Akbar loved to test Birbal in front of the court. One day he asked, 'How many crows live in our kingdom?'",
+        "Courtiers gasped. Birbal closed his eyes as if counting, then said, 'Exactly twenty-one thousand five hundred and twenty-three, Your Majesty.'",
+        "'And if there are more?' Akbar asked. 'Then relatives from other kingdoms are visiting,' Birbal replied. 'And if there are fewer?' 'Then some have flown abroad.' The court burst into laughter. Akbar shook his head, smiling. He had wanted to corner Birbal. Instead he got a reminder that not every question needs a frightened answer.",
       ],
     },
     {
-      id: "curt-one-pushup",
-      category: "discipline",
-      icon: "💪",
-      title: "The one push-up that became years of consistency",
-      teaser: "Curt Jaimungal couldn't make the gym stick for 21 years — until the bar was absurdly low.",
-      author: "Curt Jaimungal",
-      source: "Substack — One Push Up",
+      id: "thirsty-crow",
+      category: "folk",
+      icon: "🪣",
+      title: "The Thirsty Crow",
+      teaser: "A simple folk tale about solving problems one small step at a time.",
+      origin: "Indian folk tale",
       readMin: 2,
+      moral: "Small steady efforts can move what looks impossible.",
       body: [
-        "Curt Jaimungal writes that for twenty-one years he couldn't make working out stick. Goals like '30 minutes at the gym' kept failing and leaving him feeling worse each cycle.",
-        "So he made the rule stupidly small: one push-up per day. Not ten. Not a workout. One. He found that starting the one often turned into more — but he never had to.",
-        "He then didn't miss a day for years. The lesson maps cleanly to prep: 'one problem tonight' isn't a joke. It's how you lower the barrier until your brain can't argue its way out.",
+        "On a hot afternoon, a crow found a pitcher with a little water at the bottom. His beak could not reach it. He could have flown away thirsty.",
+        "Instead he picked up pebbles one by one and dropped them into the pitcher. The water rose slowly — pebble by pebble — until he could drink.",
+        "No magic. No hurry. Just patience and trying the next small thing. The story is old, but the feeling is familiar whenever a problem looks too big at first glance.",
       ],
     },
     {
-      id: "tina-habit-capsules",
-      category: "mindset",
-      icon: "🫶",
-      title: "Compassionate consistency",
-      teaser: "Tina Nayak built six years of habits by knowing what to drop on hard days.",
-      author: "Tina Nayak",
-      source: "Substack — Compassionate Consistency",
+      id: "tortoise-hare",
+      category: "fables",
+      icon: "🐢",
+      title: "The Tortoise and the Hare",
+      teaser: "The race everyone knows — still worth hearing on a quiet night.",
+      origin: "Aesop's Fables",
       readMin: 2,
+      moral: "Slow and steady can outlast careless speed.",
       body: [
-        "Tina Nayak writes that real consistency isn't identical perfect days. It's knowing what to drop when life gets loud — without quitting entirely.",
-        "She uses 'habit capsules': the minimum viable version designed for your busiest day. Ten squats instead of an hour at the gym. One sentence instead of a journal page. One problem instead of a three-hour grind.",
-        "On her lowest month she still logged at least one habit on 30 of 31 days — because the floor was small enough to always say yes. That's the energy for after-work prep: shrink the night, don't cancel it.",
+        "A hare mocked a tortoise for moving slowly. The tortoise replied, 'Shall we race?' The hare laughed and agreed.",
+        "The hare shot ahead and, sure of victory, lay down under a tree and slept. The tortoise kept walking — the same small steps, without stopping.",
+        "When the hare woke, the tortoise was near the finish line. The crowd cheered the unglamorous winner. The hare learned that talent without attention can lose to quiet consistency.",
       ],
     },
     {
-      id: "meta-over-prepared",
-      category: "interview",
-      icon: "🎯",
-      title: "327 problems, then a fail — then a pass",
-      teaser: "An engineer over-prepared for Meta, choked from memorization, and came back with depth over volume.",
-      author: "Anonymous engineer",
-      source: "Medium — I Failed Meta's Interview Because I Over-Prepared",
+      id: "lion-mouse",
+      category: "fables",
+      icon: "🦁",
+      title: "The Lion and the Mouse",
+      teaser: "A tiny friend returns a very large favor.",
+      origin: "Aesop's Fables",
+      readMin: 2,
+      moral: "Kindness, even to the small, can come back to you.",
+      body: [
+        "A lion woke from his nap to find a mouse running across his paw. He caught it easily. The mouse trembled. 'Please let me go. One day I may help you.'",
+        "The lion laughed at the idea, but released the mouse anyway. Days later, hunters trapped the lion in a net. He roared until he was tired.",
+        "The mouse heard him, came running, and gnawed through the ropes. 'You laughed that I could help you,' said the mouse. 'Yet here we are.' The lion sat in silence, grateful and humbled.",
+      ],
+    },
+    {
+      id: "monkey-crocodile",
+      category: "tales",
+      icon: "🐒",
+      title: "The Monkey and the Crocodile",
+      teaser: "A Panchatantra tale about trust, betrayal, and thinking on your feet.",
+      origin: "Panchatantra",
       readMin: 3,
+      moral: "Not everyone who smiles has your good at heart.",
       body: [
-        "One engineer wrote about six months of intense Meta prep: 327 LeetCode problems, dozens of rehearsed STAR stories, 23 mock interviews. They walked in and froze — optimized for pattern recognition, not thinking under pressure.",
-        "The second attempt looked smaller on paper: ~50 problems, but each solved multiple ways with trade-offs explained. Fewer mocks with people they actually knew. Less script, more understanding.",
-        "They passed. The lesson isn't 'don't prepare.' It's that grinding hundreds of problems without depth can make you brittle. One thoughtful solve tonight beats three rushed ones you won't remember.",
+        "A monkey lived in a fruit tree by a river. A crocodile befriended him and shared sweet jamuns every day. The crocodile's wife grew jealous and demanded the monkey's heart.",
+        "The crocodile, ashamed but obedient, invited the monkey to ride on his back to a feast across the river. Midstream, he confessed the truth.",
+        "The clever monkey laughed. 'Why didn't you say so? I left my heart on the tree — we must go back for it.' The crocodile turned around. At the shore, the monkey leapt to safety. 'Hearts stay in bodies,' he called. 'Remember that before you invite someone onto your back.'",
       ],
     },
     {
-      id: "reddit-communication",
-      category: "interview",
-      icon: "🎙️",
-      title: "They didn't ace it — they communicated",
-      teaser: "A Reddit SWE candidate says thought process mattered more than a perfect solution.",
-      author: "Reddit SWE candidate",
-      source: "Jointaro — Reddit interview experience",
-      readMin: 2,
+      id: "crane-crab",
+      category: "tales",
+      icon: "🦀",
+      title: "The Crane and the Crab",
+      teaser: "A Panchatantra story where greed meets its match.",
+      origin: "Panchatantra",
+      readMin: 3,
+      moral: "Deceit may work once — rarely twice on the same pond.",
       body: [
-        "A software engineer who received a Reddit offer wrote that in multiple rounds they didn't nail the coding question perfectly — but they kept talking through their approach, asking clarifying questions, and showing how they'd adapt.",
-        "System design wasn't a textbook answer either. It was a conversation about trade-offs and scaling under changing requirements.",
-        "If you're prepping alone at night, practice narrating out loud. The interview isn't only whether you finish — it's whether a stranger can follow your thinking.",
+        "A crane stood stiffly at the edge of a pond where fish lived in fear. 'I am old,' he said. 'I have heard humans will drain this water. I can carry you to a safer lake.'",
+        "The fish believed him. One by one they let him hold them in his beak. One by one they vanished down his throat. A crab asked for a ride too.",
+        "Mid-flight, the crab saw there was no new lake. He clamped his claws around the crane's neck. The crane pleaded. The crab did not loosen his grip. Some stories end harshly to make the lesson stick: watch who profits from your panic.",
       ],
     },
     {
-      id: "busy-engineer-8-week",
-      category: "motivation",
-      icon: "📅",
-      title: "60–90 minutes is enough",
-      teaser: "Subbu Uppalapati's 8-week system is built for engineers who still have a day job.",
-      author: "Subbu Uppalapati",
-      source: "DEV Community — 8-Week Prep System",
+      id: "bundle-sticks",
+      category: "folk",
+      icon: "🪵",
+      title: "The Bundle of Sticks",
+      teaser: "A father teaches his sons with one quiet demonstration.",
+      origin: "Folk tale",
       readMin: 2,
+      moral: "Together we are harder to break.",
       body: [
-        "Subbu Uppalapati published an 8-week interview framework explicitly for busy engineers: about 75 minutes on weekdays, longer blocks on weekends, and one rest day.",
-        "His point is that structure beats random grinding. Coding days, design days, behavioral days — with post-mortems after timed sets so mistakes don't repeat in silence.",
-        "You don't need to disappear from life. You need a weekly rhythm you can actually keep while paying rent. One problem tonight is a valid entry point into that rhythm.",
+        "An old farmer had sons who quarreled over small things. He gathered them and placed a bundle of sticks on the ground.",
+        "'Break it,' he said. Each son tried — pushing, pulling, stamping — and failed.",
+        "Then the father untied the bundle and handed each son a single stick. They snapped them easily. 'Alone, you break,' he said. 'Together, you hold.' The room went quiet. They had heard lectures before. This time they felt the truth in their hands.",
       ],
     },
     {
-      id: "leetcode-vs-design",
-      category: "mindset",
-      icon: "⚖️",
-      title: "487 LeetCode problems wasn't the whole game",
-      teaser: "An engineer learned that senior interviews test design and communication too.",
-      author: "Devrim",
-      source: "JavaScript in Plain English",
+      id: "golden-goose",
+      category: "fables",
+      icon: "🪿",
+      title: "The Goose That Laid Golden Eggs",
+      teaser: "When greed moves faster than gratitude.",
+      origin: "Aesop's Fables",
       readMin: 2,
+      moral: "Wanting too much too soon can destroy what you already have.",
       body: [
-        "Devrim wrote about solving hundreds of LeetCode problems and still failing system design rounds at big companies. Coding was strong; structured design storytelling wasn't.",
-        "What changed wasn't more volume — it was a repeatable framework: clarify requirements, estimate scale, sketch components, deep-dive, discuss bottlenecks.",
-        "Even if you're early in prep, the lesson lands: don't let 'solved count' become your only scoreboard. Can you explain what you did tonight to another engineer? That's interview muscle too.",
+        "A farmer found a goose that laid one golden egg each day. He grew wealthy, then restless. Why wait for one egg when the source was right there?",
+        "He cut the goose open, searching for gold inside. He found nothing. No more goose. No more eggs.",
+        "The story is blunt on purpose. It asks a gentle question for tired evenings: what steady good in your life are you tempted to force open before its time?",
       ],
     },
     {
-      id: "full-time-realistic",
-      category: "motivation",
-      icon: "🌆",
-      title: "Don't quit your job to grind",
-      teaser: "Multiple prep guides agree: steady 10–15 hours/week beats burnout sprints.",
-      author: "Working engineers",
-      source: "FAANG prep guides (Copilot Interview, Apex Interviewer)",
+      id: "cry-wolf",
+      category: "fables",
+      icon: "🐑",
+      title: "The Boy Who Cried Wolf",
+      teaser: "A shepherd learns the cost of false alarms.",
+      origin: "Aesop's Fables",
       readMin: 2,
+      moral: "If you lie for attention, help may not come when you truly need it.",
       body: [
-        "Interview prep content written for people with jobs keeps repeating the same math: 60–90 minutes on most weekdays, for 8–12 weeks, is enough to land strong offers — if the time is focused.",
-        "Guides aimed at working engineers explicitly warn against quitting to prep full-time. Burnout by week three or four is common. Spacing helps pattern recognition stick.",
-        "If you're reading this tired after work, you're not behind. You're the audience these plans were written for. One problem tonight counts.",
+        "A bored shepherd boy shouted, 'Wolf! Wolf!' Villagers ran uphill with tools and courage. There was no wolf. They were angry. He found it funny.",
+        "He did it again another day. Again they came. Again he laughed. Then a real wolf entered the flock.",
+        "He screamed until his throat hurt. No one came. The village had learned his voice, not his danger. The tale is old and severe — a reminder to protect trust like something fragile.",
       ],
     },
     {
-      id: "minimum-viable-habit",
-      category: "discipline",
-      icon: "🌱",
-      title: "Laughably small still counts",
-      teaser: "Coaches call it the minimum viable habit — so small your brain can't say no.",
-      author: "Habit researchers & coaches",
-      source: "Triage Method, James Clear",
+      id: "tenali-blind",
+      category: "wisdom",
+      icon: "😄",
+      title: "Tenali Raman and the Bragging Poet",
+      teaser: "A court poet learns humility through a clever mirror.",
+      origin: "Tenali Raman tales",
       readMin: 2,
+      moral: "Those who boast the loudest often fear being seen clearly.",
       body: [
-        "Behavior-change coaches describe 'minimum viable habits' as almost embarrassingly small — two pushups, five minutes of reading, one problem — because consistency rewires the brain through repetition, not intensity.",
-        "The threat-detection part of your brain fights big commitments after a long workday. Tiny commitments slip through.",
-        "AfterHours is built on that idea: one checkmark tonight is a real rep. You're not failing because you didn't do five problems. You're building if you did one.",
+        "A visiting poet praised his own verses for hours at King Krishnadevaraya's court. Tenali Raman listened politely, then asked if the poet would accept a small challenge.",
+        "'Recite your best poem with your eyes closed,' Tenali said. The poet agreed and began grandly — until Tenali quietly placed a peeled onion in his hands. The poet teared up, voice shaking.",
+        "The court smiled. Not cruelly — but with recognition. Tenali bowed. 'Even the finest verse sounds different when we stop performing and simply feel.' The poet laughed at himself, and the evening softened.",
       ],
     },
     {
-      id: "decade-wait",
-      category: "motivation",
-      icon: "⏳",
-      title: "A decade of waiting, then all-in",
-      teaser: "Venkatesh said he'd waited ten years for his Google shot — and finally went all-in.",
-      author: "Venkatesh Dhongadi",
-      source: "Medium — Google prep journey",
+      id: "star-jar",
+      category: "folk",
+      icon: "✨",
+      title: "The Jar of Stars",
+      teaser: "A grandfather answers a child's question about hard days.",
+      origin: "Modern folk parable",
       readMin: 2,
+      moral: "Hard nights still belong to a larger life.",
       body: [
-        "In his write-up, Venkatesh describes treating the Google process like something he'd been circling for years — not a whim. When the recruiter finally replied, he structured leave, cut distractions, and treated each round like it mattered.",
-        "That seriousness didn't mean solving 20 problems a night. It meant not breaking the daily habit when motivation dipped, and trusting the sheet he'd committed to.",
-        "You might not be chasing Google. But whatever company or role is your 'ten-year quiet goal' — tonight's single problem is how people like him kept the door open.",
-      ],
-    },
-    {
-      id: "recovery-not-guilt",
-      category: "mindset",
-      icon: "☕",
-      title: "Rest days are part of the plan",
-      teaser: "Sustainable prep schedules build in recovery — not guilt-driven catch-up.",
-      author: "Interview prep coaches",
-      source: "8-week prep frameworks",
-      readMin: 2,
-      body: [
-        "Structured prep plans for full-time workers almost always include one real rest day per week. Not because you're lazy — because tired candidates interview badly.",
-        "Weekend marathons that leave you dreading Monday don't compound. They spike anxiety and drop weekday quality.",
-        "Miss a night? Don't punish yourself with a four-hour Sunday. Do one problem when you can, protect sleep, and come back. The long game is months, not one heroic evening.",
+        "A child told her grandfather she had saved her sadness in a jar — one pebble for each bad day. 'Soon it will be full,' she said.",
+        "He handed her a second jar. 'Put one star in here for every ordinary good thing. Warm food. A joke with a friend. Music in the bus. Rain after heat.'",
+        "Weeks later she showed him both jars. The star jar was fuller than she expected. 'Bad days are real,' he said. 'But they are not the only thing you collect.' She closed the lids and slept easier.",
       ],
     },
   ];
 
+  const SPEAKER_ICON = `<svg class="stories-listen-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
+
   let activeFilter = "all";
   let modalEl = null;
+  let activeStoryId = null;
 
   function escapeHtml(str) {
     return String(str)
@@ -229,21 +232,77 @@ const StoriesPage = (() => {
     return STORIES.filter((s) => s.category === activeFilter);
   }
 
-  function renderAttribution(story) {
-    if (!story.author) return "";
-    const source = story.source ? ` · ${story.source}` : "";
-    return `<p class="stories-modal-attribution">Story summarized from ${escapeHtml(story.author)}${escapeHtml(source)}</p>`;
+  function storySpeechText(story) {
+    const parts = [story.title, ...story.body];
+    if (story.moral) parts.push(`Moral of the story: ${story.moral}`);
+    return parts.join(" ");
+  }
+
+  function canListen() {
+    return typeof window !== "undefined" && "speechSynthesis" in window;
+  }
+
+  function stopSpeaking() {
+    if (canListen()) window.speechSynthesis.cancel();
+    activeStoryId = null;
+    document.querySelectorAll(".stories-listen-btn.is-speaking").forEach((btn) => {
+      btn.classList.remove("is-speaking");
+      btn.setAttribute("aria-label", "Listen to story");
+      btn.setAttribute("aria-pressed", "false");
+    });
+  }
+
+  function toggleListen(storyId, btn) {
+    if (!canListen()) {
+      alert("Listen is not supported in this browser. Try Chrome or Safari.");
+      return;
+    }
+
+    if (activeStoryId === storyId && window.speechSynthesis.speaking) {
+      stopSpeaking();
+      return;
+    }
+
+    stopSpeaking();
+    const story = STORIES.find((s) => s.id === storyId);
+    if (!story) return;
+
+    const utterance = new SpeechSynthesisUtterance(storySpeechText(story));
+    utterance.rate = 0.92;
+    utterance.pitch = 1;
+    utterance.onend = stopSpeaking;
+    utterance.onerror = stopSpeaking;
+
+    activeStoryId = storyId;
+    if (btn) {
+      btn.classList.add("is-speaking");
+      btn.setAttribute("aria-label", "Stop listening");
+      btn.setAttribute("aria-pressed", "true");
+    }
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function listenButton(storyId, size = "sm") {
+    return `<button type="button" class="btn btn-ghost btn-${size} stories-listen-btn" data-story-id="${storyId}" aria-label="Listen to story" aria-pressed="false">${SPEAKER_ICON}<span class="stories-listen-label">Listen</span></button>`;
   }
 
   function renderBody(story) {
-    return `${story.body.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}${renderAttribution(story)}`;
+    const paragraphs = story.body.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+    const moral = story.moral
+      ? `<p class="stories-modal-moral"><strong>Moral:</strong> ${escapeHtml(story.moral)}</p>`
+      : "";
+    const origin = story.origin
+      ? `<p class="stories-modal-attribution">${escapeHtml(story.origin)}</p>`
+      : "";
+    return `${paragraphs}${moral}${origin}`;
   }
 
   function renderFeatured(story) {
     return `
       <article class="stories-featured panel" data-story-id="${story.id}">
         <div class="stories-featured-top">
-          <span class="stories-featured-badge">Tonight's read</span>
+          <span class="stories-featured-badge">Tonight's tale</span>
           <span class="stories-card-meta">${escapeHtml(categoryLabel(story.category))} · ${story.readMin} min</span>
         </div>
         <div class="stories-featured-body">
@@ -253,7 +312,10 @@ const StoriesPage = (() => {
             <p class="stories-featured-teaser">${escapeHtml(story.teaser)}</p>
           </div>
         </div>
-        <button type="button" class="btn btn-primary btn-sm stories-read-btn" data-story-id="${story.id}">Read story</button>
+        <div class="stories-card-actions">
+          <button type="button" class="btn btn-primary btn-sm stories-read-btn" data-story-id="${story.id}">Read</button>
+          ${listenButton(story.id, "sm")}
+        </div>
       </article>`;
   }
 
@@ -266,10 +328,13 @@ const StoriesPage = (() => {
         </div>
         <h4 class="stories-card-title">${escapeHtml(story.title)}</h4>
         <p class="stories-card-teaser">${escapeHtml(story.teaser)}</p>
-        <p class="stories-card-author">${escapeHtml(story.author || "")}</p>
+        <p class="stories-card-origin">${escapeHtml(story.origin || "")}</p>
         <div class="stories-card-foot">
-          <span class="stories-card-meta">${story.readMin} min read</span>
-          <button type="button" class="btn btn-ghost btn-sm stories-read-btn" data-story-id="${story.id}">Read</button>
+          <span class="stories-card-meta">${story.readMin} min</span>
+          <div class="stories-card-actions">
+            <button type="button" class="btn btn-ghost btn-sm stories-read-btn" data-story-id="${story.id}">Read</button>
+            ${listenButton(story.id, "sm")}
+          </div>
         </div>
       </article>`;
   }
@@ -299,8 +364,9 @@ const StoriesPage = (() => {
         <p class="motivation-kicker" id="storyModalKicker"></p>
         <h3 class="motivation-headline" id="storyModalTitle"></h3>
         <div class="stories-modal-body motivation-message" id="storyModalBody"></div>
-        <div class="motivation-actions">
-          <a href="/" class="btn btn-primary motivation-cta" id="storyModalCta">Solve tonight's problem →</a>
+        <div class="motivation-actions stories-modal-actions">
+          <button type="button" class="btn btn-ghost btn-sm stories-listen-btn" id="storyModalListen" aria-label="Listen to story" aria-pressed="false">${SPEAKER_ICON}<span class="stories-listen-label">Listen</span></button>
+          <button type="button" class="btn btn-primary btn-sm" data-story-close>Close</button>
         </div>
       </div>`;
 
@@ -322,15 +388,23 @@ const StoriesPage = (() => {
     if (!story) return;
 
     const modal = ensureModal();
-    modal.querySelector("#storyModalKicker").textContent = `${story.icon} ${categoryLabel(story.category)} · ${story.readMin} min · ${story.author || "Story"}`;
+    modal.dataset.storyId = storyId;
+    modal.querySelector("#storyModalKicker").textContent = `${story.icon} ${categoryLabel(story.category)} · ${story.readMin} min`;
     modal.querySelector("#storyModalTitle").textContent = story.title;
     modal.querySelector("#storyModalBody").innerHTML = renderBody(story);
+
+    const listenBtn = modal.querySelector("#storyModalListen");
+    listenBtn.dataset.storyId = storyId;
+    listenBtn.classList.remove("is-speaking");
+    listenBtn.setAttribute("aria-pressed", "false");
+
     modal.hidden = false;
     document.body.classList.add("motivation-open");
     modal.querySelector(".motivation-close").focus();
   }
 
   function closeModal() {
+    stopSpeaking();
     if (!modalEl) return;
     modalEl.hidden = true;
     document.body.classList.remove("motivation-open");
@@ -339,6 +413,7 @@ const StoriesPage = (() => {
   function bindEvents(root) {
     root.querySelectorAll("[data-filter]").forEach((btn) => {
       btn.addEventListener("click", () => {
+        stopSpeaking();
         activeFilter = btn.dataset.filter;
         render(root);
       });
@@ -351,9 +426,27 @@ const StoriesPage = (() => {
       });
     });
 
-    root.querySelectorAll(".stories-featured").forEach((card) => {
-      card.addEventListener("click", () => openModal(card.dataset.storyId));
+    root.querySelectorAll(".stories-listen-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleListen(btn.dataset.storyId, btn);
+      });
     });
+
+    root.querySelectorAll(".stories-featured").forEach((card) => {
+      card.addEventListener("click", (e) => {
+        if (e.target.closest(".stories-read-btn, .stories-listen-btn")) return;
+        openModal(card.dataset.storyId);
+      });
+    });
+
+    const modalListen = document.getElementById("storyModalListen");
+    if (modalListen && !modalListen.dataset.bound) {
+      modalListen.dataset.bound = "1";
+      modalListen.addEventListener("click", () => {
+        toggleListen(modalListen.dataset.storyId, modalListen);
+      });
+    }
   }
 
   function render(root) {
@@ -362,17 +455,20 @@ const StoriesPage = (() => {
 
     root.innerHTML = `
       <header class="stories-hero panel">
-        <p class="about-eyebrow">Night Shift Stories</p>
-        <h2 class="about-title">Real stories. Two-minute reads.</h2>
-        <p class="about-lead">
-          Summarized lessons from engineers, authors, and builders — interview journeys, discipline, and recovery after hard days.
-          A calm stop before tonight's problem.
-        </p>
-        <div class="about-meta-row">
-          <span class="about-pill">${STORIES.length} stories</span>
-          <span class="about-pill">~2 min each</span>
-          <span class="about-pill">Attributed sources</span>
+        <div class="stories-hero-row">
+          <div>
+            <p class="stories-hero-kicker">Night Shift Stories</p>
+            <h2 class="stories-hero-title">A calm corner · read or listen</h2>
+          </div>
+          <div class="stories-hero-meta" aria-label="Story collection info">
+            <span class="stories-hero-pill">${STORIES.length} tales</span>
+            <span class="stories-hero-pill">~2 min</span>
+            <span class="stories-hero-pill">Listen 🎧</span>
+          </div>
         </div>
+        <p class="stories-hero-lead">
+          Short moral stories from folklore and fables — Birbal, Panchatantra, Aesop, and more. No interview talk. Just something gentle before bed.
+        </p>
       </header>
 
       ${activeFilter === "all" ? renderFeatured(featured) : ""}
@@ -386,9 +482,9 @@ const StoriesPage = (() => {
       </div>
 
       <section class="stories-cta panel">
-        <h3>Done reading?</h3>
-        <p>Pick one pattern. Solve one problem. Log one win.</p>
-        <a href="/" class="btn btn-primary">Go to problems</a>
+        <h3>Need a break from the grind?</h3>
+        <p>Listen to one more, or head back when you're ready.</p>
+        <a href="/" class="btn btn-ghost">Back to problems</a>
       </section>`;
 
     bindEvents(root);
@@ -397,6 +493,9 @@ const StoriesPage = (() => {
   function init() {
     const root = document.getElementById("storiesRoot");
     if (!root) return;
+
+    window.addEventListener("pagehide", stopSpeaking);
+
     render(root);
   }
 
