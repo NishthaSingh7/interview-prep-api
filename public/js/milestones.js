@@ -122,15 +122,14 @@ const Milestones = (() => {
   }
 
   function setHeaderBarVisible(visible) {
-    const bar = document.getElementById("headerBadgeBar");
-    if (!bar) return;
-    bar.hidden = !visible;
-    bar.classList.toggle("is-visible", visible);
+    const badges = document.getElementById("headerEarnedBadges");
+    if (!badges) return;
+    badges.hidden = !visible;
   }
 
   function headerBadgeHtml(milestone) {
     return `<span class="header-badge header-badge-${milestone.id}" style="--badge-glow: ${milestone.color}" title="${milestone.subtitle}">
-      <span class="header-badge-count" aria-label="${milestone.count} problems">${milestone.count}</span>
+      <span class="header-badge-icon" aria-hidden="true">${milestone.icon}</span>
       <span class="header-badge-copy">
         <span class="header-badge-name">${milestone.label}</span>
       </span>
@@ -141,7 +140,7 @@ const Milestones = (() => {
     const el = document.getElementById("headerEarnedBadges");
     if (!el) return;
 
-    if (!Auth.isLoggedIn()) {
+    if (!Auth.isLoggedIn() || document.body.dataset.page === "progress") {
       setHeaderBarVisible(false);
       el.innerHTML = "";
       return;
@@ -279,7 +278,12 @@ const Milestones = (() => {
       el.addEventListener("click", hideCelebration);
     });
     modalEl.querySelector("#milestoneModalCta").addEventListener("click", hideCelebration);
-    modalEl.querySelector("#milestoneShareBtn").addEventListener("click", () => {
+    modalEl.querySelector("#milestoneShareBtn").addEventListener("click", async () => {
+      if (typeof ShareCards !== "undefined") {
+        const totalDone = Number(modalEl.dataset.totalDone || 0);
+        await ShareCards.share({ milestone, totalDone });
+        return;
+      }
       const headline = modalEl.querySelector("#milestoneHeadline")?.textContent || "Badge unlocked";
       const text = `${headline} on AfterHours — one problem after work, every night. Progress Never Clocks Out.`;
       if (navigator.share) {
@@ -296,7 +300,7 @@ const Milestones = (() => {
     return modalEl;
   }
 
-  function celebrate(milestone) {
+  function celebrate(milestone, totalDone = milestone?.count || 0) {
     if (!milestone || getCelebrated().includes(milestone.id)) return;
 
     markCelebrated(milestone.id);
@@ -310,6 +314,7 @@ const Milestones = (() => {
     modal.querySelector("#milestoneModalBadge").style.color = milestone.color;
     modal.querySelector("#milestoneModalBadge").style.borderColor = milestone.color;
     modal.querySelector("#milestoneModalBadge").style.background = `${milestone.color}22`;
+    modal.dataset.totalDone = String(totalDone);
 
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");
@@ -333,7 +338,7 @@ const Milestones = (() => {
     if (typeof prevCount === "number" && prevCount < totalDone) {
       const crossed = getNewlyCrossed(prevCount, totalDone);
       if (crossed) {
-        setTimeout(() => celebrate(crossed), 800);
+        setTimeout(() => celebrate(crossed, totalDone), 800);
       }
     }
   }

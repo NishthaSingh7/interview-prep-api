@@ -80,7 +80,9 @@ async function processWeeklyRecaps() {
   } = require("../utils/consistency");
 
   try {
-    const users = await User.find({ reminderEnabled: true }).select("name email timezone");
+    const users = await User.find({ reminderEnabled: true }).select(
+      "name email timezone streakFreezeDays",
+    );
 
     for (const user of users) {
       try {
@@ -91,7 +93,7 @@ async function processWeeklyRecaps() {
         const timezone = user.timezone || "Asia/Kolkata";
 
         await sendWeeklyRecapEmail(user, {
-          streak: computeStreak(completedDates, timezone),
+          streak: computeStreak(completedDates, timezone, user.streakFreezeDays || []),
           activeDays: activeDaysThisWeek(completedDates, timezone),
           totalDone: progress.length,
         });

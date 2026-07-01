@@ -22,6 +22,20 @@ function barRow(label, done, total, colorClass = "") {
     </div>`;
 }
 
+function countBarRow(label, done, total, colorClass = "") {
+  const width = total ? pct(done, total) : done ? 100 : 0;
+  return `
+    <div class="stat-bar-row stat-bar-row-counts">
+      <div class="stat-bar-meta">
+        <span class="stat-bar-label">${escapeHtml(label)}</span>
+        <span class="stat-bar-value">${done} solved · ${total} in bank</span>
+      </div>
+      <div class="stat-bar-track">
+        <div class="stat-bar-fill ${colorClass}" style="width: ${width}%"></div>
+      </div>
+    </div>`;
+}
+
 function donutChart(segments, options = {}) {
   const size = options.size || 140;
   const stroke = options.stroke || 14;
@@ -367,35 +381,173 @@ function tileLabel(text) {
   return `<span class="tile-label">${escapeHtml(text)}</span>`;
 }
 
-function badgeRingVisual(badge, totalDone) {
-  const pctVal = badge.pct;
+function badgeJourneySection(totalDone) {
+  const badge = getNextBadgeProgress(totalDone);
+  const nextLine =
+    badge.remaining > 0
+      ? `${badge.remaining} more win${badge.remaining === 1 ? "" : "s"} until ${badge.icon} ${badge.label}`
+      : "Every badge on the path is yours — keep the habit alive.";
+
   return `
-    <div class="visual-ring" title="${totalDone} solved · ${pctVal}% toward ${badge.label}">
-      ${donutChart(
-        [
-          { value: pctVal, className: "chart-seg-accent" },
-          { value: Math.max(100 - pctVal, 0), className: "chart-seg-muted" },
-        ],
-        { size: 130, stroke: 14, centerLabel: badge.icon, centerSub: "" },
+    <div class="viz-panel panel viz-badges">
+      <span class="viz-panel-tag">Your path</span>
+      ${vizHint("Lit badges = earned · gray = still ahead on your journey")}
+      <p class="badge-next-line">${escapeHtml(nextLine)}</p>
+      ${badgeTrailVisual(totalDone)}
+    </div>`;
+}
+
+function weeklyRecapCard(stats) {
+  const week = stats.activeDaysThisWeek ?? 0;
+  const streak = stats.streak ?? 0;
+  const best = Math.max(stats.bestStreak ?? 0, streak);
+  const month = stats.activeDaysThisMonth ?? 0;
+  const delta = stats.monthDelta ?? 0;
+  const weekPct = Math.round((week / 7) * 100);
+
+  let monthLine;
+  const monthLabel = month === 1 ? "1 active night" : `${month} active nights`;
+  if (delta > 0) {
+    monthLine = `${monthLabel} this month · +${delta} vs last month`;
+  } else if (delta < 0) {
+    monthLine = `${monthLabel} this month · ${delta} vs last month`;
+  } else {
+    monthLine = `${monthLabel} this month · even with last month`;
+  }
+
+  return `
+    <div class="weekly-recap-card panel">
+      <div class="weekly-recap-head">
+        <div>
+          <p class="weekly-recap-kicker">Weekly recap</p>
+          <h3>Your rhythm this week</h3>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="shareStreakBtn">Share streak</button>
+      </div>
+
+      <div class="weekly-recap-grid">
+        <div class="weekly-recap-stat">
+          <span class="weekly-recap-val">${week}<span class="weekly-recap-denom">/7</span></span>
+          <span class="weekly-recap-label">active nights</span>
+          <div class="weekly-recap-bar" aria-hidden="true">
+            <span class="weekly-recap-bar-fill" style="width: ${weekPct}%"></span>
+          </div>
+        </div>
+        <div class="weekly-recap-stat">
+          <span class="weekly-recap-val">${streak}</span>
+          <span class="weekly-recap-label">day streak</span>
+        </div>
+        <div class="weekly-recap-stat">
+          <span class="weekly-recap-val">${best}</span>
+          <span class="weekly-recap-label">best streak</span>
+        </div>
+      </div>
+
+      <p class="weekly-recap-foot">${escapeHtml(monthLine)}</p>
+    </div>`;
+}
+
+function streakFreezeBanner(stats) {
+  if (!stats.canUseStreakFreeze) return "";
+  const credits = stats.streakFreezeCredits ?? 0;
+  return `
+    <div class="streak-freeze-banner panel" id="streakFreezeBanner">
+      <p><strong>Streak freeze ready</strong> — cover yesterday once without breaking your chain. ${credits} credit available (earn 1/month after 5 active nights).</p>
+      <button type="button" class="btn btn-primary btn-sm" id="useStreakFreezeBtn">Use streak freeze</button>
+    </div>`;
+}
+
+function interviewGoalCard(interview) {
+  if (!interview) return "";
+  return `
+    <div class="interview-goal-card panel">
+      <p class="interview-goal-kicker">Interview goal</p>
+      <h3>${interview.nightsLeft} nights until target</h3>
+      <p class="insight-text">${escapeHtml(interview.message)}</p>
+      <p class="interview-goal-meta">Date: ${escapeHtml(interview.interviewDate)} · ${interview.activeNightsThisWeek}/7 active this week</p>
+    </div>`;
+}
+
+function renderOverview(container, data) {
+  if (typeof ProgressCharts !== "undefined") ProgressCharts.disposeAll();
+
+  container.innerHTML = `
+    ${weeklyRecapCard(data.stats)}
+    ${streakFreezeBanner(data.stats)}
+
+    ${vizPanel(
+      "Consistency calendar",
+      '<div id="echart-calendar" class="echart-host echart-host-calendar"></div>',
+      "viz-cal-hero",
+      "Green squares = nights you showed up · hover any day for details",
+    )}
+
+    ${vizPanel(
+      "This month vs last",
+      '<div id="echart-month-compare" class="echart-host echart-host-sm"></div>',
+      "viz-month",
+      "Active nights — consistency over volume",
+    )}
+
+    <div class="viz-grid viz-grid-duo">
+      ${vizPanel(
+        "Streak",
+        '<div id="echart-streak" class="echart-host echart-host-gauge"></div>',
+        "viz-streak",
+        "Solve today to keep the chain alive",
       )}
-      <span class="viz-micro">${pctVal}% → ${escapeHtml(badge.label)}</span>
-    </div>`;
+      ${vizPanel(
+        "Weekly rhythm",
+        '<div id="echart-weekly" class="echart-host echart-host-sm"></div>',
+        "viz-weekly",
+        "Active days per week · dashed line = 5-night goal",
+      )}
+    </div>
+
+    ${badgeJourneySection(data.totalDone)}`;
+
+  if (typeof ProgressCharts !== "undefined") {
+    ProgressCharts.renderJourneyMap(data);
+    ProgressCharts.bindThemeRefresh();
+  }
+
+  bindStreakFreezeAction(data);
+  bindShareStreakAction(data);
 }
 
-function nextBadgeMosaic(totalDone, badge) {
-  const target = badge.target || 10;
-  const cols = target <= 10 ? target : target <= 25 ? 10 : 15;
-  const cells = Array.from({ length: target }, (_, i) => {
-    const lit = i < totalDone;
-    return `<span class="mosaic-cell${lit ? " lit" : ""}" style="--cell-color:${badge.color}"></span>`;
-  }).join("");
-  return `
-    <div class="mosaic-wrap">
-      <div class="mosaic-track" style="--mosaic-cols:${cols}">${cells}</div>
-      <span class="viz-micro">${totalDone} of ${target} wins toward ${escapeHtml(badge.label)}</span>
-    </div>`;
+async function bindStreakFreezeAction(data) {
+  const btn = document.getElementById("useStreakFreezeBtn");
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = "1";
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    try {
+      await Auth.api("/api/v1/progress/streak-freeze", { method: "POST" });
+      const fresh = await fetchProgressData();
+      const overviewEl = document.getElementById("progressOverview");
+      if (overviewEl) renderOverview(overviewEl, fresh);
+    } catch (err) {
+      alert(err.message);
+      btn.disabled = false;
+    }
+  });
 }
 
+function bindShareStreakAction(data) {
+  const btn = document.getElementById("shareStreakBtn");
+  if (!btn || btn.dataset.bound || typeof ShareCards === "undefined") return;
+  btn.dataset.bound = "1";
+
+  btn.addEventListener("click", async () => {
+    const result = await ShareCards.share({
+      streak: data.stats.streak,
+      bestStreak: data.stats.bestStreak,
+      activeDaysThisWeek: data.stats.activeDaysThisWeek,
+    });
+    if (result === "copied") btn.textContent = "Copied!";
+  });
+}
 function badgeTrailVisual(totalDone) {
   const thresholds = typeof Milestones !== "undefined" ? Milestones.THRESHOLDS : [];
   const parts = [];
@@ -412,46 +564,6 @@ function badgeTrailVisual(totalDone) {
     if (i < thresholds.length - 1) parts.push('<span class="trail-line"></span>');
   });
   return `<div class="badge-trail">${parts.join("")}</div>`;
-}
-
-function streakFlamesVisual(streak) {
-  const lit = Math.min(streak, 7);
-  return `
-    <div class="flame-block">
-      <span class="streak-hero-val">${streak}</span>
-      <span class="streak-hero-label">day${streak === 1 ? "" : "s"} streak</span>
-      <div class="flame-row">
-        ${Array.from({ length: 7 }, (_, i) => `<span class="flame${i < lit ? " lit" : ""}"></span>`).join("")}
-      </div>
-      <span class="viz-micro">${streak ? "Show up tomorrow to keep it going" : "Solve today to start a streak"}</span>
-    </div>`;
-}
-
-function visualBoard(data) {
-  const { totalDone, streak } = data;
-  const badge = getNextBadgeProgress(totalDone);
-
-  return `
-    <div class="visual-board panel">
-      <div class="visual-board-grid">
-        <div class="visual-tile visual-tile-ring visual-span-2">
-          ${tileLabel("Next badge")}
-          ${vizHint("Ring fills as you approach the next unlock")}
-          ${badgeRingVisual(badge, totalDone)}
-          ${nextBadgeMosaic(totalDone, badge)}
-        </div>
-        <div class="visual-tile visual-tile-streak visual-span-2">
-          ${tileLabel("Streak")}
-          ${vizHint("One lit flame = one active day")}
-          ${streakFlamesVisual(streak)}
-        </div>
-        <div class="visual-tile visual-tile-trail visual-span-full">
-          ${tileLabel("Badge path")}
-          ${vizHint("Glow = earned · Gray = still locked · Numbers = solves needed")}
-          ${badgeTrailVisual(totalDone)}
-        </div>
-      </div>
-    </div>`;
 }
 
 function calendarLegend() {
@@ -529,6 +641,14 @@ async function fetchProgressData() {
       Auth.api("/api/v1/problems?difficulty=Hard&limit=1"),
     ]);
 
+  let timezone = typeof Push !== "undefined" ? Push.getTimezone() : "Asia/Kolkata";
+  try {
+    const { data: prefs } = await Auth.api("/api/v1/reminders/preferences");
+    if (prefs?.timezone) timezone = prefs.timezone;
+  } catch {
+    /* prefs optional */
+  }
+
   const user = Auth.getUser();
   const totalDone = stats.totalCompleted || 0;
   const byDifficulty = stats.byDifficulty || { Easy: 0, Medium: 0, Hard: 0 };
@@ -554,7 +674,9 @@ async function fetchProgressData() {
   const activeDaysThisMonth =
     stats.activeDaysThisMonth ?? Insights.activeDaysThisMonth(completedDates);
   const weakest = Insights.getWeakestPattern(patterns, patternDone, patternTotals);
-  const insight = Insights.getInsightMessage(stats, streak, completedDates);
+  const insight = Insights.getInsightMessage(stats, streak, completedDates, {
+    daysSinceLastActive: stats.daysSinceLastActive,
+  });
   const nextUp = Insights.getNextUpSuggestion(weakest);
 
   return {
@@ -574,24 +696,8 @@ async function fetchProgressData() {
     weakest,
     insight,
     nextUp,
+    timezone,
   };
-}
-
-function renderOverview(container, data) {
-  const { patterns, patternDone, patternTotals, completedDates } = data;
-
-  container.innerHTML = `
-    ${visualBoard(data)}
-
-    <div class="viz-grid viz-grid-wide">
-      ${vizPanel("📅 Calendar", grindCalendar(completedDates, 18), "viz-cal", "Lit square = you showed up that day")}
-      ${vizPanel("▦ Patterns", patternHeatGrid(patterns, patternDone, patternTotals), "viz-patterns", "Brighter = more done in that pattern · hover for full name")}
-    </div>
-
-    <div class="viz-grid">
-      ${vizPanel("📊 Consistency", consistencyWeekChart(completedDates, 14), "viz-bars", "✓ = at least one solve that day")}
-      ${vizPanel("📈 Weekly habit", weeklyActiveDaysChart(completedDates, 8), "viz-line", "Bar height = active days that week")}
-    </div>`;
 }
 
 function renderPlan(container, data) {
@@ -603,8 +709,6 @@ function renderPlan(container, data) {
     progressEntries,
     insight,
     nextUp,
-    completedDates,
-    streak,
     activeDaysThisWeek,
     activeDaysThisMonth,
     weakest,
@@ -633,19 +737,18 @@ function renderPlan(container, data) {
     : '<li class="recent-empty">No problems completed yet — your first win goes here.</li>';
 
   container.innerHTML = `
-    <p class="plan-greeting">Hey ${escapeHtml(user?.name || "there")} — your habit stats and what to do next.</p>
-    <div class="plan-summary panel">
-      <div class="plan-summary-stat">
-        <span class="plan-summary-val">${streak}</span>
-        <span class="plan-summary-label">day streak</span>
-      </div>
+    <p class="plan-greeting">Hey ${escapeHtml(user?.name || "there")} — what to work on tonight.</p>
+
+    ${interviewGoalCard(data.stats.interview)}
+
+    <div class="plan-summary panel plan-summary-trio">
       <div class="plan-summary-stat">
         <span class="plan-summary-val">${activeDaysThisWeek}/7</span>
-        <span class="plan-summary-label">active days this week</span>
+        <span class="plan-summary-label">active nights this week</span>
       </div>
       <div class="plan-summary-stat">
         <span class="plan-summary-val">${activeDaysThisMonth}</span>
-        <span class="plan-summary-label">active days this month</span>
+        <span class="plan-summary-label">active nights this month</span>
       </div>
       <div class="plan-summary-stat plan-summary-muted">
         <span class="plan-summary-val">${totalDone}</span>
@@ -667,18 +770,30 @@ function renderPlan(container, data) {
       ${disguiseHint(weakest)}
     </div>
 
+    ${vizPanel(
+      "Pattern breadth",
+      '<div id="echart-patterns" class="echart-host echart-host-patterns"></div>',
+      "viz-patterns-plan",
+      "See where you have reps vs gaps — pairs with Up next above",
+    )}
+
     <div class="stats-grid">
-      <div class="stats-card panel">
+      <div class="stats-card panel stats-card-compact">
         <h3>By difficulty</h3>
-        ${barRow("Easy", byDifficulty.Easy || 0, difficultyTotals.Easy, "fill-easy")}
-        ${barRow("Medium", byDifficulty.Medium || 0, difficultyTotals.Medium, "fill-medium")}
-        ${barRow("Hard", byDifficulty.Hard || 0, difficultyTotals.Hard, "fill-hard")}
+        <p class="plan-desc">Counts only — breadth matters more than percentages.</p>
+        ${countBarRow("Easy", byDifficulty.Easy || 0, difficultyTotals.Easy, "fill-easy")}
+        ${countBarRow("Medium", byDifficulty.Medium || 0, difficultyTotals.Medium, "fill-medium")}
+        ${countBarRow("Hard", byDifficulty.Hard || 0, difficultyTotals.Hard, "fill-hard")}
       </div>
       <div class="stats-card panel">
         <h3>Recent wins</h3>
         <ul class="recent-list">${recentHtml}</ul>
       </div>
     </div>`;
+
+  if (typeof ProgressCharts !== "undefined") {
+    ProgressCharts.renderGamePlan(data);
+  }
 }
 
 async function loadFocusPanels(data) {
@@ -828,6 +943,12 @@ function switchProgressTab(tab) {
 
   if (location.hash !== `#${tab}`) {
     history.replaceState(null, "", `#${tab}`);
+  }
+
+  if (isMap && typeof ProgressCharts !== "undefined") {
+    setTimeout(() => ProgressCharts.resizeAll(), 50);
+  } else if (!isMap && typeof ProgressCharts !== "undefined") {
+    setTimeout(() => ProgressCharts.resizeAll(), 50);
   }
 }
 

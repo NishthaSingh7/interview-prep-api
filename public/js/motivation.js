@@ -536,7 +536,7 @@ const Motivation = (() => {
     return modalEl;
   }
 
-  function show({ difficulty, problemTitle, type = "done" }) {
+  function show({ difficulty, problemTitle, type = "done", contextQuote = null }) {
     const quote = pickQuote(difficulty, type);
     const modal = ensureModal();
     const diffClass = difficulty.toLowerCase();
@@ -551,8 +551,11 @@ const Motivation = (() => {
       : "";
     modal.querySelector("#motivationHeadline").textContent = quote.headline;
     modal.querySelector("#motivationMessage").textContent = quote.message;
-    modal.querySelector("#motivationFooter").textContent =
-      type === "done" ? pickDoneFooter() : quote.footer;
+    modal.querySelector("#motivationFooter").textContent = contextQuote
+      ? `"${contextQuote.text}" — ${contextQuote.author}`
+      : type === "done"
+        ? pickDoneFooter()
+        : quote.footer;
     modal.querySelector("#motivationCta").textContent = CTA_LABELS[type] || CTA_LABELS.done;
 
     modal.hidden = false;

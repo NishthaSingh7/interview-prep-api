@@ -43,21 +43,30 @@ const Nav = {
     const header = document.querySelector(".site-header");
     if (!header) return;
 
-    if (header.parentElement?.classList.contains("site-header-sticky")) return;
+    if (!header.parentElement?.classList.contains("site-header-sticky")) {
+      const wrap = document.createElement("div");
+      wrap.className = "site-header-sticky";
+      header.parentNode.insertBefore(wrap, header);
+      wrap.appendChild(header);
+    }
 
-    const wrap = document.createElement("div");
-    wrap.className = "site-header-sticky";
-    header.parentNode.insertBefore(wrap, header);
-    wrap.appendChild(header);
+    const actions = header.querySelector(".header-actions");
+    if (!actions) return;
+
+    document.getElementById("headerBadgeBar")?.remove();
 
     if (!document.getElementById("headerEarnedBadges")) {
-      const bar = document.createElement("div");
-      bar.id = "headerBadgeBar";
-      bar.className = "header-badge-bar";
-      bar.hidden = true;
-      bar.innerHTML =
-        '<div id="headerEarnedBadges" class="header-earned-badges" aria-label="Earned badges"></div>';
-      wrap.appendChild(bar);
+      const badges = document.createElement("div");
+      badges.id = "headerEarnedBadges";
+      badges.className = "header-earned-badges";
+      badges.setAttribute("aria-label", "Earned badges");
+      badges.hidden = true;
+      const themeToggle = actions.querySelector("[data-theme-toggle]");
+      if (themeToggle) {
+        actions.insertBefore(badges, themeToggle);
+      } else {
+        actions.prepend(badges);
+      }
     }
   },
 
