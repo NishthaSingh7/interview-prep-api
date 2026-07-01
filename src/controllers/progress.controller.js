@@ -172,6 +172,7 @@ const getProgressStats = async (req, res) => {
         activeDaysLastMonth: habit.activeDaysLastMonth,
         monthDelta: habit.monthDelta,
         activeDaysThisWeek: habit.activeDaysThisWeek,
+        activeDaysLastWeek: habit.activeDaysLastWeek,
         daysSinceLastActive: habit.daysSinceLastActive,
         canUseStreakFreeze: habit.canUseStreakFreeze,
         interview: habit.interview,

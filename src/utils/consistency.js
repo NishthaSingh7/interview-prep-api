@@ -86,6 +86,50 @@ function activeDaysLastMonth(completedDates, timezone = "Asia/Kolkata") {
   return activeDaysInMonth(completedDates, timezone, 1);
 }
 
+function addDaysKey(dateKey, delta) {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + delta);
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+}
+
+function dateKeyToDate(dateKey, timezone) {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  const noon = Date.UTC(y, m - 1, d, 12, 0, 0);
+  for (let delta = -36; delta <= 36; delta++) {
+    const candidate = noon + delta * 3600000;
+    if (getDateParts(new Date(candidate), timezone).dateKey === dateKey) {
+      return new Date(candidate);
+    }
+  }
+  return new Date(noon);
+}
+
+function weekdayMondayZero(dateKey, timezone) {
+  const wd = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    weekday: "short",
+  }).format(dateKeyToDate(dateKey, timezone));
+  const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  return map[wd] ?? 0;
+}
+
+function mondayOfWeekKey(dateKey, timezone) {
+  return addDaysKey(dateKey, -weekdayMondayZero(dateKey, timezone));
+}
+
+function activeDaysLastWeek(completedDates, timezone = "Asia/Kolkata") {
+  const todayKey = getDateParts(new Date(), timezone).dateKey;
+  const lastMonday = addDaysKey(mondayOfWeekKey(todayKey, timezone), -7);
+  const lastSunday = addDaysKey(lastMonday, 6);
+  const keys = uniqueDateKeys(completedDates, timezone);
+  let count = 0;
+  for (const key of keys) {
+    if (key >= lastMonday && key <= lastSunday) count++;
+  }
+  return count;
+}
+
 function activeDaysThisWeek(completedDates, timezone = "Asia/Kolkata") {
   const keys = [...uniqueDateKeys(completedDates, timezone)].sort();
   if (!keys.length) return 0;
@@ -157,6 +201,7 @@ module.exports = {
   activeDaysInMonth,
   activeDaysLastMonth,
   activeDaysThisWeek,
+  activeDaysLastWeek,
   uniqueDateKeys,
   daysSinceLastActive,
   interviewPaceInfo,

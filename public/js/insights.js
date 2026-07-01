@@ -99,6 +99,35 @@ const Insights = {
     return keys.filter((k) => k >= startKey && k <= todayKey).length;
   },
 
+  activeDaysLastWeekInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const keys = this.uniqueDateKeysInTimezone(completedDates, timezone);
+    if (!keys.size) return 0;
+
+    const todayKey = this.dateKeyInTimezone(new Date(), timezone);
+    const lastMonday = this.addDaysKey(this.mondayOfWeekKey(todayKey, timezone), -7);
+    const lastSunday = this.addDaysKey(lastMonday, 6);
+
+    let count = 0;
+    for (const key of keys) {
+      if (key >= lastMonday && key <= lastSunday) count++;
+    }
+    return count;
+  },
+
+  lastWeekRangeLabel(timezone = "Asia/Kolkata") {
+    const todayKey = this.dateKeyInTimezone(new Date(), timezone);
+    const lastMonday = this.addDaysKey(this.mondayOfWeekKey(todayKey, timezone), -7);
+    const lastSunday = this.addDaysKey(lastMonday, 6);
+    const fmt = (key) => {
+      const [y, m, d] = key.split("-").map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
+    };
+    return `${fmt(lastMonday)}–${fmt(lastSunday)}`;
+  },
+
   activeDaysThisMonthInTimezone(completedDates, timezone = "Asia/Kolkata") {
     const nowKey = this.dateKeyInTimezone(new Date(), timezone);
     const prefix = nowKey.slice(0, 7);

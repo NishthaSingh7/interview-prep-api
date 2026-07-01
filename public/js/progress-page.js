@@ -398,12 +398,15 @@ function badgeJourneySection(totalDone) {
 }
 
 function weeklyRecapCard(stats) {
-  const week = stats.activeDaysThisWeek ?? 0;
+  const timezone = stats.timezone || "Asia/Kolkata";
+  const week = stats.activeDaysLastWeek ?? 0;
   const streak = stats.streak ?? 0;
-  const best = Math.max(stats.bestStreak ?? 0, streak);
+  const best = stats.bestStreak ?? 0;
   const month = stats.activeDaysThisMonth ?? 0;
   const delta = stats.monthDelta ?? 0;
   const weekPct = Math.round((week / 7) * 100);
+  const lastWeekLabel =
+    typeof Insights !== "undefined" ? Insights.lastWeekRangeLabel(timezone) : "last week";
 
   let monthLine;
   const monthLabel = month === 1 ? "1 active night" : `${month} active nights`;
@@ -420,7 +423,8 @@ function weeklyRecapCard(stats) {
       <div class="weekly-recap-head">
         <div>
           <p class="weekly-recap-kicker">Weekly recap</p>
-          <h3>Your rhythm this week</h3>
+          <h3>Last week&apos;s rhythm</h3>
+          <p class="weekly-recap-range">${escapeHtml(lastWeekLabel)}</p>
         </div>
         <button type="button" class="btn btn-ghost btn-sm" id="shareStreakBtn">Share streak</button>
       </div>
@@ -428,14 +432,14 @@ function weeklyRecapCard(stats) {
       <div class="weekly-recap-grid">
         <div class="weekly-recap-stat">
           <span class="weekly-recap-val">${week}<span class="weekly-recap-denom">/7</span></span>
-          <span class="weekly-recap-label">active nights</span>
+          <span class="weekly-recap-label">active nights last week</span>
           <div class="weekly-recap-bar" aria-hidden="true">
             <span class="weekly-recap-bar-fill" style="width: ${weekPct}%"></span>
           </div>
         </div>
         <div class="weekly-recap-stat">
           <span class="weekly-recap-val">${streak}</span>
-          <span class="weekly-recap-label">day streak</span>
+          <span class="weekly-recap-label">current streak</span>
         </div>
         <div class="weekly-recap-stat">
           <span class="weekly-recap-val">${best}</span>
@@ -543,7 +547,7 @@ function bindShareStreakAction(data) {
     const result = await ShareCards.share({
       streak: data.stats.streak,
       bestStreak: data.stats.bestStreak,
-      activeDaysThisWeek: data.stats.activeDaysThisWeek,
+      activeDaysLastWeek: data.stats.activeDaysLastWeek,
     });
     if (result === "copied") btn.textContent = "Copied!";
   });
@@ -642,8 +646,9 @@ function resolveHabitMetrics(stats, completedDates, timezone) {
     const streak = stats.streak ?? 0;
     return {
       streak,
-      bestStreak: Math.max(stats.bestStreak ?? 0, streak),
+      bestStreak: stats.bestStreak ?? 0,
       activeDaysThisWeek: stats.activeDaysThisWeek ?? 0,
+      activeDaysLastWeek: stats.activeDaysLastWeek ?? 0,
       activeDaysThisMonth: stats.activeDaysThisMonth ?? 0,
       monthDelta: stats.monthDelta ?? 0,
     };
@@ -651,13 +656,15 @@ function resolveHabitMetrics(stats, completedDates, timezone) {
 
   const streak = Insights.streakInTimezone(completedDates, timezone);
   const activeDaysThisWeek = Insights.activeDaysThisWeekInTimezone(completedDates, timezone);
+  const activeDaysLastWeek = Insights.activeDaysLastWeekInTimezone(completedDates, timezone);
   const activeDaysThisMonth = Insights.activeDaysThisMonthInTimezone(completedDates, timezone);
   const activeDaysLastMonth = Insights.activeDaysLastMonthInTimezone(completedDates, timezone);
 
   return {
     streak,
-    bestStreak: Math.max(stats.bestStreak ?? 0, streak),
+    bestStreak: stats.bestStreak ?? 0,
     activeDaysThisWeek,
+    activeDaysLastWeek,
     activeDaysThisMonth,
     monthDelta: activeDaysThisMonth - activeDaysLastMonth,
   };
@@ -712,6 +719,7 @@ async function fetchProgressData() {
     streak: habit.streak,
     bestStreak: habit.bestStreak,
     activeDaysThisWeek: habit.activeDaysThisWeek,
+    activeDaysLastWeek: habit.activeDaysLastWeek,
     activeDaysThisMonth: habit.activeDaysThisMonth,
     monthDelta: habit.monthDelta,
     timezone,

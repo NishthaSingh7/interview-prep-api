@@ -5609,6 +5609,12 @@ body.motivation-open {
   font-size: 1.1rem;
 }
 
+.weekly-recap-range {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .weekly-recap-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
