@@ -190,11 +190,130 @@ const StoriesPage = (() => {
     },
   ];
 
+  const HINDI = {
+    "birbal-khichdi": {
+      title: "बिरबल की खिचड़ी",
+      body: [
+        "एक सर्दियों की शाम को सम्राट अकबर और बिरबल जमे हुए तालाब के पास से गुज़रे। अकबर ने अपनी उंगली पानी में डाली और ठंड से काँप उठे। उन्होंने कहा, 'इस तालाब में पूरी रात बैठकर कोई सोना नहीं कमा सकता।'",
+        "एक गरीब आदमी ने चुनौती स्वीकार कर ली। सुबह वह शांत और सूखा सम्राट के सामने खड़ा था। अकबर हैरान रह गए — जब तक बिरबल ने न पूछा कि वह कैसे बचा। आदमी ने दूर की एक लौ की ओर इशारा किया। 'मैंने पूरी रात उस रोशनी पर नज़र रखी।'",
+        "बिरबल मुस्कुराए। 'वह दीया रसोई के पास था। उसे घंटों खिचड़ी की महक आती रही। वह अकेले ठंड में नहीं बैठा — उम्मीद के साथ बैठा था।' अकबर अपने आप पर हँसे और उसकी सच्चाई को इनाम दिया।",
+      ],
+      moral: "धैर्य और उपस्थिति खोखले वादों से ज़्यादा मायने रखते हैं।",
+    },
+    "birbal-crows": {
+      title: "कितने कौवे?",
+      body: [
+        "अकबर को दरबार में बिरबल की परीक्षा लेना अच्छा लगता था। एक दिन उन्होंने पूछा, 'हमारे राज्य में कितने कौवे हैं?'",
+        "सभी चौंक गए। बिरबल ने आँखें बंद करके गिनती का नाटक किया, फिर बोले, 'बिल्कुल इक्कीस हज़ार पाँच सौ तेईस, जहाँपनाह।'",
+        "'और अगर ज़्यादा हों?' अकबर ने पूछा। 'तो दूसरे राज्यों से रिश्तेदार आए हैं,' बिरबल ने जवाब दिया। 'और अगर कम हों?' 'तो कुछ विदेश चले गए हैं।' दरबार हँसी से गूँज उठा। अकबर मुस्कुराए। उन्हें बिरबल को घेरना था — मिली तो याद दिलाने वाली बात कि हर सवाल का डरा हुआ जवाब ज़रूरी नहीं।",
+      ],
+      moral: "आत्मविश्वास और हल्की हँसी फँसाने वाले सवालों को भी पिघला सकते हैं।",
+    },
+    "thirsty-crow": {
+      title: "प्यासा कौवा",
+      body: [
+        "गर्म दोपहर में एक कौवे को एक घड़ा मिला, जिसके तले थोड़ा पानी था। उसकी चोंच वहाँ तक नहीं पहुँचती। वह प्यासा उड़ भी सकता था।",
+        "पर उसने एक-एक करके कंकड़ उठाए और घड़े में डाले। पानी धीरे-धीरे ऊपर आया — कंकड़ दर कंकड़ — जब तक वह पी न सका।",
+        "कोई जादू नहीं। कोई जल्दबाज़ी नहीं। बस धैर्य और अगला छोटा कदम। कहानी पुरानी है, पर जब कोई मुश्किल पहले बड़ी लगे तब यही एहसास आता है।",
+      ],
+      moral: "छोटे-छोटे लगातार प्रयास असंभव लगने वाली चीज़ को भी हिला सकते हैं।",
+    },
+    "tortoise-hare": {
+      title: "कछुआ और खरगोश",
+      body: [
+        "एक खरगोश ने धीमे कछुए का मज़ाक उड़ाया। कछुए ने कहा, 'दौड़ लगाएँ?' खरगोश हँसकर मान गया।",
+        "खरगोश तेज़ी से आगे निकल गया और जीत निश्चित समझकर पेड़ के नीचे सो गया। कछुआ चलता रहा — वही छोटे कदम, बिना रुके।",
+        "जब खरगोश जागा, कछुआ फ़िनिश के पास था। भीड़ ने शांत विजेता की ताली बजाई। खरगोश ने सीखा कि प्रतिभा बिना ध्यान के लगातारी से हार सकती है।",
+      ],
+      moral: "धीमा और लगातार चलना लापरवाह तेज़ी से ज़्यादा देर टिक सकता है।",
+    },
+    "lion-mouse": {
+      title: "शेर और चूहा",
+      body: [
+        "एक शेर अपनी झपकी से जागा तो देखा एक चूहा उसके पंजे पर दौड़ रहा है। उसने आसानी से पकड़ लिया। चूहा काँपा। 'मुझे छोड़ दो। शायद एक दिन मैं तुम्हारी मदद कर सकूँ।'",
+        "शेर ने इस बात पर हँसी, पर चूहा छोड़ दिया। कुछ दिन बाद शिकारियों ने शेर को जाल में फँसा लिया। वह थककर दहाड़ता रहा।",
+        "चूहा ने आवाज़ सुनी, दौड़कर आया और रस्सियाँ कुतर डालीं। 'तुम हँसे थे कि मैं मदद कर सकता हूँ,' चूहे ने कहा। 'और देखो आज।' शेर चुपचाप बैठा, आभारी और शांत।",
+      ],
+      moral: "दया, चाहे छोटे पर भी हो, कभी-कभी वापस लौटकर आती है।",
+    },
+    "monkey-crocodile": {
+      title: "बंदर और मगरमच्छ",
+      body: [
+        "नदी किनारे एक बंदर फलों के पेड़ पर रहता था। एक मगरमच्छ उससे दोस्ती कर गया और रोज़ मीठे जामुन खाता। मगरमच्छ की पत्नी को जलन हुई और उसने बंदर का दिल माँगा।",
+        "शर्मिंदा मगरमच्छ बंदर को नदी पार भोज के लिए अपनी पीठ पर बैठाकर ले गया। बीच नदी में उसने सच्चाई बता दी।",
+        "चतुर बंदर हँसा। 'पहले क्यों नहीं कहा? मेरा दिल तो पेड़ पर रखा है — वापस जाना होगा।' मगरमच्छ मुड़ा। किनारे पर बंदर कूद गया। 'दिल शरीर में रहते हैं,' उसने कहा। 'किसी को पीठ पर बिठाने से पहले याद रखना।'",
+      ],
+      moral: "हर मुस्कुराता चेहरा आपकी भलाई चाहता हो, ऐसा ज़रूरी नहीं।",
+    },
+    "crane-crab": {
+      title: "बगुला और केकड़ा",
+      body: [
+        "एक तालाब के किनारे बगुला खड़ा था जहाँ मछलियाँ डरी हुई थीं। उसने कहा, 'मैं बूढ़ा हूँ। सुना है लोग इस पानी को सुखाएँगे। मैं तुम्हें सुरक्षित झील ले जा सकता हूँ।'",
+        "मछलियों ने विश्वास किया। एक-एक करके वे उसकी चोंच में चली गईं — और गायब हो गईं। एक केकड़े ने भी सवारी माँगी।",
+        "हवा में केकड़े ने देखा कोई नई झील नहीं है। उसने बगुले की गर्दन पर अपनी पिंचर कस लीं। बगुला विनती करता रहा। कुछ कहानियाँ सख्त अंत से सीख देती हैं — घबराहट से कौन फायदा उठा रहा है, यह देखो।",
+      ],
+      moral: "धोखा एक बार चल सकता है — एक ही तालाब पर दोबारा शायद नहीं।",
+    },
+    "bundle-sticks": {
+      title: "लकड़ियों का गट्ठर",
+      body: [
+        "एक बूढ़े किसान के बेटे छोटी-छोटी बातों पर झगड़ते थे। उसने उन्हें बुलाकर ज़मीन पर लकड़ियों का गट्ठर रखा।",
+        "'तोड़ो,' उसने कहा। हर बेटे ने कोशिश की — धकेला, खींचा, कुचला — पर नहीं टूटा।",
+        "फिर किसान ने गट्ठर खोला और हर बेटे को एक-एक लकड़ी दी। वे आसानी से तोड़ देते। 'अकेले तुम टूटते हो,' उसने कहा। 'साथ में टिकते हो।' कमरा शांत हो गया। इस बार सच्चाई हाथों में महसूस हुई।",
+      ],
+      moral: "साथ मिलकर टूटने से ज़्यादा मज़बूत रहते हैं।",
+    },
+    "golden-goose": {
+      title: "सुनहरा अंडा देने वाली हंस",
+      body: [
+        "एक किसान को हंस मिली जो रोज़ एक सुनहरा अंडा देती। वह अमीर हो गया, फिर बेचैन। एक अंडे का इंतज़ार क्यों, जब सोना अंदर ही है?",
+        "उसने हंस को काटकर अंदर देखा। कुछ नहीं मिला। न हंस, न अंडे।",
+        "कहानी जानबूझकर सीधी है। थके हुए दिनों में एक कोमल सवाल पूछती है — ज़िंदगी की कौन-सी लगातार अच्छाई को हम जल्दबाज़ी में खोलने की कोशिश कर रहे हैं?",
+      ],
+      moral: "बहुत जल्दी बहुत ज़्यादा चाहने से जो है वह भी नष्ट हो सकता है।",
+    },
+    "cry-wolf": {
+      title: "भेड़िए की आवाज़ निकालने वाला लड़का",
+      body: [
+        "एक ग्वाले के लड़के ने बोरियत में चिल्लाया, 'भेड़िया! भेड़िया!' गाँव वाले हाथ में औजार लेकर दौड़े। कोई भेड़िया नहीं था। वे गुस्से हुए। उसे मज़ा आया।",
+        "उसने दोबारा यही किया। फिर वे आए। फिर वह हँसा। फिर सच में भेड़िया झुंड में घुस गया।",
+        "वह जी-जान से चिल्लाता रहा। कोई नहीं आया। गाँव ने उसकी आवाज़ पहचान ली थी, खतरे को नहीं। कहानी पुरानी और कठोर है — भरोसे को नाज़ुक चीज़ की तरह संभालो।",
+      ],
+      moral: "ध्यान पाने के लिए झूठ बोलोगे तो सच में मुश्किल में मदद शायद न मिले।",
+    },
+    "tenali-blind": {
+      title: "तेनाली रामन और घमंडी कवि",
+      body: [
+        "राजा कृष्णदेवराय के दरबार में एक कवि घंटों अपनी कविताओं की तारीफ़ करता रहा। तेनाली रामन धैर्य से सुनते रहे, फिर छोटी सी चुनौती दी।",
+        "'अपनी सबसे अच्छी कविता आँखें बंद करके सुनाइए,' तेनाली ने कहा। कवि शान से शुरू हुआ — जब तक तेनाली ने चुपचाप उसके हाथ में कटा प्याज़ न रख दिया। आँसू आ गए, आवाज़ काँपने लगी।",
+        "दरबार मुस्कुराया — बेरहमी से नहीं, पहचान के साथ। तेनाली ने झुककर कहा, 'जब हम सिर्फ़ महसूस करते हैं, प्रदर्शन बंद करते हैं, तो सबसे अच्छी कविता भी अलग लगती है।' कवि खुद पर हँसा और शाम नरम हो गई।",
+      ],
+      moral: "जो सबसे ज़ोर से डींग मारते हैं, अक्सर साफ़ देखे जाने से डरते हैं।",
+    },
+    "star-jar": {
+      title: "सितारों का जार",
+      body: [
+        "एक बच्ची ने दादाजी से कहा कि उसने अपना दुख एक जार में रखा है — हर बुरे दिन के लिए एक कंकड़। 'जल्द ही भर जाएगा,' उसने कहा।",
+        "दादाजी ने दूसरा जार दिया। 'हर आम अच्छी बात के लिए एक सितारा रखो। गर्म खाना। दोस्त की हँसी। बस में संगीत। गर्मी के बाद बारिश।'",
+        "हफ्तों बाद उसने दोनों जार दिखाए। सितारों वाला जार उम्मीद से ज़्यादा भरा था। 'बुरे दिन सच हैं,' उन्होंने कहा। 'पर वही एक चीज़ नहीं जो तुम इकट्ठा कर रही हो।' उसने ढक्कन बंद किए और आराम से सो गई।",
+      ],
+      moral: "मुश्किल रातें भी एक बड़ी ज़िंदगी का हिस्सा हैं।",
+    },
+  };
+
+  const SPEECH_RATE = { en: 0.78, hi: 0.76 };
+
   const SPEAKER_ICON = `<svg class="stories-listen-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`;
 
   let activeFilter = "all";
   let modalEl = null;
+  let listenDrawerEl = null;
   let activeStoryId = null;
+  let activeListenBtn = null;
+  let activeLang = null;
+  let pendingStoryId = null;
+  let pendingListenBtn = null;
+  let voicesCache = null;
 
   function escapeHtml(str) {
     return String(str)
@@ -232,7 +351,14 @@ const StoriesPage = (() => {
     return STORIES.filter((s) => s.category === activeFilter);
   }
 
-  function storySpeechText(story) {
+  function storySpeechText(story, lang) {
+    if (lang === "hi") {
+      const hi = HINDI[story.id];
+      if (!hi) return storySpeechText(story, "en");
+      const parts = [hi.title, ...hi.body];
+      if (hi.moral) parts.push(`कहानी की सीख: ${hi.moral}`);
+      return parts.join(" ");
+    }
     const parts = [story.title, ...story.body];
     if (story.moral) parts.push(`Moral of the story: ${story.moral}`);
     return parts.join(" ");
@@ -242,17 +368,162 @@ const StoriesPage = (() => {
     return typeof window !== "undefined" && "speechSynthesis" in window;
   }
 
-  function stopSpeaking() {
-    if (canListen()) window.speechSynthesis.cancel();
-    activeStoryId = null;
-    document.querySelectorAll(".stories-listen-btn.is-speaking").forEach((btn) => {
+  function loadVoices() {
+    if (!canListen()) return [];
+    if (voicesCache?.length) return voicesCache;
+    voicesCache = window.speechSynthesis.getVoices();
+    return voicesCache;
+  }
+
+  function pickVoice(lang) {
+    const voices = loadVoices();
+    const prefix = lang === "hi" ? "hi" : "en";
+    return (
+      voices.find((v) => v.lang.toLowerCase().startsWith(prefix) && v.localService) ||
+      voices.find((v) => v.lang.toLowerCase().startsWith(prefix)) ||
+      null
+    );
+  }
+
+  function markListenButton(btn, speaking) {
+    if (!btn) return;
+    if (speaking) {
+      btn.classList.add("is-speaking");
+      btn.setAttribute("aria-label", "Stop listening");
+      btn.setAttribute("aria-pressed", "true");
+    } else {
       btn.classList.remove("is-speaking");
       btn.setAttribute("aria-label", "Listen to story");
       btn.setAttribute("aria-pressed", "false");
+    }
+  }
+
+  function stopSpeaking() {
+    if (canListen()) window.speechSynthesis.cancel();
+    activeStoryId = null;
+    activeLang = null;
+    if (activeListenBtn) {
+      markListenButton(activeListenBtn, false);
+      activeListenBtn = null;
+    }
+    document.querySelectorAll(".stories-listen-btn.is-speaking").forEach((btn) => {
+      markListenButton(btn, false);
     });
   }
 
-  function toggleListen(storyId, btn) {
+  function closeListenDrawer() {
+    if (!listenDrawerEl) return;
+    listenDrawerEl.hidden = true;
+    document.body.classList.remove("stories-listen-open");
+    pendingStoryId = null;
+    pendingListenBtn = null;
+  }
+
+  function ensureListenDrawer() {
+    if (listenDrawerEl) return listenDrawerEl;
+
+    listenDrawerEl = document.createElement("div");
+    listenDrawerEl.id = "storiesListenDrawer";
+    listenDrawerEl.className = "stories-listen-drawer";
+    listenDrawerEl.hidden = true;
+    listenDrawerEl.innerHTML = `
+      <div class="stories-listen-backdrop" data-listen-close tabindex="-1" aria-hidden="true"></div>
+      <div class="stories-listen-sheet" role="dialog" aria-modal="true" aria-labelledby="storiesListenTitle">
+        <div class="stories-listen-handle" aria-hidden="true"></div>
+        <p class="stories-listen-kicker">Listen to this tale</p>
+        <h3 class="stories-listen-title" id="storiesListenTitle"></h3>
+        <p class="stories-listen-hint">Choose a language. We'll read slowly so you can follow along.</p>
+        <div class="stories-listen-langs">
+          <button type="button" class="stories-listen-lang" data-lang="en">
+            <span class="stories-listen-lang-flag" aria-hidden="true">🇬🇧</span>
+            <span class="stories-listen-lang-text">
+              <strong>English</strong>
+              <small>Slow, clear narration</small>
+            </span>
+          </button>
+          <button type="button" class="stories-listen-lang" data-lang="hi">
+            <span class="stories-listen-lang-flag" aria-hidden="true">🇮🇳</span>
+            <span class="stories-listen-lang-text">
+              <strong>हिंदी</strong>
+              <small>धीमी, आसान आवाज़</small>
+            </span>
+          </button>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm stories-listen-cancel" data-listen-close>Cancel</button>
+      </div>`;
+
+    document.body.appendChild(listenDrawerEl);
+
+    listenDrawerEl.querySelectorAll("[data-listen-close]").forEach((el) => {
+      el.addEventListener("click", closeListenDrawer);
+    });
+
+    listenDrawerEl.querySelectorAll("[data-lang]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lang = btn.dataset.lang;
+        const storyId = pendingStoryId;
+        const triggerBtn = pendingListenBtn;
+        closeListenDrawer();
+        if (storyId) startListening(storyId, lang, triggerBtn);
+      });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && listenDrawerEl && !listenDrawerEl.hidden) closeListenDrawer();
+    });
+
+    return listenDrawerEl;
+  }
+
+  function openListenDrawer(storyId, btn) {
+    const story = STORIES.find((s) => s.id === storyId);
+    if (!story) return;
+
+    const drawer = ensureListenDrawer();
+    pendingStoryId = storyId;
+    pendingListenBtn = btn || null;
+    drawer.querySelector("#storiesListenTitle").textContent = story.title;
+    drawer.hidden = false;
+    document.body.classList.add("stories-listen-open");
+    drawer.querySelector('[data-lang="en"]').focus();
+  }
+
+  function startListening(storyId, lang, btn) {
+    if (!canListen()) {
+      alert("Listen is not supported in this browser. Try Chrome or Safari.");
+      return;
+    }
+
+    const story = STORIES.find((s) => s.id === storyId);
+    if (!story) return;
+
+    if (lang === "hi" && !HINDI[story.id]) {
+      alert("Hindi narration is not available for this story yet.");
+      return;
+    }
+
+    stopSpeaking();
+
+    const utterance = new SpeechSynthesisUtterance(storySpeechText(story, lang));
+    utterance.lang = lang === "hi" ? "hi-IN" : "en-US";
+    utterance.rate = SPEECH_RATE[lang] || 0.78;
+    utterance.pitch = 1;
+
+    const voice = pickVoice(lang);
+    if (voice) utterance.voice = voice;
+
+    utterance.onend = stopSpeaking;
+    utterance.onerror = stopSpeaking;
+
+    activeStoryId = storyId;
+    activeLang = lang;
+    activeListenBtn = btn || null;
+    if (btn) markListenButton(btn, true);
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function onListenClick(storyId, btn) {
     if (!canListen()) {
       alert("Listen is not supported in this browser. Try Chrome or Safari.");
       return;
@@ -264,23 +535,7 @@ const StoriesPage = (() => {
     }
 
     stopSpeaking();
-    const story = STORIES.find((s) => s.id === storyId);
-    if (!story) return;
-
-    const utterance = new SpeechSynthesisUtterance(storySpeechText(story));
-    utterance.rate = 0.92;
-    utterance.pitch = 1;
-    utterance.onend = stopSpeaking;
-    utterance.onerror = stopSpeaking;
-
-    activeStoryId = storyId;
-    if (btn) {
-      btn.classList.add("is-speaking");
-      btn.setAttribute("aria-label", "Stop listening");
-      btn.setAttribute("aria-pressed", "true");
-    }
-
-    window.speechSynthesis.speak(utterance);
+    openListenDrawer(storyId, btn);
   }
 
   function listenButton(storyId, size = "sm") {
@@ -405,6 +660,7 @@ const StoriesPage = (() => {
 
   function closeModal() {
     stopSpeaking();
+    closeListenDrawer();
     if (!modalEl) return;
     modalEl.hidden = true;
     document.body.classList.remove("motivation-open");
@@ -414,6 +670,7 @@ const StoriesPage = (() => {
     root.querySelectorAll("[data-filter]").forEach((btn) => {
       btn.addEventListener("click", () => {
         stopSpeaking();
+        closeListenDrawer();
         activeFilter = btn.dataset.filter;
         render(root);
       });
@@ -429,7 +686,7 @@ const StoriesPage = (() => {
     root.querySelectorAll(".stories-listen-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        toggleListen(btn.dataset.storyId, btn);
+        onListenClick(btn.dataset.storyId, btn);
       });
     });
 
@@ -444,7 +701,7 @@ const StoriesPage = (() => {
     if (modalListen && !modalListen.dataset.bound) {
       modalListen.dataset.bound = "1";
       modalListen.addEventListener("click", () => {
-        toggleListen(modalListen.dataset.storyId, modalListen);
+        onListenClick(modalListen.dataset.storyId, modalListen);
       });
     }
   }
@@ -494,7 +751,17 @@ const StoriesPage = (() => {
     const root = document.getElementById("storiesRoot");
     if (!root) return;
 
-    window.addEventListener("pagehide", stopSpeaking);
+    window.addEventListener("pagehide", () => {
+      stopSpeaking();
+      closeListenDrawer();
+    });
+
+    if (canListen()) {
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        voicesCache = window.speechSynthesis.getVoices();
+      };
+    }
 
     render(root);
   }
