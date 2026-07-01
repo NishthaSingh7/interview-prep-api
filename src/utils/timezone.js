@@ -22,6 +22,29 @@ function getDateParts(date, timezone) {
   };
 }
 
+function isValidTimezone(timezone) {
+  if (!timezone || typeof timezone !== "string") return false;
+  try {
+    Intl.DateTimeFormat("en-US", { timeZone: timezone.trim() });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveTimezone(user, req) {
+  const candidates = [
+    req?.query?.timezone,
+    req?.headers?.["x-timezone"],
+    user?.timezone,
+  ];
+  for (const raw of candidates) {
+    const tz = String(raw || "").trim();
+    if (isValidTimezone(tz)) return tz;
+  }
+  return "Asia/Kolkata";
+}
+
 function isReminderDueNow(user, now = new Date()) {
   const timezone = user.timezone || "Asia/Kolkata";
   const local = getDateParts(now, timezone);
@@ -43,4 +66,4 @@ function wasReminderSentToday(user, now = new Date()) {
   return todayKey === sentKey;
 }
 
-module.exports = { getDateParts, isReminderDueNow, wasReminderSentToday };
+module.exports = { getDateParts, isReminderDueNow, wasReminderSentToday, isValidTimezone, resolveTimezone };

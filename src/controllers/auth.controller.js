@@ -78,7 +78,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, timezone } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -93,6 +93,15 @@ const login = async (req, res) => {
         success: false,
         message: "Invalid email or password.",
       });
+    }
+
+    const { isValidTimezone } = require("../utils/timezone");
+    if (timezone && isValidTimezone(String(timezone).trim())) {
+      const tz = String(timezone).trim();
+      if (user.timezone !== tz) {
+        user.timezone = tz;
+        await user.save();
+      }
     }
 
     res.status(200).json({

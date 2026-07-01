@@ -1,10 +1,7 @@
 const Progress = require("../models/progress.model");
 const Problem = require("../models/problem.model");
-const {
-  completedToday,
-  activeDaysThisWeek,
-} = require("../utils/consistency");
 const { syncUserHabitStats, buildHabitStats, useStreakFreeze } = require("../services/habit.service");
+const { resolveTimezone } = require("../utils/timezone");
 const Pattern = require("../models/pattern.model");
 const {
   computeUnlockState,
@@ -128,14 +125,10 @@ const getProgressStats = async (req, res) => {
 
     const byPattern = {};
     const byDifficulty = { Easy: 0, Medium: 0, Hard: 0 };
-    const completedDates = [];
 
     for (const entry of progress) {
       const problem = entry.problemId;
       if (!problem) continue;
-
-      if (entry.completedAt) completedDates.push(entry.completedAt);
-      else if (entry.updatedAt) completedDates.push(entry.updatedAt);
 
       const patternName = problem.patternId?.name || "Unknown";
       byPattern[patternName] = (byPattern[patternName] || 0) + 1;
@@ -145,9 +138,14 @@ const getProgressStats = async (req, res) => {
       }
     }
 
-    const timezone = req.user.timezone || "Asia/Kolkata";
+    const timezone = resolveTimezone(req.user, req);
+    if (req.user.timezone !== timezone) {
+      req.user.timezone = timezone;
+      await req.user.save();
+    }
+
     const totalProblems = await Problem.countDocuments();
-    const habit = await buildHabitStats(req.user);
+    const habit = await buildHabitStats(req.user, timezone);
 
     res.status(200).json({
       success: true,
@@ -157,14 +155,15 @@ const getProgressStats = async (req, res) => {
         byPattern,
         byDifficulty,
         unlocks: unlockState,
+        timezone: habit.timezone,
         streak: habit.streak,
         bestStreak: habit.bestStreak,
         streakFreezeCredits: habit.streakFreezeCredits,
-        completedToday: completedToday(completedDates, timezone),
+        completedToday: habit.completedToday,
         activeDaysThisMonth: habit.activeDaysThisMonth,
         activeDaysLastMonth: habit.activeDaysLastMonth,
         monthDelta: habit.monthDelta,
-        activeDaysThisWeek: activeDaysThisWeek(completedDates, timezone),
+        activeDaysThisWeek: habit.activeDaysThisWeek,
         daysSinceLastActive: habit.daysSinceLastActive,
         canUseStreakFreeze: habit.canUseStreakFreeze,
         interview: habit.interview,
@@ -245,7 +244,8 @@ const deleteProgress = async (req, res) => {
 const applyStreakFreeze = async (req, res) => {
   try {
     const user = await useStreakFreeze(req.user);
-    const habit = await buildHabitStats(user);
+    const timezone = resolveTimezone(user, req);
+    const habit = await buildHabitStats(user, timezone);
     res.status(200).json({ success: true, data: habit });
   } catch (error) {
     res.status(error.status || 500).json({ success: false, message: error.message });

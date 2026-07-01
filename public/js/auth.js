@@ -30,6 +30,13 @@ const Auth = {
     const token = this.getToken();
     if (token) headers.Authorization = `Bearer ${token}`;
 
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz) headers["X-Timezone"] = tz;
+    } catch {
+      /* ignore */
+    }
+
     const res = await fetch(path, { ...options, headers });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Request failed");

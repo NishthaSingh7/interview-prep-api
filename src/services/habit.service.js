@@ -6,8 +6,10 @@ const {
   computeLongestStreak,
   activeDaysInMonth,
   activeDaysLastMonth,
+  activeDaysThisWeek,
   daysSinceLastActive,
   interviewPaceInfo,
+  completedToday,
 } = require("../utils/consistency");
 
 function monthPrefix(timezone) {
@@ -23,8 +25,10 @@ function prevDayKey(dateKey) {
 }
 
 async function getCompletedDates(userId) {
-  const progress = await Progress.find({ userId, status: "done" }).select("completedAt updatedAt");
-  return progress.map((p) => p.completedAt || p.updatedAt).filter(Boolean);
+  const progress = await Progress.find({ userId, status: "done" }).select(
+    "completedAt updatedAt createdAt",
+  );
+  return progress.map((p) => p.completedAt || p.updatedAt || p.createdAt).filter(Boolean);
 }
 
 async function syncUserHabitStats(user) {
@@ -85,8 +89,8 @@ async function useStreakFreeze(user) {
   return user;
 }
 
-async function buildHabitStats(user) {
-  const timezone = user.timezone || "Asia/Kolkata";
+async function buildHabitStats(user, timezoneOverride) {
+  const timezone = timezoneOverride || user.timezone || "Asia/Kolkata";
   const completedDates = await getCompletedDates(user._id);
   const freezeDays = user.streakFreezeDays || [];
 
@@ -112,10 +116,14 @@ async function buildHabitStats(user) {
     streakFreezeDays: freezeDays,
     activeDaysThisMonth,
     activeDaysLastMonth: activeDaysLastMo,
+    activeDaysThisWeek: activeDaysThisWeek(completedDates, timezone),
     monthDelta: activeDaysThisMonth - activeDaysLastMo,
     daysSinceLastActive: daysIdle,
+    completedToday: completedToday(completedDates, timezone),
     canUseStreakFreeze,
     interview: interviewPaceInfo(user.interviewDate, completedDates, timezone),
+    timezone,
+    completedDates,
   };
 }
 

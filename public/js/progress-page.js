@@ -641,7 +641,7 @@ async function fetchProgressData() {
       Auth.api("/api/v1/problems?difficulty=Hard&limit=1"),
     ]);
 
-  let timezone = typeof Push !== "undefined" ? Push.getTimezone() : "Asia/Kolkata";
+  let timezone = stats.timezone || (typeof Push !== "undefined" ? Push.getTimezone() : "Asia/Kolkata");
   try {
     const { data: prefs } = await Auth.api("/api/v1/reminders/preferences");
     if (prefs?.timezone) timezone = prefs.timezone;
@@ -667,12 +667,10 @@ async function fetchProgressData() {
   }
 
   const patternTotals = Insights.patternTotalsFromList(patterns);
-  const completedDates = progressEntries.map((e) => e.completedAt || e.updatedAt);
-  const streak = stats.streak ?? Insights.computeStreak(completedDates);
-  const activeDaysThisWeek =
-    stats.activeDaysThisWeek ?? Insights.activeDaysThisWeek(completedDates);
-  const activeDaysThisMonth =
-    stats.activeDaysThisMonth ?? Insights.activeDaysThisMonth(completedDates);
+  const completedDates = progressEntries.map((e) => e.completedAt || e.updatedAt || e.createdAt);
+  const streak = stats.streak ?? 0;
+  const activeDaysThisWeek = stats.activeDaysThisWeek ?? 0;
+  const activeDaysThisMonth = stats.activeDaysThisMonth ?? 0;
   const weakest = Insights.getWeakestPattern(patterns, patternDone, patternTotals);
   const insight = Insights.getInsightMessage(stats, streak, completedDates, {
     daysSinceLastActive: stats.daysSinceLastActive,
