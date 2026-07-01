@@ -648,7 +648,9 @@ function resolveHabitMetrics(stats, completedDates, timezone) {
       streak,
       bestStreak: stats.bestStreak ?? 0,
       activeDaysThisWeek: stats.activeDaysThisWeek ?? 0,
-      activeDaysLastWeek: stats.activeDaysLastWeek ?? 0,
+      activeDaysLastWeek:
+        stats.activeDaysLastWeek ??
+        Insights.activeDaysLastWeekInTimezone(completedDates, timezone),
       activeDaysThisMonth: stats.activeDaysThisMonth ?? 0,
       monthDelta: stats.monthDelta ?? 0,
     };
