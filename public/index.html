@@ -33,7 +33,7 @@
     />
     <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style.css?v=20260702c" />
   </head>
   <body data-page="problems">
     <header class="site-header">
@@ -125,6 +125,15 @@
 
           <aside id="dailyQuote" class="daily-quote panel" hidden aria-label="Daily motivation"></aside>
 
+          <section id="milestonePanel" class="home-milestones panel" hidden aria-labelledby="milestoneKicker">
+            <div class="milestone-panel-head">
+              <p id="milestoneKicker" class="milestone-kicker">Your badge path</p>
+              <span id="milestoneTierLabel" class="milestone-tier-label">Still warming up</span>
+            </div>
+            <div id="milestoneBadges" class="milestone-badges" aria-label="All milestone badges"></div>
+            <div id="milestoneNext"></div>
+          </section>
+
           <section id="todayCard" class="today-card panel" hidden>
             <p id="todayStatus" class="today-status">Tonight's one problem</p>
             <div id="todayBody" class="today-body"></div>
@@ -207,7 +216,7 @@
     <script src="/js/footer.js"></script>
 
     <script src="/js/auth.js"></script>
-    <script src="/js/milestones.js"></script>
+    <script src="/js/milestones.js?v=20260702c"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/push.js"></script>
     <script src="/js/unlocks.js"></script>

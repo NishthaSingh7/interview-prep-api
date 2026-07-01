@@ -197,6 +197,33 @@ body[data-page="progress"] .header-earned-badges {
   border: 1px solid var(--badge-glow);
   background: color-mix(in srgb, var(--badge-glow) 20%, transparent);
   box-shadow: 0 0 12px color-mix(in srgb, var(--badge-glow) 35%, transparent);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.header-badge:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--badge-glow) 45%, transparent);
+}
+
+.header-badge-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--badge-glow);
+  background: color-mix(in srgb, var(--badge-glow) 28%, #0d1117);
+  border: 1px solid color-mix(in srgb, var(--badge-glow) 55%, transparent);
+  flex-shrink: 0;
 }
 
 .header-badge-icon {
@@ -665,6 +692,42 @@ body[data-page="progress"] .header-earned-badges {
 
 .home-milestones {
   border-left: 3px solid var(--border);
+}
+
+#milestonePanel.milestone-tier-spark {
+  border-left-color: #fbbf24;
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.25);
+}
+
+#milestonePanel.milestone-tier-quarter {
+  border-left-color: #22d3ee;
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.22);
+}
+
+#milestonePanel.milestone-tier-stride {
+  border-left-color: #fb923c;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(251, 146, 60, 0.08) 100%);
+}
+
+#milestonePanel.milestone-tier-overtime {
+  border-left-color: #4ade80;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(74, 222, 128, 0.08) 100%);
+}
+
+#milestonePanel.milestone-tier-vanguard {
+  border-left-color: #f472b6;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(244, 114, 182, 0.08) 100%);
+}
+
+#milestonePanel.milestone-tier-stretch {
+  border-left-color: #e879f9;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(232, 121, 249, 0.08) 100%);
+}
+
+#milestonePanel.milestone-tier-century {
+  border-left-color: #a78bfa;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(167, 139, 250, 0.1) 100%);
+  box-shadow: 0 0 24px rgba(167, 139, 250, 0.12);
 }
 
 .home-stats-kicker {
