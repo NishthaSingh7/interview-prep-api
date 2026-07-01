@@ -2,166 +2,190 @@ const StoriesPage = (() => {
   const CATEGORIES = [
     { id: "all", label: "All" },
     { id: "motivation", label: "Motivation" },
-    { id: "dsa", label: "DSA" },
     { id: "interview", label: "Interview" },
+    { id: "discipline", label: "Discipline" },
     { id: "mindset", label: "Mindset" },
   ];
 
   const STORIES = [
     {
-      id: "one-problem-tonight",
-      category: "motivation",
+      id: "venkatesh-google",
+      category: "interview",
       icon: "🌙",
-      title: "You only need one problem tonight",
-      teaser: "The prep advice nobody with a day job wants to hear — until it works.",
+      title: "One problem a day while working full-time",
+      teaser: "Venkatesh Dhongadi prepped at PANW nights, stuck to one daily problem, and landed Google.",
+      author: "Venkatesh Dhongadi",
+      source: "Medium — My Journey to Cracking Google",
       readMin: 2,
       body: [
-        "There's a version of interview prep that looks like quitting your job, doing 8 problems a day, and posting your grind on LinkedIn. That's not your life. You have standups, PR reviews, and a brain that's already been on for nine hours.",
-        "AfterHours is built on a quieter bet: one quality problem after work, most nights, beats a heroic weekend binge every time. Not because binges are bad — because they don't survive February.",
-        "Tonight doesn't need to be your best night. It needs to be a logged night. Check the box, close the laptop, sleep proud.",
+        "Venkatesh was a year into his full-time role at Palo Alto Networks when he decided to seriously chase Google again. He started with one LeetCode problem per day — but consistency was brutal until he found a structured sheet he could trust and stopped drowning in random resources.",
+        "For months his life shrank to three things: work, gym, and study. Friends noticed he 'disappeared.' He took focused leave before rounds, drilled high-frequency tagged questions, and ran four virtual on-sites in four days.",
+        "In March 2025 the offer came through. His lesson for working engineers: you don't need to quit your job — you need one trusted path and the discipline to show up most nights, even when progress feels invisible.",
       ],
     },
     {
-      id: "two-pointers-story",
-      category: "dsa",
-      icon: "↔️",
-      title: "The Two Pointers story interviewers want",
-      teaser: "How to explain shrinking a window without sounding like you memorized a template.",
-      readMin: 3,
-      body: [
-        "Two pointers isn't a trick — it's a story about not re-reading the same data. You have a sorted array and you ask: can I make a pair that sums to target? Brute force checks every pair. Two pointers start at both ends and move inward because sorting gave you a rule: if the sum is too small, the left pointer must move right.",
-        "In the interview, say that out loud. 'I'm avoiding an O(n²) scan by using the order of the array.' Then write the loop. Interviewers care that you know why the pointers only move one direction.",
-        "Practice one medium two-pointer problem this week. Your goal isn't speed — it's being able to teach it to the interviewer like you're pair programming.",
-      ],
-    },
-    {
-      id: "sliding-window-after-work",
-      category: "dsa",
-      icon: "🪟",
-      title: "Sliding Window: the after-work friendly pattern",
-      teaser: "Fixed or variable window — both are about not restarting from scratch.",
-      readMin: 3,
-      body: [
-        "Sliding window problems show up constantly because they mirror real engineering: you have a stream of events and you care about the last K items, or the longest valid segment.",
-        "The mental model: expand the right edge until the window breaks, then shrink from the left until it's valid again. You're never recomputing the whole subarray — you're updating counts.",
-        "When you're tired at 10pm, draw the window on paper before you code. One sketch saves twenty minutes of off-by-one debugging.",
-      ],
-    },
-    {
-      id: "streak-broke",
-      category: "mindset",
+      id: "james-clear-never-twice",
+      category: "discipline",
       icon: "🔗",
-      title: "You broke your streak. Good — now what?",
-      teaser: "A missed night is data, not a verdict on your career.",
+      title: "Never miss twice",
+      teaser: "James Clear's recovery rule: one slip is an accident; two in a row is a new habit.",
+      author: "James Clear",
+      source: "Atomic Habits",
       readMin: 2,
       body: [
-        "Missing a night hurts because streaks are honest. They don't care about your excuse — travel, production fire, exhaustion. They just reset.",
-        "But your best streak is still in the data. You already proved you can show up five, seven, ten nights in a row. The question isn't 'Am I disciplined?' — it's 'What's the smallest action that restarts the chain tonight?'",
-        "One easy problem. One checkmark. The streak number will catch up later. Your identity as someone who preps after work doesn't reset at zero.",
+        "James Clear popularized a rule that changed how many people think about streaks: missing once is normal. Missing twice is when you start becoming someone who doesn't do the habit.",
+        "On the recovery day, the job isn't to 'make up' for yesterday. It's to do the smallest possible version — one push-up, one page, one problem — so the loop fires again.",
+        "For interview prep after work, that means a bad night doesn't erase you. It means tomorrow you open the laptop, solve something small, and log it. Perfection isn't the metric. Restart speed is.",
       ],
     },
     {
-      id: "think-aloud",
+      id: "curt-one-pushup",
+      category: "discipline",
+      icon: "💪",
+      title: "The one push-up that became years of consistency",
+      teaser: "Curt Jaimungal couldn't make the gym stick for 21 years — until the bar was absurdly low.",
+      author: "Curt Jaimungal",
+      source: "Substack — One Push Up",
+      readMin: 2,
+      body: [
+        "Curt Jaimungal writes that for twenty-one years he couldn't make working out stick. Goals like '30 minutes at the gym' kept failing and leaving him feeling worse each cycle.",
+        "So he made the rule stupidly small: one push-up per day. Not ten. Not a workout. One. He found that starting the one often turned into more — but he never had to.",
+        "He then didn't miss a day for years. The lesson maps cleanly to prep: 'one problem tonight' isn't a joke. It's how you lower the barrier until your brain can't argue its way out.",
+      ],
+    },
+    {
+      id: "tina-habit-capsules",
+      category: "mindset",
+      icon: "🫶",
+      title: "Compassionate consistency",
+      teaser: "Tina Nayak built six years of habits by knowing what to drop on hard days.",
+      author: "Tina Nayak",
+      source: "Substack — Compassionate Consistency",
+      readMin: 2,
+      body: [
+        "Tina Nayak writes that real consistency isn't identical perfect days. It's knowing what to drop when life gets loud — without quitting entirely.",
+        "She uses 'habit capsules': the minimum viable version designed for your busiest day. Ten squats instead of an hour at the gym. One sentence instead of a journal page. One problem instead of a three-hour grind.",
+        "On her lowest month she still logged at least one habit on 30 of 31 days — because the floor was small enough to always say yes. That's the energy for after-work prep: shrink the night, don't cancel it.",
+      ],
+    },
+    {
+      id: "meta-over-prepared",
+      category: "interview",
+      icon: "🎯",
+      title: "327 problems, then a fail — then a pass",
+      teaser: "An engineer over-prepared for Meta, choked from memorization, and came back with depth over volume.",
+      author: "Anonymous engineer",
+      source: "Medium — I Failed Meta's Interview Because I Over-Prepared",
+      readMin: 3,
+      body: [
+        "One engineer wrote about six months of intense Meta prep: 327 LeetCode problems, dozens of rehearsed STAR stories, 23 mock interviews. They walked in and froze — optimized for pattern recognition, not thinking under pressure.",
+        "The second attempt looked smaller on paper: ~50 problems, but each solved multiple ways with trade-offs explained. Fewer mocks with people they actually knew. Less script, more understanding.",
+        "They passed. The lesson isn't 'don't prepare.' It's that grinding hundreds of problems without depth can make you brittle. One thoughtful solve tonight beats three rushed ones you won't remember.",
+      ],
+    },
+    {
+      id: "reddit-communication",
       category: "interview",
       icon: "🎙️",
-      title: "Practice thinking out loud (even alone)",
-      teaser: "Silence in an interview reads as stuck. Narration reads as senior.",
+      title: "They didn't ace it — they communicated",
+      teaser: "A Reddit SWE candidate says thought process mattered more than a perfect solution.",
+      author: "Reddit SWE candidate",
+      source: "Jointaro — Reddit interview experience",
       readMin: 2,
       body: [
-        "At home, whisper your plan before you type. 'I see sorted input, so binary search might apply.' 'Edge case: empty array.' 'I'll try a hash map for O(n) lookup.'",
-        "It feels awkward alone. In the room, it's the difference between 'candidate froze' and 'candidate is structured.'",
-        "Tonight when you solve, record a 60-second voice note explaining your approach. Delete it after. The reps matter.",
+        "A software engineer who received a Reddit offer wrote that in multiple rounds they didn't nail the coding question perfectly — but they kept talking through their approach, asking clarifying questions, and showing how they'd adapt.",
+        "System design wasn't a textbook answer either. It was a conversation about trade-offs and scaling under changing requirements.",
+        "If you're prepping alone at night, practice narrating out loud. The interview isn't only whether you finish — it's whether a stranger can follow your thinking.",
       ],
     },
     {
-      id: "pattern-not-problem",
-      category: "interview",
-      icon: "🧩",
-      title: "They ask a problem. You sell a pattern.",
-      teaser: "Interviewers remember the framing, not whether you got line 47 perfect.",
-      readMin: 3,
-      body: [
-        "Most candidates jump to code. Strong candidates name the pattern first: 'This smells like BFS because we're exploring levels.' 'Subarray sum → prefix sum or sliding window.'",
-        "That sentence buys you five minutes of trust. The interviewer relaxes. You can stumble on syntax and still pass.",
-        "AfterHours groups problems by pattern so your brain builds folders. When you see 'longest substring without repeating characters,' you shouldn't think of one LeetCode number — you should think sliding window.",
-      ],
-    },
-    {
-      id: "consistency-compounds",
+      id: "busy-engineer-8-week",
       category: "motivation",
-      icon: "📈",
-      title: "Consistency compounds slower than you want",
-      teaser: "And faster than you think.",
+      icon: "📅",
+      title: "60–90 minutes is enough",
+      teaser: "Subbu Uppalapati's 8-week system is built for engineers who still have a day job.",
+      author: "Subbu Uppalapati",
+      source: "DEV Community — 8-Week Prep System",
       readMin: 2,
       body: [
-        "Night 3 feels invisible. Night 30 feels like you always knew BFS. Night 90 feels like interviews got quieter in your head.",
-        "You won't feel the compound effect daily. You'll feel it when a problem you've never seen still feels familiar because the pattern rhymes with something you solved tired at 11pm.",
-        "Trust the boring nights. They're doing work your anxiety can't see yet.",
+        "Subbu Uppalapati published an 8-week interview framework explicitly for busy engineers: about 75 minutes on weekdays, longer blocks on weekends, and one rest day.",
+        "His point is that structure beats random grinding. Coding days, design days, behavioral days — with post-mortems after timed sets so mistakes don't repeat in silence.",
+        "You don't need to disappear from life. You need a weekly rhythm you can actually keep while paying rent. One problem tonight is a valid entry point into that rhythm.",
       ],
     },
     {
-      id: "binary-search-not-magic",
-      category: "dsa",
-      icon: "🔍",
-      title: "Binary search isn't magic — it's a contract",
-      teaser: "The condition must get monotonically better or worse as you move.",
-      readMin: 3,
+      id: "leetcode-vs-design",
+      category: "mindset",
+      icon: "⚖️",
+      title: "487 LeetCode problems wasn't the whole game",
+      teaser: "An engineer learned that senior interviews test design and communication too.",
+      author: "Devrim",
+      source: "JavaScript in Plain English",
+      readMin: 2,
       body: [
-        "People fail binary search because they treat it as 'sorted array → binary search.' The real question: can I define a predicate on index i that's false before some point and true after?",
-        "Classic example: find minimum in rotated sorted array. The predicate isn't 'is this the answer' — it's 'is this part in the left sorted segment?'",
-        "When studying tonight, write the predicate in English before you write mid = (lo + hi) >> 1.",
+        "Devrim wrote about solving hundreds of LeetCode problems and still failing system design rounds at big companies. Coding was strong; structured design storytelling wasn't.",
+        "What changed wasn't more volume — it was a repeatable framework: clarify requirements, estimate scale, sketch components, deep-dive, discuss bottlenecks.",
+        "Even if you're early in prep, the lesson lands: don't let 'solved count' become your only scoreboard. Can you explain what you did tonight to another engineer? That's interview muscle too.",
       ],
     },
     {
-      id: "weekend-guilt",
+      id: "full-time-realistic",
+      category: "motivation",
+      icon: "🌆",
+      title: "Don't quit your job to grind",
+      teaser: "Multiple prep guides agree: steady 10–15 hours/week beats burnout sprints.",
+      author: "Working engineers",
+      source: "FAANG prep guides (Copilot Interview, Apex Interviewer)",
+      readMin: 2,
+      body: [
+        "Interview prep content written for people with jobs keeps repeating the same math: 60–90 minutes on most weekdays, for 8–12 weeks, is enough to land strong offers — if the time is focused.",
+        "Guides aimed at working engineers explicitly warn against quitting to prep full-time. Burnout by week three or four is common. Spacing helps pattern recognition stick.",
+        "If you're reading this tired after work, you're not behind. You're the audience these plans were written for. One problem tonight counts.",
+      ],
+    },
+    {
+      id: "minimum-viable-habit",
+      category: "discipline",
+      icon: "🌱",
+      title: "Laughably small still counts",
+      teaser: "Coaches call it the minimum viable habit — so small your brain can't say no.",
+      author: "Habit researchers & coaches",
+      source: "Triage Method, James Clear",
+      readMin: 2,
+      body: [
+        "Behavior-change coaches describe 'minimum viable habits' as almost embarrassingly small — two pushups, five minutes of reading, one problem — because consistency rewires the brain through repetition, not intensity.",
+        "The threat-detection part of your brain fights big commitments after a long workday. Tiny commitments slip through.",
+        "AfterHours is built on that idea: one checkmark tonight is a real rep. You're not failing because you didn't do five problems. You're building if you did one.",
+      ],
+    },
+    {
+      id: "decade-wait",
+      category: "motivation",
+      icon: "⏳",
+      title: "A decade of waiting, then all-in",
+      teaser: "Venkatesh said he'd waited ten years for his Google shot — and finally went all-in.",
+      author: "Venkatesh Dhongadi",
+      source: "Medium — Google prep journey",
+      readMin: 2,
+      body: [
+        "In his write-up, Venkatesh describes treating the Google process like something he'd been circling for years — not a whim. When the recruiter finally replied, he structured leave, cut distractions, and treated each round like it mattered.",
+        "That seriousness didn't mean solving 20 problems a night. It meant not breaking the daily habit when motivation dipped, and trusting the sheet he'd committed to.",
+        "You might not be chasing Google. But whatever company or role is your 'ten-year quiet goal' — tonight's single problem is how people like him kept the door open.",
+      ],
+    },
+    {
+      id: "recovery-not-guilt",
       category: "mindset",
       icon: "☕",
-      title: "Stop punishing yourself with weekend marathons",
-      teaser: "Recovery is part of prep when you have a real job.",
+      title: "Rest days are part of the plan",
+      teaser: "Sustainable prep schedules build in recovery — not guilt-driven catch-up.",
+      author: "Interview prep coaches",
+      source: "8-week prep frameworks",
       readMin: 2,
       body: [
-        "Saturday 6-hour LeetCode sessions feel productive and leave you dreading Monday. Your job already takes cognitive load. Prep should add clarity, not another job.",
-        "A sustainable rhythm: weeknights for one problem, weekends for one review or one hard problem if you have energy — not a rescue mission.",
-        "The offer goes to people who can perform in the interview, not people who burned out proving they deserved it.",
-      ],
-    },
-    {
-      id: "redo-problems",
-      category: "mindset",
-      icon: "🔁",
-      title: "Redoing a problem is not failure",
-      teaser: "It's the difference between recognition and recall.",
-      readMin: 2,
-      body: [
-        "You solved it three weeks ago. You can't reproduce it today. That's normal — your first solve was with hints, fresh memory, and momentum.",
-        "Unchecking a problem in AfterHours isn't going backward. It's choosing depth over vanity metrics.",
-        "Interview rooms don't show your solved count. They show whether you can rebuild the solution with a whiteboard and a stranger watching.",
-      ],
-    },
-    {
-      id: "system-design-bridge",
-      category: "interview",
-      icon: "🏗️",
-      title: "DSA prep is interview stamina training",
-      teaser: "Coding rounds test how you think under pressure — same muscle.",
-      readMin: 2,
-      body: [
-        "You might wonder why arrays matter if you want a backend role. Because the coding round isn't about arrays — it's about decomposition, tradeoffs, and communication while tired.",
-        "Every night you sit down after work and push through one hard thing, you're training the same meta-skill: structured thinking when you'd rather scroll.",
-        "That's transferable to system design, behavioral, and on-call debugging. The problem is the gym. The skill is the muscle.",
-      ],
-    },
-    {
-      id: "after-hours-identity",
-      category: "motivation",
-      icon: "💻",
-      title: "The after-hours identity",
-      teaser: "You're not 'behind.' You're building on a different schedule.",
-      readMin: 2,
-      body: [
-        "Full-time prep students start at page one in daylight. You start after dinner, when the team Slack finally quiets. Different starting line, same finish line.",
-        "Your edge isn't free time — it's maturity. You know what shipping feels like. You know when good enough is good enough. Bring that to interviews.",
-        "AfterHours exists because your progress deserves a map that respects your schedule. One marker tonight is enough.",
+        "Structured prep plans for full-time workers almost always include one real rest day per week. Not because you're lazy — because tired candidates interview badly.",
+        "Weekend marathons that leave you dreading Monday don't compound. They spike anxiety and drop weekday quality.",
+        "Miss a night? Don't punish yourself with a four-hour Sunday. Do one problem when you can, protect sleep, and come back. The long game is months, not one heroic evening.",
       ],
     },
   ];
@@ -205,8 +229,14 @@ const StoriesPage = (() => {
     return STORIES.filter((s) => s.category === activeFilter);
   }
 
-  function renderBody(body) {
-    return body.map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+  function renderAttribution(story) {
+    if (!story.author) return "";
+    const source = story.source ? ` · ${story.source}` : "";
+    return `<p class="stories-modal-attribution">Story summarized from ${escapeHtml(story.author)}${escapeHtml(source)}</p>`;
+  }
+
+  function renderBody(story) {
+    return `${story.body.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}${renderAttribution(story)}`;
   }
 
   function renderFeatured(story) {
@@ -236,6 +266,7 @@ const StoriesPage = (() => {
         </div>
         <h4 class="stories-card-title">${escapeHtml(story.title)}</h4>
         <p class="stories-card-teaser">${escapeHtml(story.teaser)}</p>
+        <p class="stories-card-author">${escapeHtml(story.author || "")}</p>
         <div class="stories-card-foot">
           <span class="stories-card-meta">${story.readMin} min read</span>
           <button type="button" class="btn btn-ghost btn-sm stories-read-btn" data-story-id="${story.id}">Read</button>
@@ -291,9 +322,9 @@ const StoriesPage = (() => {
     if (!story) return;
 
     const modal = ensureModal();
-    modal.querySelector("#storyModalKicker").textContent = `${story.icon} ${categoryLabel(story.category)} · ${story.readMin} min`;
+    modal.querySelector("#storyModalKicker").textContent = `${story.icon} ${categoryLabel(story.category)} · ${story.readMin} min · ${story.author || "Story"}`;
     modal.querySelector("#storyModalTitle").textContent = story.title;
-    modal.querySelector("#storyModalBody").innerHTML = renderBody(story.body);
+    modal.querySelector("#storyModalBody").innerHTML = renderBody(story);
     modal.hidden = false;
     document.body.classList.add("motivation-open");
     modal.querySelector(".motivation-close").focus();
@@ -332,15 +363,15 @@ const StoriesPage = (() => {
     root.innerHTML = `
       <header class="stories-hero panel">
         <p class="about-eyebrow">Night Shift Stories</p>
-        <h2 class="about-title">Read before you solve</h2>
+        <h2 class="about-title">Real stories. Two-minute reads.</h2>
         <p class="about-lead">
-          Short motivation, DSA insight, and interview reality checks for people who prep after work.
-          Two minutes of context. One problem tonight.
+          Summarized lessons from engineers, authors, and builders — interview journeys, discipline, and recovery after hard days.
+          A calm stop before tonight's problem.
         </p>
         <div class="about-meta-row">
           <span class="about-pill">${STORIES.length} stories</span>
-          <span class="about-pill">2–3 min reads</span>
-          <span class="about-pill">New featured daily</span>
+          <span class="about-pill">~2 min each</span>
+          <span class="about-pill">Attributed sources</span>
         </div>
       </header>
 

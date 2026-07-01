@@ -789,9 +789,99 @@ body[data-page="progress"] .header-earned-badges {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0;
+}
+
+.home-pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+
+.home-pulse-grid > [hidden] {
+  display: none !important;
+}
+
+.home-pulse-card {
+  margin-bottom: 0 !important;
+  min-height: 0;
+}
+
+.home-pulse-grid .daily-quote {
+  grid-column: 1 / -1;
+}
+
+.home-pulse-grid .today-card {
+  grid-column: 1 / -1;
+}
+
+.home-pulse-grid .continue-session {
+  grid-column: span 1;
+}
+
+@media (min-width: 900px) {
+  .home-pulse-grid {
+    grid-template-columns: 1.1fr 1fr;
+  }
+
+  .home-pulse-grid .daily-quote {
+    grid-column: 1 / -1;
+  }
+
+  .home-pulse-grid .today-card {
+    grid-column: 1 / -1;
+  }
+
+  .home-pulse-grid .continue-session:only-of-type,
+  .home-pulse-grid .continue-session:last-child:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+}
+
+.tonight-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-top: 0.35rem;
+}
+
+.tonight-inline-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.tonight-inline-reason {
+  margin: 0 0 0.1rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+
+.tonight-inline-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.tonight-inline-meta {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.tonight-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
 }
 
 .tonights-inline .tonights-title {
@@ -894,32 +984,36 @@ body[data-page="progress"] .header-earned-badges {
 }
 
 .daily-quote {
-  padding: 0.85rem 1rem 0.9rem;
-  margin-bottom: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0;
   background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(167, 139, 250, 0.06) 100%);
   border: 1px solid rgba(34, 211, 238, 0.18);
 }
 
 .daily-quote-kicker {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.2rem;
 }
 
 .daily-quote-text {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: 0.8rem;
+  line-height: 1.35;
   color: var(--text);
   font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .daily-quote-author {
-  margin: 0.4rem 0 0;
-  font-size: 0.72rem;
+  margin: 0.2rem 0 0;
+  font-size: 0.65rem;
   color: var(--muted);
   text-align: right;
 }
@@ -1108,13 +1202,13 @@ body[data-page="progress"] .header-earned-badges {
 }
 
 .continue-session {
-  padding: 0.9rem 1rem;
+  padding: 0.55rem 0.75rem;
   border-left: 3px solid var(--accent);
   background: linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 100%);
 }
 
 .continue-inline {
-  margin-bottom: 0.65rem;
+  margin-bottom: 0;
 }
 
 .continue-inline .continue-session-detail {
@@ -1131,11 +1225,21 @@ body[data-page="progress"] .header-earned-badges {
 
 .continue-kicker {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
+  margin: 0 0 0.15rem;
+}
+
+.continue-inline .continue-session-detail {
+  margin-bottom: 0;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .continue-session-detail {
@@ -5270,19 +5374,19 @@ body.motivation-open {
 /* ── Consistency-first UI ── */
 
 .today-card {
-  padding: 1rem 1.15rem;
-  margin-bottom: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0;
   border: 1px solid rgba(34, 211, 238, 0.2);
   background: linear-gradient(135deg, rgba(34, 211, 238, 0.06), rgba(167, 139, 250, 0.04));
 }
 
 .today-status {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent);
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.2rem;
 }
 
 .today-status-done {
@@ -5292,9 +5396,9 @@ body.motivation-open {
 .today-hint,
 .today-done-msg {
   margin: 0;
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 .streak-hero-val {
@@ -5978,6 +6082,23 @@ body.motivation-open {
 
 .stories-dialog {
   max-width: 32rem;
+}
+
+.stories-card-author {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.stories-modal-attribution {
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.45;
 }
 
 .stories-modal-body p {

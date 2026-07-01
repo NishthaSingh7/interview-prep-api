@@ -33,7 +33,7 @@
     />
     <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260702c" />
+    <link rel="stylesheet" href="/css/style.css?v=20260703" />
   </head>
   <body data-page="problems">
     <header class="site-header">
@@ -123,34 +123,36 @@
             <a href="/progress" id="homeProgressLink" class="home-progress-link" hidden>Your progress →</a>
           </div>
 
-          <aside id="dailyQuote" class="daily-quote panel" hidden aria-label="Daily motivation"></aside>
+          <div class="home-pulse-grid" id="homePulseGrid">
+            <aside id="dailyQuote" class="daily-quote panel home-pulse-card" hidden aria-label="Daily motivation"></aside>
 
-          <section id="todayCard" class="today-card panel" hidden>
-            <p id="todayStatus" class="today-status">Tonight's one problem</p>
-            <div id="todayBody" class="today-body"></div>
-          </section>
+            <section id="todayCard" class="today-card panel home-pulse-card" hidden>
+              <p id="todayStatus" class="today-status">Tonight's one problem</p>
+              <div id="todayBody" class="today-body"></div>
+            </section>
 
-          <section id="continueSession" class="continue-session panel continue-inline" hidden>
-            <div class="continue-inline-main">
-              <p class="continue-kicker">Continue where you left off</p>
-              <p id="continueSessionDetail" class="continue-session-detail"></p>
-            </div>
-          </section>
-
-          <section id="tonightsProblem" class="tonights-problem panel tonights-inline" hidden>
-            <div class="tonights-inline-main">
-              <div class="tonights-problem-head">
-                <p class="tonights-kicker">Tonight&rsquo;s problem</p>
-                <span id="tonightsReason" class="tonights-reason"></span>
+            <section id="continueSession" class="continue-session panel continue-inline home-pulse-card" hidden>
+              <div class="continue-inline-main">
+                <p class="continue-kicker">Continue where you left off</p>
+                <p id="continueSessionDetail" class="continue-session-detail"></p>
               </div>
-              <h3 id="tonightsTitle" class="tonights-title"></h3>
-              <p id="tonightsMeta" class="tonights-meta"></p>
-            </div>
-            <div class="tonights-actions">
-              <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
-              <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm" title="Default pick is intentional — use only if you need a different problem">Different pick</button>
-            </div>
-          </section>
+            </section>
+
+            <section id="tonightsProblem" class="tonights-problem panel tonights-inline home-pulse-card" hidden>
+              <div class="tonights-inline-main">
+                <div class="tonights-problem-head">
+                  <p class="tonights-kicker">Tonight&rsquo;s problem</p>
+                  <span id="tonightsReason" class="tonights-reason"></span>
+                </div>
+                <h3 id="tonightsTitle" class="tonights-title"></h3>
+                <p id="tonightsMeta" class="tonights-meta"></p>
+              </div>
+              <div class="tonights-actions">
+                <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
+                <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm" title="Default pick is intentional — use only if you need a different problem">Different pick</button>
+              </div>
+            </section>
+          </div>
 
           <div class="toolbar panel">
           <div class="search-wrap">
@@ -216,11 +218,11 @@
     <script src="/js/daily-quote.js"></script>
     <script src="/js/share-cards.js"></script>
     <script src="/js/confetti.js"></script>
-    <script src="/js/focus.js"></script>
+    <script src="/js/focus.js?v=20260703"></script>
     <script src="/js/pattern-guides.js"></script>
     <script src="/js/pattern-diagrams.js"></script>
     <script src="/js/pattern-info.js"></script>
     <script src="/js/onboarding.js"></script>
-    <script src="/js/app.js"></script>
+    <script src="/js/app.js?v=20260703"></script>
   </body>
 </html>

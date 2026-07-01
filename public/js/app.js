@@ -239,7 +239,7 @@ async function loadTonightsProblem() {
       tonightResult: result,
       tonightIds: TONIGHT_IDS,
     });
-    if (!Insights.completedToday(dates)) {
+    if (!Insights.completedToday(dates) && document.body.dataset.page !== "problems") {
       Focus.renderTonightsProblem(result, TONIGHT_IDS);
     }
     if (typeof Analytics !== "undefined") {

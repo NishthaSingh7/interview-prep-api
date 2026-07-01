@@ -1,6 +1,14 @@
 const Focus = (() => {
   const SESSION_KEY = "afterhours_home_session";
 
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function readSession() {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
@@ -205,8 +213,49 @@ const Focus = (() => {
     }
     card.hidden = false;
 
+    const tonightPanel = tonightIds?.panel ? document.getElementById(tonightIds.panel) : null;
+    const onHome = document.body.dataset.page === "problems";
+
     if (tonightResult && tonightIds) {
-      renderTonightsProblem(tonightResult, tonightIds);
+      if (onHome) {
+        renderTonightInline(tonightResult, tonightIds, bodyEl);
+        if (tonightPanel) tonightPanel.hidden = true;
+      } else {
+        renderTonightsProblem(tonightResult, tonightIds);
+      }
+    } else if (onHome && tonightPanel) {
+      tonightPanel.hidden = true;
+    }
+  }
+
+  function renderTonightInline(result, ids, bodyEl) {
+    if (!result?.problem || !bodyEl) return;
+
+    const { problem, reason } = result;
+    const patternName = problem.patternId?.name || "—";
+    const url = problem.leetcodeLink || problem.practiceLink;
+    const source = problem.source || (problem.leetcodeLink ? "LeetCode" : "Practice");
+    const linkHtml = url
+      ? `<a class="btn btn-primary btn-sm tonight-inline-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open on ${escapeHtml(source)} ↗</a>`
+      : "";
+
+    bodyEl.innerHTML = `
+      <div class="tonight-inline">
+        <div class="tonight-inline-main">
+          <p class="tonight-inline-reason">${escapeHtml(reason)}</p>
+          <p class="tonight-inline-title">${escapeHtml(problem.title)}</p>
+          <p class="tonight-inline-meta">${escapeHtml(problem.difficulty)} · ${escapeHtml(patternName)}</p>
+        </div>
+        <div class="tonight-inline-actions">
+          ${linkHtml}
+          <button type="button" class="btn btn-ghost btn-sm" id="tonightsShuffleInline" title="Default pick is intentional — use only if you need a different problem">Different pick</button>
+        </div>
+      </div>`;
+
+    const shuffleBtn = bodyEl.querySelector("#tonightsShuffleInline");
+    const legacyShuffle = document.getElementById(ids.panel === "tonightsProblem" ? "tonightsShuffle" : "");
+    if (shuffleBtn && legacyShuffle) {
+      shuffleBtn.addEventListener("click", () => legacyShuffle.click());
     }
   }
 
