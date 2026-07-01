@@ -58,6 +58,25 @@ const userSchema = new mongoose.Schema(
     lastReminderSentAt: {
       type: Date,
     },
+    bestStreak: {
+      type: Number,
+      default: 0,
+    },
+    streakFreezeCredits: {
+      type: Number,
+      default: 0,
+    },
+    streakFreezeDays: {
+      type: [String],
+      default: [],
+    },
+    freezeCreditsMonth: {
+      type: String,
+      default: "",
+    },
+    interviewDate: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );

@@ -1,11 +1,10 @@
 const Progress = require("../models/progress.model");
 const Problem = require("../models/problem.model");
 const {
-  computeStreak,
   completedToday,
-  activeDaysInMonth,
   activeDaysThisWeek,
 } = require("../utils/consistency");
+const { syncUserHabitStats, buildHabitStats, useStreakFreeze } = require("../services/habit.service");
 const Pattern = require("../models/pattern.model");
 const {
   computeUnlockState,
@@ -86,6 +85,10 @@ const createProgress = async (req, res) => {
       populate: { path: "patternId" },
     });
 
+    if (status === "done") {
+      await syncUserHabitStats(req.user);
+    }
+
     res.status(201).json({ success: true, data: progress });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -144,6 +147,7 @@ const getProgressStats = async (req, res) => {
 
     const timezone = req.user.timezone || "Asia/Kolkata";
     const totalProblems = await Problem.countDocuments();
+    const habit = await buildHabitStats(req.user);
 
     res.status(200).json({
       success: true,
@@ -153,10 +157,17 @@ const getProgressStats = async (req, res) => {
         byPattern,
         byDifficulty,
         unlocks: unlockState,
-        streak: computeStreak(completedDates, timezone),
+        streak: habit.streak,
+        bestStreak: habit.bestStreak,
+        streakFreezeCredits: habit.streakFreezeCredits,
         completedToday: completedToday(completedDates, timezone),
-        activeDaysThisMonth: activeDaysInMonth(completedDates, timezone),
+        activeDaysThisMonth: habit.activeDaysThisMonth,
+        activeDaysLastMonth: habit.activeDaysLastMonth,
+        monthDelta: habit.monthDelta,
         activeDaysThisWeek: activeDaysThisWeek(completedDates, timezone),
+        daysSinceLastActive: habit.daysSinceLastActive,
+        canUseStreakFreeze: habit.canUseStreakFreeze,
+        interview: habit.interview,
       },
     });
   } catch (error) {
@@ -197,6 +208,10 @@ const updateProgress = async (req, res) => {
 
     await progress.save();
 
+    if (status === "done") {
+      await syncUserHabitStats(req.user);
+    }
+
     const updated = await Progress.findById(progress._id).populate({
       path: "problemId",
       populate: { path: "patternId" },
@@ -219,9 +234,21 @@ const deleteProgress = async (req, res) => {
       return res.status(404).json({ success: false, message: "Progress entry not found" });
     }
 
+    await syncUserHabitStats(req.user);
+
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const applyStreakFreeze = async (req, res) => {
+  try {
+    const user = await useStreakFreeze(req.user);
+    const habit = await buildHabitStats(user);
+    res.status(200).json({ success: true, data: habit });
+  } catch (error) {
+    res.status(error.status || 500).json({ success: false, message: error.message });
   }
 };
 
@@ -231,4 +258,5 @@ module.exports = {
   getProgressStats,
   updateProgress,
   deleteProgress,
+  applyStreakFreeze,
 };

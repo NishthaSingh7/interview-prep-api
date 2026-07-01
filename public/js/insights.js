@@ -7,6 +7,28 @@ const Insights = {
     return d.getTime();
   },
 
+  dateKeyInTimezone(dateInput, timezone = "Asia/Kolkata") {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const parts = Object.fromEntries(
+      formatter.formatToParts(new Date(dateInput)).map((p) => [p.type, p.value]),
+    );
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  },
+
+  uniqueDateKeysInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const keys = new Set();
+    for (const raw of completedDates) {
+      if (!raw) continue;
+      keys.add(this.dateKeyInTimezone(raw, timezone));
+    }
+    return keys;
+  },
+
   uniqueDayKeys(completedDates) {
     return new Set(
       completedDates
@@ -72,9 +94,13 @@ const Insights = {
     const s = streak ?? this.computeStreak(completedDates);
     const monthDays = opts.activeDaysThisMonth ?? this.activeDaysThisMonth(completedDates);
     const todayDone = opts.completedToday ?? this.completedToday(completedDates);
+    const best = opts.bestStreak ?? 0;
 
     if (!completedDates.length) {
       return "Tonight's win: waiting for you";
+    }
+    if (s === 0 && best > 0) {
+      return `Best streak: ${best} days · showed up ${monthDays} days this month · ${todayDone ? "today logged" : "tonight's win pending"}`;
     }
     if (todayDone) {
       return `${s}-day streak · showed up ${monthDays} days this month · today's win logged`;
@@ -110,9 +136,17 @@ const Insights = {
     return totals;
   },
 
-  getInsightMessage(stats, streak, completedDates = []) {
-    const { totalCompleted, byDifficulty } = stats;
+  getInsightMessage(stats, streak, completedDates = [], opts = {}) {
+    const { totalCompleted, byDifficulty, daysSinceLastActive, bestStreak } = stats;
     const todayDone = this.completedToday(completedDates);
+    const idle = daysSinceLastActive ?? opts.daysSinceLastActive;
+
+    if (idle !== null && idle >= 2 && !todayDone) {
+      const best = bestStreak ?? streak;
+      return best > 0
+        ? `Welcome back — you already proved you can hit a ${best}-day streak. One problem tonight restarts the rhythm.`
+        : "Welcome back. One problem tonight is enough — consistency beats catching up in one night.";
+    }
 
     if (totalCompleted === 0) {
       return "Your journey starts with one problem tonight. Pick one, solve it, and log your first win.";

@@ -5,6 +5,7 @@ const { protect } = require("../middleware/auth.middleware");
 
 router.use(protect);
 
+router.post("/streak-freeze", progressController.applyStreakFreeze);
 router.get("/stats", progressController.getProgressStats);
 router.get("/", progressController.getMyProgress);
 router.post("/", progressController.createProgress);

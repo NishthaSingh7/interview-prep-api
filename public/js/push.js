@@ -156,15 +156,19 @@ const Push = {
     return subscription;
   },
 
-  async savePreferences({ reminderEnabled, reminderHour, reminderMinute, timezone }) {
+  async savePreferences({ reminderEnabled, reminderHour, reminderMinute, timezone, interviewDate }) {
+    const body = {
+      reminderEnabled,
+      reminderHour,
+      reminderMinute,
+      timezone: timezone || this.getTimezone(),
+    };
+    if (interviewDate !== undefined) {
+      body.interviewDate = interviewDate || null;
+    }
     await Auth.api("/api/v1/reminders/preferences", {
       method: "PUT",
-      body: JSON.stringify({
-        reminderEnabled,
-        reminderHour,
-        reminderMinute,
-        timezone: timezone || this.getTimezone(),
-      }),
+      body: JSON.stringify(body),
     });
   },
 
@@ -276,6 +280,7 @@ const Push = {
 
     const enabledEl = document.getElementById("prefReminderEnabled");
     const timeEl = document.getElementById("prefReminderTime");
+    const interviewEl = document.getElementById("prefInterviewDate");
     const statusEl = document.getElementById("pushStatus");
     const saveBtn = document.getElementById("saveReminderBtn");
     const timeGroup = document.getElementById("reminderTimeGroup");
@@ -285,6 +290,9 @@ const Push = {
     let prefs = await this.getPreferences();
     enabledEl.checked = prefs.reminderEnabled;
     timeEl.value = this.formatTime(prefs.reminderHour, prefs.reminderMinute);
+    if (interviewEl && prefs.interviewDate) {
+      interviewEl.value = String(prefs.interviewDate).slice(0, 10);
+    }
     statusEl.textContent = this.statusLabel(this.permissionStatus(), prefs);
 
     const syncTimeVisibility = () => {
@@ -299,6 +307,7 @@ const Push = {
 
       try {
         const { reminderHour, reminderMinute } = this.parseTimeInput(timeEl.value);
+        const interviewDate = interviewEl?.value || null;
 
         if (enabledEl.checked) {
           try {
@@ -312,6 +321,7 @@ const Push = {
           reminderEnabled: enabledEl.checked,
           reminderHour,
           reminderMinute,
+          interviewDate,
         });
 
         statusEl.textContent = this.statusLabel(this.permissionStatus(), prefs);

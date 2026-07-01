@@ -58,6 +58,7 @@ const getPreferences = (req, res) => {
       reminderHour: req.user.reminderHour,
       reminderMinute: req.user.reminderMinute,
       timezone: req.user.timezone,
+      interviewDate: req.user.interviewDate || null,
       pushSubscribed: Boolean(req.user.pushSubscription?.endpoint),
     },
   });
@@ -65,7 +66,7 @@ const getPreferences = (req, res) => {
 
 const updatePreferences = async (req, res) => {
   try {
-    const { reminderEnabled, reminderHour, reminderMinute, timezone } = req.body;
+    const { reminderEnabled, reminderHour, reminderMinute, timezone, interviewDate } = req.body;
 
     if (reminderEnabled !== undefined) {
       req.user.reminderEnabled = Boolean(reminderEnabled);
@@ -97,6 +98,21 @@ const updatePreferences = async (req, res) => {
       req.user.timezone = String(timezone).trim() || "Asia/Kolkata";
     }
 
+    if (interviewDate !== undefined) {
+      if (interviewDate === null || interviewDate === "") {
+        req.user.interviewDate = undefined;
+      } else {
+        const parsed = new Date(interviewDate);
+        if (Number.isNaN(parsed.getTime())) {
+          return res.status(400).json({
+            success: false,
+            message: "interviewDate must be a valid date.",
+          });
+        }
+        req.user.interviewDate = parsed;
+      }
+    }
+
     // Reset daily send lock when reminder schedule changes.
     req.user.lastReminderSentAt = undefined;
 
@@ -109,6 +125,7 @@ const updatePreferences = async (req, res) => {
         reminderHour: req.user.reminderHour,
         reminderMinute: req.user.reminderMinute,
         timezone: req.user.timezone,
+        interviewDate: req.user.interviewDate || null,
         pushSubscribed: Boolean(req.user.pushSubscription?.endpoint),
       },
     });

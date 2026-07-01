@@ -1,3 +1,5 @@
+const NOTES_CHAR_LIMIT = 2000;
+
 const state = {
   patterns: [],
   problems: [],
@@ -159,7 +161,45 @@ function updateHomeProgressSnippet() {
   el.textContent = Insights.formatConsistencySnippet(dates, streak, {
     activeDaysThisMonth: stats?.activeDaysThisMonth,
     completedToday: stats?.completedToday,
+    bestStreak: stats?.bestStreak,
   });
+  renderHomeHabitBanners(stats);
+}
+
+function renderHomeHabitBanners(stats) {
+  if (!stats) return;
+
+  let freezeEl = document.getElementById("homeStreakFreeze");
+  if (stats.canUseStreakFreeze) {
+    if (!freezeEl) {
+      const anchor = document.getElementById("homeProgressSnippet")?.parentElement;
+      if (!anchor) return;
+      freezeEl = document.createElement("div");
+      freezeEl.id = "homeStreakFreeze";
+      freezeEl.className = "streak-freeze-banner panel";
+      anchor.insertAdjacentElement("afterend", freezeEl);
+    }
+    freezeEl.hidden = false;
+    freezeEl.innerHTML = `
+      <p><strong>Streak freeze available</strong> — cover yesterday without losing your chain.</p>
+      <button type="button" class="btn btn-primary btn-sm" id="homeUseStreakFreezeBtn">Use streak freeze</button>`;
+    const btn = freezeEl.querySelector("#homeUseStreakFreezeBtn");
+    if (btn && !btn.dataset.bound) {
+      btn.dataset.bound = "1";
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          await api("/api/v1/progress/streak-freeze", { method: "POST" });
+          await refreshConsistencyStats();
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    }
+  } else if (freezeEl) {
+    freezeEl.hidden = true;
+  }
 }
 
 async function refreshConsistencyStats() {
@@ -415,9 +455,9 @@ function renderProblems() {
           <td class="col-num">${offset + i + 1}</td>
           <td class="col-title">
             <span>${escapeHtml(p.title)}</span>
-            ${isDone && progress?.id ? `<button type="button" class="notes-btn" data-progress-id="${progress.id}" data-problem-id="${p._id}" title="Add notes">📝</button>` : ""}
             ${locked ? `<span class="lock-hint">${escapeHtml(lockReason)}</span>` : ""}
           </td>
+          <td class="col-notes">${notesButtonHtml(p, isDone, progress, locked)}</td>
           <td class="col-difficulty"><span class="badge ${difficultyClass(p.difficulty)}">${p.difficulty}</span></td>
           <td class="col-pattern">
             <span>${escapeHtml(p.patternId?.name || "—")}</span>
@@ -436,6 +476,7 @@ function renderProblems() {
             <th class="col-status">Done</th>
             <th class="col-num">#</th>
             <th class="col-title">Title</th>
+            <th class="col-notes">Notes</th>
             <th class="col-difficulty">Difficulty</th>
             <th class="col-pattern">Pattern</th>
             <th class="col-link">Practice</th>
@@ -450,7 +491,10 @@ function renderProblems() {
   });
 
   container.querySelectorAll(".notes-btn").forEach((btn) => {
-    btn.addEventListener("click", () => openNotesModal(btn.dataset.progressId, btn.dataset.problemId));
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openNotesModal(btn.dataset.problemId);
+    });
   });
 }
 
@@ -497,11 +541,26 @@ async function toggleProgress(checkbox) {
         typeof Milestones !== "undefined" ? Milestones.getNewlyCrossed(prevDone, newDone) : null;
 
       if (problem?.difficulty && !crossed) {
+        await refreshConsistencyStats();
+        const ctxQuote =
+          typeof DailyQuote !== "undefined"
+            ? DailyQuote.getQuoteForContext({
+                event: "checkin",
+                streak: state.consistencyStats?.streak,
+              })
+            : null;
         Motivation.show({
           difficulty: problem.difficulty,
           problemTitle: problem.title,
           type: "done",
+          contextQuote: ctxQuote,
         });
+        if (typeof DailyQuote !== "undefined") {
+          DailyQuote.render(document.getElementById("dailyQuote"), {
+            event: "checkin",
+            streak: state.consistencyStats?.streak,
+          });
+        }
         if (typeof Analytics !== "undefined") {
           Analytics.track("check_in", { difficulty: problem.difficulty });
         }
@@ -624,28 +683,97 @@ function selectPatternFromUrl() {
   if (btn) btn.click();
 }
 
-function openNotesModal(progressId, problemId) {
-  const entry = state.progressEntries.find((e) => e._id === progressId);
+function notesIconSvg(saved = false) {
+  if (saved) {
+    return `<svg class="notes-icon notes-icon-saved" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">
+      <path d="M3.5 2.5h6l3 3V13a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+      <path d="M9.5 2.5V6H13" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+      <path d="M5 8.25h6M5 10.25h6M5 12.25h4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+    </svg>`;
+  }
+  return `<svg class="notes-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+    <path d="M3.5 2.5h6l3 3V13a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+    <path d="M9.5 2.5V6H13" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+    <path d="M5 8.5h6M5 10.5h4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function notesButtonHtml(p, isDone, progress, locked) {
+  if (!Auth.isLoggedIn()) return '<span class="muted-text">—</span>';
+  if (locked) return '<span class="muted-text">—</span>';
+
+  const hasNotes = Boolean(progress?.notes?.trim());
+  const title = isDone
+    ? hasNotes
+      ? "View or edit your notes"
+      : "Add tips for next time"
+    : "Mark done first to save notes";
+
+  const savedClass = hasNotes ? " notes-btn-saved" : "";
+
+  return `<button type="button" class="notes-btn${savedClass}" data-problem-id="${p._id}" data-progress-id="${progress?.id || ""}" data-done="${isDone ? "1" : "0"}" title="${escapeHtml(title)}" aria-label="Notes for ${escapeHtml(p.title)}">${notesIconSvg(hasNotes)}</button>`;
+}
+
+function openNotesModal(problemId) {
+  const problem = state.problems.find((p) => p._id === problemId);
+  if (!problem) return;
+
   const progress = state.progressMap.get(problemId);
+  const progressId = progress?.id;
+  const isDone = state.progressMap.has(problemId);
+  const entry = progressId
+    ? state.progressEntries.find((e) => e._id === progressId)
+    : null;
   const existing = progress?.notes || entry?.notes || "";
+  const hasExisting = Boolean(existing.trim());
 
   const modal = document.createElement("div");
   modal.className = "motivation-modal notes-modal";
   modal.innerHTML = `
     <div class="motivation-backdrop" data-notes-close></div>
-    <div class="motivation-dialog" role="dialog" aria-modal="true">
-      <h3 class="motivation-headline">Problem notes</h3>
-      <p class="motivation-message">What clicked, what stuck, what to revisit — quality over checkbox speed.</p>
-      <textarea id="notesInput" class="notes-input" rows="4" maxlength="500" placeholder="Edge case I missed, approach that worked…"></textarea>
+    <div class="motivation-dialog" role="dialog" aria-modal="true" aria-labelledby="notesModalTitle">
+      <button type="button" class="motivation-close" data-notes-close aria-label="Close">&times;</button>
+      <p class="motivation-kicker">your notes</p>
+      <h3 class="motivation-headline" id="notesModalTitle">${escapeHtml(problem.title)}</h3>
+      <p class="motivation-message" id="notesModalHint"></p>
+      <div id="notesViewPanel" class="notes-view-panel" hidden>
+        <p class="notes-readout" id="notesDisplay"></p>
+      </div>
+      <div id="notesEditPanel" class="notes-edit-panel" hidden>
+        <textarea id="notesInput" class="notes-input" rows="5" maxlength="${NOTES_CHAR_LIMIT}" placeholder="e.g. Two-pointer from both ends; watch empty array edge case…"></textarea>
+        <p class="notes-char-count" id="notesCharCount" aria-live="polite"></p>
+      </div>
       <div class="motivation-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-notes-close>Cancel</button>
-        <button type="button" class="btn btn-primary btn-sm" id="notesSaveBtn">Save</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="notesCloseBtn">Close</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="notesEditBtn" hidden>Edit</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="notesCancelEditBtn" hidden>Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="notesSaveBtn" hidden>Save notes</button>
       </div>
     </div>`;
 
   document.body.appendChild(modal);
   document.body.classList.add("motivation-open");
-  modal.querySelector("#notesInput").value = existing;
+
+  const hintEl = modal.querySelector("#notesModalHint");
+  const viewPanel = modal.querySelector("#notesViewPanel");
+  const editPanel = modal.querySelector("#notesEditPanel");
+  const displayEl = modal.querySelector("#notesDisplay");
+  const inputEl = modal.querySelector("#notesInput");
+  const closeBtn = modal.querySelector("#notesCloseBtn");
+  const editBtn = modal.querySelector("#notesEditBtn");
+  const cancelEditBtn = modal.querySelector("#notesCancelEditBtn");
+  const saveBtn = modal.querySelector("#notesSaveBtn");
+  const charCountEl = modal.querySelector("#notesCharCount");
+
+  inputEl.value = existing;
+  displayEl.textContent = existing;
+
+  function updateCharCount() {
+    const len = inputEl.value.length;
+    charCountEl.textContent = `${len} / ${NOTES_CHAR_LIMIT}`;
+  }
+
+  inputEl.addEventListener("input", updateCharCount);
 
   const close = () => {
     modal.remove();
@@ -653,9 +781,71 @@ function openNotesModal(progressId, problemId) {
   };
 
   modal.querySelectorAll("[data-notes-close]").forEach((el) => el.addEventListener("click", close));
+  closeBtn.addEventListener("click", close);
 
-  modal.querySelector("#notesSaveBtn").addEventListener("click", async () => {
-    const notes = modal.querySelector("#notesInput").value.trim();
+  function setMode(mode) {
+    const isView = mode === "view";
+    viewPanel.hidden = !isView;
+    editPanel.hidden = isView;
+    closeBtn.hidden = !isView;
+    editBtn.hidden = !isView;
+    cancelEditBtn.hidden = isView;
+    saveBtn.hidden = isView;
+
+    if (isView) {
+      hintEl.textContent = "Your saved notes for this problem.";
+      displayEl.textContent = inputEl.value.trim() || existing;
+    } else if (!isDone) {
+      hintEl.textContent =
+        "Check this problem off when you finish solving it, then come back here to save your notes.";
+      inputEl.disabled = true;
+    } else {
+      hintEl.textContent = hasExisting
+        ? "Update your tricks, edge cases, or approach."
+        : "Tricks, edge cases, or approaches — saved to your account for next time.";
+      inputEl.disabled = false;
+      updateCharCount();
+      inputEl.focus();
+    }
+  }
+
+  if (!isDone) {
+    setMode("edit");
+    saveBtn.hidden = true;
+    cancelEditBtn.hidden = true;
+    closeBtn.hidden = false;
+    return;
+  }
+
+  if (!progressId) return;
+
+  if (hasExisting) {
+    setMode("view");
+  } else {
+    setMode("edit");
+    closeBtn.hidden = true;
+  }
+
+  editBtn.addEventListener("click", () => setMode("edit"));
+
+  cancelEditBtn.addEventListener("click", () => {
+    if (hasExisting || inputEl.value.trim()) {
+      inputEl.value = existing;
+      if (hasExisting) {
+        setMode("view");
+      } else {
+        close();
+      }
+    } else {
+      close();
+    }
+  });
+
+  saveBtn.addEventListener("click", async () => {
+    const notes = inputEl.value.trim();
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving…";
+
     try {
       await api(`/api/v1/progress/${progressId}`, {
         method: "PUT",
@@ -664,8 +854,11 @@ function openNotesModal(progressId, problemId) {
       if (progress) progress.notes = notes;
       if (entry) entry.notes = notes;
       close();
+      renderProblems();
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Could not save notes. Try again.");
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save notes";
     }
   });
 }
@@ -733,7 +926,6 @@ async function init() {
     },
   });
   updateAuthUI();
-  if (typeof DailyQuote !== "undefined") DailyQuote.render();
   if (Auth.isLoggedIn() && typeof Push !== "undefined") {
     Push.startClientReminderChecker();
   }
@@ -747,6 +939,12 @@ async function init() {
 
     if (Auth.isLoggedIn()) {
       await loadProgress();
+      if (typeof DailyQuote !== "undefined") {
+        DailyQuote.render(undefined, {
+          daysSinceLastActive: state.consistencyStats?.daysSinceLastActive,
+          streak: state.consistencyStats?.streak,
+        });
+      }
     }
 
     if (!hasPatternParam) {
