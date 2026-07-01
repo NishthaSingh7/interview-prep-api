@@ -646,7 +646,7 @@ function resolveHabitMetrics(stats, completedDates, timezone) {
     const streak = stats.streak ?? 0;
     return {
       streak,
-      bestStreak: stats.bestStreak ?? 0,
+      bestStreak: Insights.resolveBestStreak(stats.bestStreak, streak, completedDates, timezone),
       activeDaysThisWeek: stats.activeDaysThisWeek ?? 0,
       activeDaysLastWeek:
         stats.activeDaysLastWeek ??
@@ -664,7 +664,7 @@ function resolveHabitMetrics(stats, completedDates, timezone) {
 
   return {
     streak,
-    bestStreak: stats.bestStreak ?? 0,
+    bestStreak: Insights.resolveBestStreak(stats.bestStreak, streak, completedDates, timezone),
     activeDaysThisWeek,
     activeDaysLastWeek,
     activeDaysThisMonth,

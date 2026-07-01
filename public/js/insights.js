@@ -69,6 +69,35 @@ const Insights = {
     return this.addDaysKey(this.mondayOfWeekKey(dateKey, timezone), 6);
   },
 
+  longestStreakInTimezone(completedDates, timezone = "Asia/Kolkata") {
+    const keys = [...this.uniqueDateKeysInTimezone(completedDates, timezone)].sort();
+    if (!keys.length) return 0;
+
+    let best = 1;
+    let run = 1;
+
+    for (let i = 1; i < keys.length; i++) {
+      if (this.prevDateKey(keys[i]) === keys[i - 1]) {
+        run++;
+        best = Math.max(best, run);
+      } else {
+        run = 1;
+      }
+    }
+
+    return best;
+  },
+
+  resolveBestStreak(savedBest, streak, completedDates, timezone = "Asia/Kolkata") {
+    const saved = savedBest ?? 0;
+    const current = streak ?? 0;
+    const longest =
+      completedDates?.length > 0
+        ? this.longestStreakInTimezone(completedDates, timezone)
+        : 0;
+    return Math.max(saved, longest, current);
+  },
+
   streakInTimezone(completedDates, timezone = "Asia/Kolkata") {
     const keys = this.uniqueDateKeysInTimezone(completedDates, timezone);
     if (!keys.size) return 0;

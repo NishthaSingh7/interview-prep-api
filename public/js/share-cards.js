@@ -2,7 +2,7 @@
 const ShareCards = (() => {
   function streakText({ streak, bestStreak, activeDaysLastWeek }) {
     const s = streak || 0;
-    const best = bestStreak || 0;
+    const best = Math.max(bestStreak || 0, s);
     const week = activeDaysLastWeek ?? 0;
     return `AfterHours: ${s}-day streak · ${week}/7 active nights last week (best: ${best}). One problem after work — consistency over volume.`;
   }

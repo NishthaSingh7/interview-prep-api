@@ -97,7 +97,8 @@ async function buildHabitStats(user, timezoneOverride, completedDatesOverride) {
   const freezeDays = user.streakFreezeDays || [];
 
   const streak = computeStreak(completedDates, timezone, freezeDays);
-  const bestStreak = Math.max(user.bestStreak || 0, computeLongestStreak(completedDates, timezone, freezeDays));
+  const longest = computeLongestStreak(completedDates, timezone, freezeDays);
+  const bestStreak = Math.max(user.bestStreak || 0, longest, streak);
   const activeDaysThisMonth = activeDaysInMonth(completedDates, timezone);
   const activeDaysLastMo = activeDaysLastMonth(completedDates, timezone);
   const daysIdle = daysSinceLastActive(completedDates, timezone);

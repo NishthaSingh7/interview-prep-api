@@ -155,6 +155,15 @@ const getProgressStats = async (req, res) => {
     const totalProblems = await Problem.countDocuments();
     const habit = await buildHabitStats(req.user, timezone, completedDates);
 
+    if (habit.bestStreak > (req.user.bestStreak || 0)) {
+      req.user.bestStreak = habit.bestStreak;
+      try {
+        await req.user.save();
+      } catch (saveErr) {
+        console.warn("[stats] bestStreak save skipped:", saveErr.message);
+      }
+    }
+
     res.status(200).json({
       success: true,
       data: {
