@@ -212,31 +212,44 @@ const ProgressCharts = (() => {
     });
   }
 
-  function initWeeklyHabit(id, completedDates, weekCount = 10) {
+  function addDaysKey(dateKey, delta) {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + delta);
+    return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+  }
+
+  function formatWeekRange(startKey, endKey) {
+    const fmt = (key) => {
+      const [y, m, d] = key.split("-").map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      });
+    };
+    if (startKey === endKey) return fmt(endKey);
+    return `${fmt(startKey)}–${fmt(endKey)}`;
+  }
+
+  function initWeeklyHabit(id, completedDates, timezone = "Asia/Kolkata", weekCount = 10) {
     const colors = themeColors();
-    const daySet = Insights.uniqueDayKeys(completedDates);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const activeKeys = Insights.uniqueDateKeysInTimezone(completedDates, timezone);
+    const todayKey = Insights.dateKeyInTimezone(new Date(), timezone);
 
     const labels = [];
     const values = [];
 
+    // Each bar = 7-night block ending on windowEnd (matches weekly recap rolling window for the latest bar).
     for (let i = weekCount - 1; i >= 0; i--) {
-      const end = new Date(today);
-      end.setDate(end.getDate() - i * 7);
-      const start = new Date(end);
-      start.setDate(start.getDate() - 6);
-      start.setHours(0, 0, 0, 0);
-      end.setHours(23, 59, 59, 999);
+      const windowEnd = addDaysKey(todayKey, -i * 7);
+      const windowStart = addDaysKey(windowEnd, -6);
 
       let active = 0;
-      for (const key of daySet) {
-        if (key >= start.getTime() && key <= end.getTime()) active += 1;
+      for (const key of activeKeys) {
+        if (key >= windowStart && key <= windowEnd) active += 1;
       }
 
-      labels.push(
-        end.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-      );
+      labels.push(formatWeekRange(windowStart, windowEnd));
       values.push(active);
     }
 
@@ -251,7 +264,7 @@ const ProgressCharts = (() => {
         textStyle: { color: colors.text, fontSize: 12 },
         formatter(params) {
           const p = params[0];
-          return `${p.name}<br/><strong style="color:${colors.easy}">${p.value} active day${p.value === 1 ? "" : "s"}</strong> / 7`;
+          return `${p.name}<br/><strong style="color:${colors.easy}">${p.value} active night${p.value === 1 ? "" : "s"}</strong> / 7 in this block`;
         },
       },
       xAxis: {
@@ -301,7 +314,7 @@ const ProgressCharts = (() => {
           right: 8,
           top: 4,
           style: {
-            text: "goal: 5+ days / week",
+            text: "goal: 5+ nights / block",
             fill: colors.muted,
             font: `500 10px ${colors.mono}`,
           },
@@ -585,7 +598,7 @@ const ProgressCharts = (() => {
         initStreakGauge("echart-streak", streak);
       }
       if (document.getElementById("echart-weekly")) {
-        initWeeklyHabit("echart-weekly", completedDates, 10);
+        initWeeklyHabit("echart-weekly", completedDates, tz, 10);
       }
       resizeAll();
     });
