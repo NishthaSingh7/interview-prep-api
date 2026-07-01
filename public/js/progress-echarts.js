@@ -212,13 +212,6 @@ const ProgressCharts = (() => {
     });
   }
 
-  function addDaysKey(dateKey, delta) {
-    const [y, m, d] = dateKey.split("-").map(Number);
-    const dt = new Date(Date.UTC(y, m - 1, d));
-    dt.setUTCDate(dt.getUTCDate() + delta);
-    return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
-  }
-
   function formatWeekRange(startKey, endKey) {
     const fmt = (key) => {
       const [y, m, d] = key.split("-").map(Number);
@@ -239,17 +232,19 @@ const ProgressCharts = (() => {
     const labels = [];
     const values = [];
 
-    // Each bar = 7-night block ending on windowEnd (matches weekly recap rolling window for the latest bar).
+    // Each bar = calendar week Mon–Sun in the user's timezone.
+    const thisMonday = Insights.mondayOfWeekKey(todayKey, timezone);
+
     for (let i = weekCount - 1; i >= 0; i--) {
-      const windowEnd = addDaysKey(todayKey, -i * 7);
-      const windowStart = addDaysKey(windowEnd, -6);
+      const weekStart = Insights.addDaysKey(thisMonday, -i * 7);
+      const weekEnd = Insights.addDaysKey(weekStart, 6);
 
       let active = 0;
       for (const key of activeKeys) {
-        if (key >= windowStart && key <= windowEnd) active += 1;
+        if (key >= weekStart && key <= weekEnd) active += 1;
       }
 
-      labels.push(formatWeekRange(windowStart, windowEnd));
+      labels.push(formatWeekRange(weekStart, weekEnd));
       values.push(active);
     }
 
@@ -264,7 +259,7 @@ const ProgressCharts = (() => {
         textStyle: { color: colors.text, fontSize: 12 },
         formatter(params) {
           const p = params[0];
-          return `${p.name}<br/><strong style="color:${colors.easy}">${p.value} active night${p.value === 1 ? "" : "s"}</strong> / 7 in this block`;
+          return `${p.name}<br/><strong style="color:${colors.easy}">${p.value} active night${p.value === 1 ? "" : "s"}</strong> / 7 this week`;
         },
       },
       xAxis: {
@@ -314,7 +309,7 @@ const ProgressCharts = (() => {
           right: 8,
           top: 4,
           style: {
-            text: "goal: 5+ nights / block",
+            text: "goal: 5+ nights / week",
             fill: colors.muted,
             font: `500 10px ${colors.mono}`,
           },

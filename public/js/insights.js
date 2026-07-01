@@ -30,10 +30,43 @@ const Insights = {
   },
 
   prevDateKey(dateKey) {
+    return this.addDaysKey(dateKey, -1);
+  },
+
+  addDaysKey(dateKey, delta) {
     const [y, m, d] = dateKey.split("-").map(Number);
     const dt = new Date(Date.UTC(y, m - 1, d));
-    dt.setUTCDate(dt.getUTCDate() - 1);
+    dt.setUTCDate(dt.getUTCDate() + delta);
     return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, "0")}-${String(dt.getUTCDate()).padStart(2, "0")}`;
+  },
+
+  dateKeyToDate(dateKey, timezone = "Asia/Kolkata") {
+    const [y, m, d] = dateKey.split("-").map(Number);
+    const noon = Date.UTC(y, m - 1, d, 12, 0, 0);
+    for (let delta = -36; delta <= 36; delta++) {
+      const candidate = noon + delta * 3600000;
+      if (this.dateKeyInTimezone(candidate, timezone) === dateKey) {
+        return new Date(candidate);
+      }
+    }
+    return new Date(noon);
+  },
+
+  weekdayMondayZero(dateKey, timezone = "Asia/Kolkata") {
+    const wd = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      weekday: "short",
+    }).format(this.dateKeyToDate(dateKey, timezone));
+    const map = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+    return map[wd] ?? 0;
+  },
+
+  mondayOfWeekKey(dateKey, timezone = "Asia/Kolkata") {
+    return this.addDaysKey(dateKey, -this.weekdayMondayZero(dateKey, timezone));
+  },
+
+  sundayOfWeekKey(dateKey, timezone = "Asia/Kolkata") {
+    return this.addDaysKey(this.mondayOfWeekKey(dateKey, timezone), 6);
   },
 
   streakInTimezone(completedDates, timezone = "Asia/Kolkata") {

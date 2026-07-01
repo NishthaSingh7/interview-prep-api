@@ -500,7 +500,7 @@ function renderOverview(container, data) {
         "Weekly rhythm",
         '<div id="echart-weekly" class="echart-host echart-host-sm"></div>',
         "viz-weekly",
-        "Each bar = 7 nights in that date range · max 7 per bar · dashed line = 5-night goal",
+        "Each bar = Mon–Sun calendar week · dashed line = 5-night goal",
       )}
     </div>
 
