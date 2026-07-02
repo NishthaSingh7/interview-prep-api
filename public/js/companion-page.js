@@ -38,7 +38,40 @@ const CompanionPage = (() => {
 
   function todayKey() {
     const d = new Date();
+    return localDateKey(d);
+  }
+
+  function localDateKey(date) {
+    const d = date instanceof Date ? date : new Date(date);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
+  function lastNDayKeys(n) {
+    const keys = [];
+    const d = new Date();
+    for (let i = 0; i < n; i++) {
+      keys.push(localDateKey(d));
+      d.setDate(d.getDate() - 1);
+    }
+    return keys;
+  }
+
+  function buildTimelineFromProgress(progressRows, entries = []) {
+    const activeDays = new Set();
+    for (const row of progressRows || []) {
+      const at = row.completedAt || row.updatedAt || row.createdAt;
+      if (!at) continue;
+      activeDays.add(localDateKey(new Date(at)));
+    }
+
+    const entryMap = Object.fromEntries((entries || []).map((e) => [e.dateKey, e]));
+
+    return lastNDayKeys(TIMELINE_DAYS).map((dateKey) => {
+      const entry = entryMap[dateKey];
+      if (entry) return { type: "entry", dateKey, entry };
+      if (activeDays.has(dateKey)) return { type: "solved", dateKey };
+      return { type: "skipped", dateKey };
+    });
   }
 
   function readLastSolve() {
@@ -212,10 +245,11 @@ const CompanionPage = (() => {
     return "Skipped";
   }
 
-  function renderTimeline(timeline) {
+  function renderTimeline(timeline, options = {}) {
     if (!Auth.isLoggedIn()) return "";
 
-    const items = (timeline || [])
+    const rows = timeline || [];
+    const items = rows
       .map(
         (row) => `
         <li class="companion-timeline-row companion-timeline-${row.type}">
@@ -226,13 +260,22 @@ const CompanionPage = (() => {
       )
       .join("");
 
+    const body = items
+      ? `<ul class="companion-timeline-compact">${items}</ul>`
+      : `<p class="companion-muted">Could not load your nights. Try refreshing in a moment.</p>`;
+
+    const hint = options.usingProgressFallback
+      ? `<p class="companion-timeline-fallback">Showing solves from progress — full journal sync when the API updates.</p>`
+      : "";
+
     return `
       <section class="companion-panel panel companion-timeline-panel">
         <div class="companion-panel-head">
           <h3 class="companion-section-title">Last ${TIMELINE_DAYS} nights</h3>
           <span class="companion-panel-hint">compact log</span>
         </div>
-        <ul class="companion-timeline-compact">${items}</ul>
+        ${hint}
+        ${body}
       </section>`;
   }
 
@@ -332,9 +375,9 @@ const CompanionPage = (() => {
     if (root) refreshReadColumns(root);
   }
 
-  function renderTonightTab(entry, lastSolve, timeline) {
+  function renderTonightTab(entry, lastSolve, timeline, timelineOptions = {}) {
     const note = CompanionContent.nightNoteForToday();
-    const timelineHtml = renderTimeline(timeline);
+    const timelineHtml = renderTimeline(timeline, timelineOptions);
     return `
       <div class="companion-tab-panel" data-panel="tonight" ${activeTab !== "tonight" ? "hidden" : ""}>
         ${renderRitualSteps(entry)}
@@ -536,7 +579,10 @@ const CompanionPage = (() => {
   }
 
   async function loadJournalData() {
-    if (!Auth.isLoggedIn()) return { entry: null, timeline: [] };
+    if (!Auth.isLoggedIn()) {
+      return { entry: null, timeline: [], usingProgressFallback: false };
+    }
+
     try {
       const [todayRes, timelineRes] = await Promise.all([
         Auth.api("/api/v1/journal/today"),
@@ -545,9 +591,19 @@ const CompanionPage = (() => {
       return {
         entry: todayRes.data,
         timeline: timelineRes.data || [],
+        usingProgressFallback: false,
       };
     } catch {
-      return { entry: null, timeline: [] };
+      try {
+        const progressRes = await Auth.api("/api/v1/progress?status=done");
+        return {
+          entry: null,
+          timeline: buildTimelineFromProgress(progressRes.data || []),
+          usingProgressFallback: true,
+        };
+      } catch {
+        return { entry: null, timeline: [], usingProgressFallback: false };
+      }
     }
   }
 
@@ -569,12 +625,12 @@ const CompanionPage = (() => {
     }
 
     const lastSolve = readLastSolve();
-    const { entry, timeline } = await loadJournalData();
+    const { entry, timeline, usingProgressFallback } = await loadJournalData();
 
     root.innerHTML = `
       ${renderHeader()}
       ${renderTabs()}
-      ${renderTonightTab(entry, lastSolve, timeline)}
+      ${renderTonightTab(entry, lastSolve, timeline, { usingProgressFallback })}
       ${renderReadTab()}`;
 
     bindEvents(root);

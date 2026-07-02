@@ -6607,6 +6607,12 @@ body.motivation-open {
   padding-bottom: 0.65rem;
 }
 
+.companion-timeline-fallback {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
 .companion-timeline-compact {
   list-style: none;
   margin: 0;
