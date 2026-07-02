@@ -1,5 +1,7 @@
 const CompanionPage = (() => {
   const LAST_SOLVE_KEY = "afterhours_last_solve";
+  const TAB_KEY = "afterhours_companion_tab";
+  const TIMELINE_DAYS = 15;
 
   const DIFFICULTY_OPTIONS = [
     { id: "easy", label: "😊 Easy" },
@@ -14,7 +16,7 @@ const CompanionPage = (() => {
   ];
 
   let modalEl = null;
-  let activeSection = "journal";
+  let activeTab = "tonight";
 
   function escapeHtml(str) {
     return String(str)
@@ -28,6 +30,11 @@ const CompanionPage = (() => {
     const [y, m, d] = dateKey.split("-").map(Number);
     const dt = new Date(y, m - 1, d);
     return dt.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  function todayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
 
   function readLastSolve() {
@@ -54,42 +61,78 @@ const CompanionPage = (() => {
       </div>`;
   }
 
-  function renderHero() {
-    const note = CompanionContent.nightNoteForToday();
-    const letter = CompanionContent.founderLetterForToday();
+  function renderHeader() {
     return `
-      <header class="companion-hero panel">
-        <div class="companion-hero-row">
-          <div>
-            <p class="companion-kicker">Night Companion</p>
-            <h2 class="companion-title">Close the laptop with intention</h2>
-          </div>
-          <div class="companion-hero-pills">
-            <span class="companion-pill">📓 Journal</span>
-            <span class="companion-pill">💭 Night Note</span>
-            <span class="companion-pill">💌 Letters</span>
-          </div>
-        </div>
-        <p class="companion-lead">
-          One problem after work is the job. This page is the ritual — reflect, read, promise tomorrow.
-        </p>
-        <blockquote class="companion-night-note panel">
-          <p class="companion-night-note-label">Tonight's reminder</p>
-          <p class="companion-night-note-text">${escapeHtml(note)}</p>
-        </blockquote>
-        <article class="companion-letter-spotlight panel">
-          <p class="companion-letter-label">Letter #${letter.number} · ${escapeHtml(letter.title)}</p>
-          ${letter.body.map((p) => `<p>${escapeHtml(p)}</p>`).join("")}
-        </article>
+      <header class="companion-header panel">
+        <p class="companion-kicker">Night Companion</p>
+        <h2 class="companion-title">Close your laptop with intention</h2>
+        <p class="companion-lead">Solve on Home → reflect here → promise tomorrow. Two tabs, one ritual.</p>
       </header>`;
+  }
+
+  function renderTabs() {
+    return `
+      <div class="companion-tabs" role="tablist" aria-label="Companion sections">
+        <button type="button" class="companion-tab${activeTab === "tonight" ? " active" : ""}" data-tab="tonight" role="tab" aria-selected="${activeTab === "tonight"}">
+          🌙 Tonight
+        </button>
+        <button type="button" class="companion-tab${activeTab === "read" ? " active" : ""}" data-tab="read" role="tab" aria-selected="${activeTab === "read"}">
+          📖 Read
+        </button>
+      </div>`;
+  }
+
+  function renderRitualSteps(entry) {
+    const journaled = Boolean(entry?.reflection || entry?.winNote || entry?.difficultyFelt || entry?.energy);
+    const promised = Boolean(entry?.tomorrowPromise);
+    return `
+      <ol class="companion-steps" aria-label="Tonight's ritual">
+        <li class="companion-step is-done"><span>1</span> Solve one problem</li>
+        <li class="companion-step${journaled ? " is-done" : " is-current"}"><span>2</span> Write your journal</li>
+        <li class="companion-step${promised ? " is-done" : journaled ? " is-current" : ""}"><span>3</span> Promise tomorrow</li>
+      </ol>`;
+  }
+
+  function renderJournalPrompt(entry, lastSolve, timeline) {
+    const today = todayKey();
+    const todayRow = (timeline || []).find((r) => r.dateKey === today);
+    const solvedToday = Boolean(lastSolve || todayRow?.type === "entry" || todayRow?.type === "solved");
+    const hasJournal = Boolean(entry?.reflection || entry?.winNote);
+
+    if (hasJournal && entry?.tomorrowPromise) {
+      return `
+        <div class="companion-prompt companion-prompt-done panel">
+          <p><strong>Tonight is complete.</strong> Journal saved and tomorrow promised. Rest well.</p>
+        </div>`;
+    }
+
+    if (hasJournal) {
+      return `
+        <div class="companion-prompt companion-prompt-next panel">
+          <p><strong>Journal saved.</strong> Last step: tap <em>See you tomorrow 🌙</em> when you're ready to close the laptop.</p>
+        </div>`;
+    }
+
+    if (solvedToday) {
+      return `
+        <div class="companion-prompt companion-prompt-action panel">
+          <p><strong>You solved tonight — now journal.</strong> One sentence on what clicked is enough. Future you will love reading this back.</p>
+        </div>`;
+    }
+
+    return `
+      <div class="companion-prompt panel">
+        <p><strong>Start on Home:</strong> mark one problem done, then come back here to write tonight's journal.</p>
+        <a href="/" class="btn btn-ghost btn-sm">Go to problems</a>
+      </div>`;
   }
 
   function renderJournalForm(entry, lastSolve) {
     if (!Auth.isLoggedIn()) {
       return `
         <section class="companion-panel panel" id="companionJournal">
-          <h3 class="companion-section-title">📓 Night Journal</h3>
-          <p class="companion-muted">Log in to save tonight's win and build your timeline.</p>
+          <h3 class="companion-section-title">Tonight's journal</h3>
+          <p class="companion-muted">Log in to save reflections and build your timeline.</p>
           <a href="/login?next=companion" class="btn btn-primary btn-sm">Log in</a>
         </section>`;
     }
@@ -100,12 +143,18 @@ const CompanionPage = (() => {
 
     return `
       <section class="companion-panel panel" id="companionJournal">
-        <h3 class="companion-section-title">📓 Tonight's Journal</h3>
-        <p class="companion-muted">Optional fields — even one sentence helps future you.</p>
+        <div class="companion-panel-head">
+          <h3 class="companion-section-title">Tonight's journal</h3>
+          <span class="companion-panel-hint">~60 sec</span>
+        </div>
 
         <div class="companion-win-card" id="companionWinCard">
-          ${problemTitle ? `<p class="companion-win-title">✅ ${escapeHtml(problemTitle)}</p>` : `<p class="companion-win-title">✅ Today's win</p>`}
-          ${patternName || difficulty ? `<p class="companion-win-meta">${escapeHtml([patternName, difficulty].filter(Boolean).join(" · "))}</p>` : ""}
+          ${problemTitle
+            ? `<p class="companion-win-title">✅ ${escapeHtml(problemTitle)}</p>`
+            : `<p class="companion-win-title">✅ Tonight's win</p>`}
+          ${patternName || difficulty
+            ? `<p class="companion-win-meta">${escapeHtml([patternName, difficulty].filter(Boolean).join(" · "))}</p>`
+            : `<p class="companion-win-meta">Linked when you solve from Home</p>`}
         </div>
 
         <form id="companionJournalForm" class="companion-form">
@@ -115,28 +164,31 @@ const CompanionPage = (() => {
           <input type="hidden" id="journalPatternName" value="${escapeHtml(patternName)}" />
           <input type="hidden" id="journalProblemDifficulty" value="${escapeHtml(difficulty)}" />
 
-          <label class="companion-field">
-            <span>What clicked today?</span>
-            <textarea id="journalReflection" rows="2" placeholder="One sentence is enough.">${escapeHtml(entry?.reflection || "")}</textarea>
+          <label class="companion-field companion-field-primary">
+            <span>What clicked today? <em class="companion-required-hint">Start here</em></span>
+            <textarea id="journalReflection" rows="2" placeholder="e.g. Finally understood when to shrink the sliding window.">${escapeHtml(entry?.reflection || "")}</textarea>
           </label>
 
-          <label class="companion-field">
-            <span>Today's win (optional note)</span>
-            <textarea id="journalWinNote" rows="2" placeholder="e.g. Finally understood when to shrink the window.">${escapeHtml(entry?.winNote || "")}</textarea>
-          </label>
-
-          <fieldset class="companion-fieldset">
-            <legend>How difficult did it feel?</legend>
-            ${chipGroup("difficultyFelt", DIFFICULTY_OPTIONS, entry?.difficultyFelt || "")}
-          </fieldset>
-
-          <fieldset class="companion-fieldset">
-            <legend>How was your energy?</legend>
-            ${chipGroup("energy", ENERGY_OPTIONS, entry?.energy || "")}
-          </fieldset>
+          <details class="companion-details">
+            <summary>More details (optional)</summary>
+            <div class="companion-details-body">
+              <label class="companion-field">
+                <span>Extra note</span>
+                <textarea id="journalWinNote" rows="2" placeholder="Anything else worth remembering.">${escapeHtml(entry?.winNote || "")}</textarea>
+              </label>
+              <fieldset class="companion-fieldset">
+                <legend>How difficult did it feel?</legend>
+                ${chipGroup("difficultyFelt", DIFFICULTY_OPTIONS, entry?.difficultyFelt || "")}
+              </fieldset>
+              <fieldset class="companion-fieldset">
+                <legend>How was your energy?</legend>
+                ${chipGroup("energy", ENERGY_OPTIONS, entry?.energy || "")}
+              </fieldset>
+            </div>
+          </details>
 
           <div class="companion-form-actions">
-            <button type="submit" class="btn btn-primary btn-sm">Save tonight</button>
+            <button type="submit" class="btn btn-primary btn-sm">Save journal</button>
             <button type="button" class="btn btn-ghost btn-sm" id="companionPromiseBtn" ${entry?.tomorrowPromise ? "disabled" : ""}>
               ${entry?.tomorrowPromise ? "See you tomorrow 🌙 ✓" : "See you tomorrow 🌙"}
             </button>
@@ -146,94 +198,115 @@ const CompanionPage = (() => {
       </section>`;
   }
 
+  function timelineLabel(row) {
+    if (row.type === "entry") {
+      const e = row.entry;
+      const text = e.reflection || e.winNote || e.problemTitle || "Journal entry";
+      return escapeHtml(text.length > 42 ? `${text.slice(0, 42)}…` : text);
+    }
+    if (row.type === "solved") return "Solved · no journal";
+    return "Skipped";
+  }
+
   function renderTimeline(timeline) {
     if (!Auth.isLoggedIn()) return "";
 
     const items = (timeline || [])
-      .map((row) => {
-        if (row.type === "entry") {
-          const e = row.entry;
-          const preview = e.reflection || e.winNote || e.problemTitle || "Reflected tonight";
-          const meta = [e.patternName, e.problemDifficulty].filter(Boolean).join(" · ");
-          return `
-            <li class="companion-timeline-item companion-timeline-entry">
-              <span class="companion-timeline-date">${formatDate(row.dateKey)}</span>
-              <div>
-                <p class="companion-timeline-title">${escapeHtml(preview)}</p>
-                ${meta ? `<p class="companion-timeline-meta">${escapeHtml(meta)}</p>` : ""}
-              </div>
-            </li>`;
-        }
-        if (row.type === "solved") {
-          return `
-            <li class="companion-timeline-item companion-timeline-solved">
-              <span class="companion-timeline-date">${formatDate(row.dateKey)}</span>
-              <p class="companion-timeline-title">Solved — no journal entry</p>
-            </li>`;
-        }
-        return `
-          <li class="companion-timeline-item companion-timeline-skipped">
-            <span class="companion-timeline-date">${formatDate(row.dateKey)}</span>
-            <p class="companion-timeline-title">Skipped</p>
-          </li>`;
-      })
+      .map(
+        (row) => `
+        <li class="companion-timeline-row companion-timeline-${row.type}">
+          <span class="companion-timeline-dot" aria-hidden="true"></span>
+          <span class="companion-timeline-date">${formatDate(row.dateKey)}</span>
+          <span class="companion-timeline-text">${timelineLabel(row)}</span>
+        </li>`,
+      )
       .join("");
 
     return `
-      <section class="companion-panel panel">
-        <h3 class="companion-section-title">Last 30 nights</h3>
-        <p class="companion-muted">Honest history — entries, solves, and skipped days.</p>
-        <ul class="companion-timeline">${items}</ul>
+      <section class="companion-panel panel companion-timeline-panel">
+        <div class="companion-panel-head">
+          <h3 class="companion-section-title">Last ${TIMELINE_DAYS} nights</h3>
+          <span class="companion-panel-hint">compact log</span>
+        </div>
+        <ul class="companion-timeline-compact">${items}</ul>
       </section>`;
   }
 
-  function renderLetters() {
-    const cards = CompanionContent.FOUNDER_LETTERS.map(
-      (letter) => `
-        <button type="button" class="companion-read-card panel" data-letter-id="${letter.id}">
-          <span class="companion-read-tag">Letter #${letter.number}</span>
-          <h4>${escapeHtml(letter.title)}</h4>
-          <p>${escapeHtml(letter.body[1] || letter.body[0])}</p>
-        </button>`,
-    ).join("");
-
+  function renderTonightTab(entry, lastSolve, timeline) {
+    const note = CompanionContent.nightNoteForToday();
     return `
-      <section class="companion-panel panel" id="companionLetters">
-        <h3 class="companion-section-title">💌 Founder Letters</h3>
-        <p class="companion-muted">Short notes from Nishtha — tired evenings, real talk.</p>
-        <div class="companion-read-grid">${cards}</div>
-      </section>`;
+      <div class="companion-tab-panel" data-panel="tonight" ${activeTab !== "tonight" ? "hidden" : ""}>
+        ${renderRitualSteps(entry)}
+        ${renderJournalPrompt(entry, lastSolve, timeline)}
+        ${renderJournalForm(entry, lastSolve)}
+        ${renderTimeline(timeline)}
+        <p class="companion-tonight-footer">💭 ${escapeHtml(note)}</p>
+      </div>`;
   }
 
-  function renderMindset() {
-    const cards = CompanionContent.MINDSET_ARTICLES.map(
+  function renderReadTab() {
+    const note = CompanionContent.nightNoteForToday();
+    const letter = CompanionContent.founderLetterForToday();
+    const letterPreview = letter.body.slice(0, 3).map((p) => `<p>${escapeHtml(p)}</p>`).join("");
+
+    const mindsetCards = CompanionContent.MINDSET_ARTICLES.map(
       (article) => `
-        <button type="button" class="companion-read-card panel" data-mindset-id="${article.id}">
-          <span class="companion-read-tag">${article.icon} ${article.readMin} min</span>
-          <h4>${escapeHtml(article.title)}</h4>
-          <p>${escapeHtml(article.teaser)}</p>
+        <button type="button" class="companion-read-row" data-mindset-id="${article.id}">
+          <span class="companion-read-row-icon">${article.icon}</span>
+          <span class="companion-read-row-body">
+            <strong>${escapeHtml(article.title)}</strong>
+            <small>${article.readMin} min · ${escapeHtml(article.teaser)}</small>
+          </span>
         </button>`,
     ).join("");
 
-    return `
-      <section class="companion-panel panel" id="companionMindset">
-        <h3 class="companion-section-title">🧠 Interview Mindset</h3>
-        <p class="companion-muted">Two-minute reads for after-work brains.</p>
-        <div class="companion-read-grid">${cards}</div>
-      </section>`;
-  }
+    const letterCards = CompanionContent.FOUNDER_LETTERS.map(
+      (l) => `
+        <button type="button" class="companion-read-row" data-letter-id="${l.id}">
+          <span class="companion-read-row-icon">💌</span>
+          <span class="companion-read-row-body">
+            <strong>Letter #${l.number} · ${escapeHtml(l.title)}</strong>
+            <small>${escapeHtml((l.body[1] || l.body[0]).slice(0, 72))}…</small>
+          </span>
+        </button>`,
+    ).join("");
 
-  function renderNightNotesLibrary() {
-    const notes = CompanionContent.NIGHT_NOTES.slice(0, 12)
-      .map((note) => `<li>${escapeHtml(note)}</li>`)
+    const notes = CompanionContent.NIGHT_NOTES.slice(0, 6)
+      .map((n) => `<li>${escapeHtml(n)}</li>`)
       .join("");
 
     return `
-      <section class="companion-panel panel">
-        <h3 class="companion-section-title">💭 Night Notes</h3>
-        <p class="companion-muted">Rotating reminders — one featured above, more in the library.</p>
-        <ul class="companion-notes-list">${notes}</ul>
-      </section>`;
+      <div class="companion-tab-panel" data-panel="read" ${activeTab !== "read" ? "hidden" : ""}>
+        <section class="companion-panel panel">
+          <p class="companion-night-note-label">Tonight's reminder</p>
+          <p class="companion-night-note-text">${escapeHtml(note)}</p>
+        </section>
+
+        <section class="companion-panel panel companion-letter-card">
+          <div class="companion-panel-head">
+            <h3 class="companion-section-title">Founder letter</h3>
+            <button type="button" class="btn btn-ghost btn-sm" data-letter-id="${letter.id}">Read full</button>
+          </div>
+          <p class="companion-letter-label">Letter #${letter.number} · ${escapeHtml(letter.title)}</p>
+          <div class="companion-letter-preview">${letterPreview}</div>
+        </section>
+
+        <section class="companion-panel panel">
+          <h3 class="companion-section-title">Interview mindset</h3>
+          <p class="companion-muted">Short reads when your brain is tired.</p>
+          <div class="companion-read-list">${mindsetCards}</div>
+        </section>
+
+        <section class="companion-panel panel">
+          <h3 class="companion-section-title">All founder letters</h3>
+          <div class="companion-read-list">${letterCards}</div>
+        </section>
+
+        <section class="companion-panel panel">
+          <h3 class="companion-section-title">Night notes</h3>
+          <ul class="companion-notes-compact">${notes}</ul>
+        </section>
+      </div>`;
   }
 
   function ensureModal() {
@@ -322,18 +395,9 @@ const CompanionPage = (() => {
       });
       if (status) {
         status.hidden = false;
-        status.textContent = tomorrowPromise
-          ? "Saved. See you tomorrow 🌙"
-          : "Tonight saved.";
+        status.textContent = tomorrowPromise ? "Saved. See you tomorrow 🌙" : "Journal saved.";
       }
-      if (tomorrowPromise) {
-        const btn = document.getElementById("companionPromiseBtn");
-        if (btn) {
-          btn.disabled = true;
-          btn.textContent = "See you tomorrow 🌙 ✓";
-        }
-      }
-      await loadAndRender(document.getElementById("companionRoot"));
+      await loadAndRender(document.getElementById("companionRoot"), { keepTab: true });
     } catch (err) {
       if (status) {
         status.hidden = false;
@@ -342,7 +406,30 @@ const CompanionPage = (() => {
     }
   }
 
+  function switchTab(tab) {
+    activeTab = tab;
+    try {
+      sessionStorage.setItem(TAB_KEY, tab);
+    } catch {
+      /* ignore */
+    }
+    const root = document.getElementById("companionRoot");
+    if (!root) return;
+    root.querySelectorAll(".companion-tab").forEach((btn) => {
+      const on = btn.dataset.tab === tab;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    root.querySelectorAll(".companion-tab-panel").forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== tab;
+    });
+  }
+
   function bindEvents(root) {
+    root.querySelectorAll(".companion-tab").forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
     root.querySelector("#companionJournalForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       await saveJournal(false);
@@ -366,7 +453,7 @@ const CompanionPage = (() => {
     try {
       const [todayRes, timelineRes] = await Promise.all([
         Auth.api("/api/v1/journal/today"),
-        Auth.api("/api/v1/journal/timeline?days=30"),
+        Auth.api(`/api/v1/journal/timeline?days=${TIMELINE_DAYS}`),
       ]);
       return {
         entry: todayRes.data,
@@ -377,22 +464,31 @@ const CompanionPage = (() => {
     }
   }
 
-  async function loadAndRender(root) {
+  async function loadAndRender(root, options = {}) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reflect") === "1") {
+      activeTab = "tonight";
+    } else if (!options.keepTab) {
+      try {
+        activeTab = sessionStorage.getItem(TAB_KEY) || "tonight";
+      } catch {
+        activeTab = "tonight";
+      }
+    }
+
     const lastSolve = readLastSolve();
     const { entry, timeline } = await loadJournalData();
 
     root.innerHTML = `
-      ${renderHero()}
-      ${renderJournalForm(entry, lastSolve)}
-      ${renderTimeline(timeline)}
-      ${renderMindset()}
-      ${renderLetters()}
-      ${renderNightNotesLibrary()}`;
+      ${renderHeader()}
+      ${renderTabs()}
+      ${renderTonightTab(entry, lastSolve, timeline)}
+      ${renderReadTab()}`;
 
     bindEvents(root);
 
-    if (new URLSearchParams(window.location.search).get("reflect") === "1") {
-      document.getElementById("companionJournal")?.scrollIntoView({ behavior: "smooth" });
+    if (params.get("reflect") === "1") {
+      document.getElementById("companionJournal")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
 
