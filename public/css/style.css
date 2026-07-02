@@ -6654,6 +6654,11 @@ body.motivation-open {
   background: var(--medium);
 }
 
+.companion-timeline-pending .companion-timeline-dot {
+  background: var(--accent);
+  opacity: 0.45;
+}
+
 .companion-timeline-date {
   font-family: var(--mono);
   font-size: 0.62rem;
@@ -6670,6 +6675,10 @@ body.motivation-open {
 .companion-timeline-skipped .companion-timeline-text {
   color: var(--muted);
   font-style: italic;
+}
+
+.companion-timeline-pending .companion-timeline-text {
+  color: var(--text-secondary);
 }
 
 .companion-tonight-footer {

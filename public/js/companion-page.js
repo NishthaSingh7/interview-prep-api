@@ -65,12 +65,24 @@ const CompanionPage = (() => {
     }
 
     const entryMap = Object.fromEntries((entries || []).map((e) => [e.dateKey, e]));
+    const today = todayKey();
 
     return lastNDayKeys(TIMELINE_DAYS).map((dateKey) => {
       const entry = entryMap[dateKey];
       if (entry) return { type: "entry", dateKey, entry };
       if (activeDays.has(dateKey)) return { type: "solved", dateKey };
+      if (dateKey === today) return { type: "pending", dateKey };
       return { type: "skipped", dateKey };
+    });
+  }
+
+  function normalizeTimeline(timeline) {
+    const today = todayKey();
+    return (timeline || []).map((row) => {
+      if (row.dateKey === today && row.type === "skipped") {
+        return { ...row, type: "pending" };
+      }
+      return row;
     });
   }
 
@@ -242,6 +254,7 @@ const CompanionPage = (() => {
       return escapeHtml(text);
     }
     if (row.type === "solved") return "Solved · no journal";
+    if (row.type === "pending") return "Still open · not logged yet";
     return "Skipped";
   }
 
@@ -590,7 +603,7 @@ const CompanionPage = (() => {
       ]);
       return {
         entry: todayRes.data,
-        timeline: timelineRes.data || [],
+        timeline: normalizeTimeline(timelineRes.data || []),
         usingProgressFallback: false,
       };
     } catch {

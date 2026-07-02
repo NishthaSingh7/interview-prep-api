@@ -77,6 +77,9 @@ const getTimeline = async (req, res) => {
       if (activeDays.has(dateKey)) {
         return { type: "solved", dateKey };
       }
+      if (dateKey === todayKey) {
+        return { type: "pending", dateKey };
+      }
       return { type: "skipped", dateKey };
     });
 
