@@ -6238,3 +6238,357 @@ body.motivation-open {
     grid-template-columns: 1fr;
   }
 }
+
+/* Night Companion */
+.companion-main {
+  padding: 1.25rem clamp(1rem, 3vw, 2rem) 2rem;
+}
+
+.companion-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.companion-hero {
+  padding: 1rem 1.1rem;
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 100%);
+}
+
+.companion-hero-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.companion-kicker {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 0.2rem;
+}
+
+.companion-title {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.companion-lead {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.companion-hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.companion-pill {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.companion-night-note {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-left: 3px solid var(--accent);
+}
+
+.companion-night-note-label,
+.companion-letter-label {
+  margin: 0 0 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.companion-night-note-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.companion-letter-spotlight {
+  margin: 0;
+  padding: 0.85rem 1rem;
+}
+
+.companion-letter-spotlight p {
+  margin: 0 0 0.65rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.companion-letter-spotlight p:last-child {
+  margin-bottom: 0;
+  color: var(--text);
+  font-style: italic;
+}
+
+.companion-panel {
+  padding: 1rem 1.1rem;
+}
+
+.companion-section-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.companion-muted {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.companion-win-card {
+  margin-bottom: 0.85rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+}
+
+.companion-win-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.companion-win-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.companion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.companion-field span,
+.companion-fieldset legend {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.companion-field textarea {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.companion-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.companion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.companion-chip {
+  cursor: pointer;
+}
+
+.companion-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.companion-chip span {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  background: var(--bg);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.companion-chip input:checked + span {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.companion-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.companion-save-status {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+
+.companion-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.companion-timeline-item {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.65rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.companion-timeline-item:last-child {
+  border-bottom: none;
+}
+
+.companion-timeline-date {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.companion-timeline-title {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.companion-timeline-meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.companion-timeline-skipped .companion-timeline-title {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.companion-read-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.65rem;
+}
+
+.companion-read-card {
+  text-align: left;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.companion-read-card:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+}
+
+.companion-read-card h4 {
+  margin: 0.25rem 0 0.35rem;
+  font-size: 0.92rem;
+}
+
+.companion-read-card p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.companion-read-tag {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+}
+
+.companion-notes-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.companion-notes-list li {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.companion-dialog {
+  max-width: 32rem;
+}
+
+.companion-modal-body p {
+  margin: 0 0 0.75rem;
+  line-height: 1.6;
+}
+
+.companion-modal-body p:last-child {
+  margin-bottom: 0;
+}
+
+.motivation-actions-split {
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .companion-timeline-item {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+
+  .companion-read-grid {
+    grid-template-columns: 1fr;
+  }
+}

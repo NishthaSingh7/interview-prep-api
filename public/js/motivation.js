@@ -518,7 +518,10 @@ const Motivation = (() => {
         <h3 class="motivation-headline" id="motivationHeadline"></h3>
         <p class="motivation-message" id="motivationMessage"></p>
         <p class="motivation-footer" id="motivationFooter"></p>
-        <button type="button" class="btn btn-primary motivation-cta" id="motivationCta">See you tomorrow →</button>
+        <div class="motivation-actions motivation-actions-split">
+          <a href="/companion?reflect=1" class="btn btn-ghost btn-sm" id="motivationReflect" hidden>Reflect on tonight 🌙</a>
+          <button type="button" class="btn btn-primary motivation-cta" id="motivationCta">See you tomorrow →</button>
+        </div>
       </div>`;
 
     document.body.appendChild(modalEl);
@@ -557,6 +560,12 @@ const Motivation = (() => {
         ? pickDoneFooter()
         : quote.footer;
     modal.querySelector("#motivationCta").textContent = CTA_LABELS[type] || CTA_LABELS.done;
+
+    const reflectBtn = modal.querySelector("#motivationReflect");
+    if (reflectBtn) {
+      const showReflect = type === "done" && typeof Auth !== "undefined" && Auth.isLoggedIn();
+      reflectBtn.hidden = !showReflect;
+    }
 
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");

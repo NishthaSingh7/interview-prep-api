@@ -8,6 +8,7 @@ const patternRoutes = require("./routes/pattern.routes");
 const authRoutes = require("./routes/auth.routes");
 const progressRoutes = require("./routes/progress.routes");
 const reminderRoutes = require("./routes/reminder.routes");
+const journalRoutes = require("./routes/journal.routes");
 const errorHandler = require("./middleware/errorHandler");
 
 app.use(cors());
@@ -22,6 +23,7 @@ app.use("/api/v1/patterns", patternRoutes);
 app.use("/api/v1/problems", problemRoutes);
 app.use("/api/v1/progress", progressRoutes);
 app.use("/api/v1/reminders", reminderRoutes);
+app.use("/api/v1/journal", journalRoutes);
 
 // Static UI is served on Netlify in production; keep local/Railway fallback.
 if (process.env.SERVE_STATIC !== "false") {
@@ -32,6 +34,7 @@ if (process.env.SERVE_STATIC !== "false") {
     ["/", "index.html"],
     ["/about", "about.html"],
     ["/progress", "progress.html"],
+    ["/companion", "companion.html"],
     ["/login", "login.html"],
     ["/signup", "signup.html"],
   ];

@@ -532,6 +532,22 @@ async function toggleProgress(checkbox) {
           status: "done",
           reviewAt: data.reviewAt,
         });
+
+        try {
+          const pattern = problem.patternId;
+          sessionStorage.setItem(
+            "afterhours_last_solve",
+            JSON.stringify({
+              problemId: problem._id,
+              title: problem.title,
+              difficulty: problem.difficulty,
+              patternSlug: pattern?.slug || "",
+              patternName: pattern?.name || "",
+            }),
+          );
+        } catch {
+          /* ignore */
+        }
       }
       const pid = problem?.patternId?._id || problem?.patternId;
       if (pid) state.patternDone[pid] = (state.patternDone[pid] || 0) + 1;
