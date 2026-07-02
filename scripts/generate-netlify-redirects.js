@@ -18,12 +18,14 @@ const redirectsPath = path.join(__dirname, "../public/_redirects");
 const pageRoutes = [
   "/about      /about.html     200",
   "/progress   /progress.html  200",
+  "/companion  /companion.html 200",
   "/login      /login.html     200",
   "/signup     /signup.html    200",
   "/about.html      /about      301",
   "/progress.html   /progress   301",
   "/login.html      /login      301",
   "/signup.html     /signup     301",
+  "/companion.html  /companion  301",
 ].join("\n");
 
 // Clean URLs + proxy /api/* to Railway so the static site can use relative API paths.
