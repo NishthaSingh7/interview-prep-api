@@ -2,6 +2,10 @@ const CompanionPage = (() => {
   const LAST_SOLVE_KEY = "afterhours_last_solve";
   const TAB_KEY = "afterhours_companion_tab";
   const TIMELINE_DAYS = 15;
+  const READ_PAGE_SIZE = 6;
+
+  let mindsetPage = 1;
+  let lettersPage = 1;
 
   const DIFFICULTY_OPTIONS = [
     { id: "easy", label: "😊 Easy" },
@@ -202,7 +206,7 @@ const CompanionPage = (() => {
     if (row.type === "entry") {
       const e = row.entry;
       const text = e.reflection || e.winNote || e.problemTitle || "Journal entry";
-      return escapeHtml(text.length > 42 ? `${text.slice(0, 42)}…` : text);
+      return escapeHtml(text);
     }
     if (row.type === "solved") return "Solved · no journal";
     return "Skipped";
@@ -232,14 +236,115 @@ const CompanionPage = (() => {
       </section>`;
   }
 
+  function renderMindsetRow(article) {
+    return `
+      <button type="button" class="companion-read-row" data-mindset-id="${article.id}">
+        <span class="companion-read-row-icon">${article.icon}</span>
+        <span class="companion-read-row-body">
+          <strong>${escapeHtml(article.title)}</strong>
+          <small>${article.readMin} min · ${escapeHtml(article.teaser)}</small>
+        </span>
+      </button>`;
+  }
+
+  function renderLetterRow(letter) {
+    return `
+      <button type="button" class="companion-read-row" data-letter-id="${letter.id}">
+        <span class="companion-read-row-icon">💌</span>
+        <span class="companion-read-row-body">
+          <strong>Letter #${letter.number} · ${escapeHtml(letter.title)}</strong>
+          <small>${escapeHtml((letter.body[1] || letter.body[0]).slice(0, 72))}…</small>
+        </span>
+      </button>`;
+  }
+
+  function paginateSlice(items, page, pageSize = READ_PAGE_SIZE) {
+    const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const start = (safePage - 1) * pageSize;
+    return {
+      items: items.slice(start, start + pageSize),
+      page: safePage,
+      totalPages,
+      total: items.length,
+      start: items.length ? start + 1 : 0,
+      end: Math.min(start + pageSize, items.length),
+    };
+  }
+
+  function renderPagedList(pagerId, allItems, page, renderRow) {
+    const { items, page: safePage, totalPages, total, start, end } = paginateSlice(allItems, page);
+
+    const rows = items.length
+      ? items.map(renderRow).join("")
+      : `<p class="companion-muted companion-paged-empty">Nothing here yet.</p>`;
+
+    const pager =
+      totalPages > 1
+        ? `
+        <div class="companion-pager" data-pager="${pagerId}">
+          <button type="button" class="btn btn-ghost btn-sm companion-pager-btn" data-pager-id="${pagerId}" data-pager-dir="prev" ${safePage <= 1 ? "disabled" : ""} aria-label="Previous page">← Prev</button>
+          <span class="companion-pager-meta">${start}–${end} of ${total}</span>
+          <button type="button" class="btn btn-ghost btn-sm companion-pager-btn" data-pager-id="${pagerId}" data-pager-dir="next" ${safePage >= totalPages ? "disabled" : ""} aria-label="Next page">Next →</button>
+        </div>`
+        : `<p class="companion-pager-meta companion-pager-meta-only">${total} ${total === 1 ? "item" : "items"}</p>`;
+
+    return `
+      <div class="companion-paged-list" data-paged-list="${pagerId}">
+        <div class="companion-read-list companion-read-list-paged" tabindex="0" aria-label="Page ${safePage} of ${totalPages}">
+          ${rows}
+        </div>
+        ${pager}
+      </div>`;
+  }
+
+  function renderReadColumns() {
+    return `
+      <section class="companion-panel panel">
+        <h3 class="companion-section-title">Interview mindset</h3>
+        <p class="companion-muted">Short reads when your brain is tired. ${READ_PAGE_SIZE} per page.</p>
+        ${renderPagedList("mindset", CompanionContent.MINDSET_ARTICLES, mindsetPage, renderMindsetRow)}
+      </section>
+
+      <section class="companion-panel panel">
+        <h3 class="companion-section-title">All founder letters</h3>
+        <p class="companion-muted">${READ_PAGE_SIZE} per page — add more anytime.</p>
+        ${renderPagedList("letters", CompanionContent.FOUNDER_LETTERS, lettersPage, renderLetterRow)}
+      </section>`;
+  }
+
+  function refreshReadColumns(root) {
+    const columns = root.querySelector(".companion-read-columns");
+    if (!columns) return;
+    columns.innerHTML = renderReadColumns();
+    bindReadListEvents(root);
+  }
+
+  function changeReadPage(pagerId, dir) {
+    if (pagerId === "mindset") {
+      const { totalPages } = paginateSlice(CompanionContent.MINDSET_ARTICLES, mindsetPage);
+      mindsetPage = dir === "next" ? Math.min(mindsetPage + 1, totalPages) : Math.max(1, mindsetPage - 1);
+    } else if (pagerId === "letters") {
+      const { totalPages } = paginateSlice(CompanionContent.FOUNDER_LETTERS, lettersPage);
+      lettersPage = dir === "next" ? Math.min(lettersPage + 1, totalPages) : Math.max(1, lettersPage - 1);
+    }
+    const root = document.getElementById("companionRoot");
+    if (root) refreshReadColumns(root);
+  }
+
   function renderTonightTab(entry, lastSolve, timeline) {
     const note = CompanionContent.nightNoteForToday();
+    const timelineHtml = renderTimeline(timeline);
     return `
       <div class="companion-tab-panel" data-panel="tonight" ${activeTab !== "tonight" ? "hidden" : ""}>
         ${renderRitualSteps(entry)}
-        ${renderJournalPrompt(entry, lastSolve, timeline)}
-        ${renderJournalForm(entry, lastSolve)}
-        ${renderTimeline(timeline)}
+        <div class="companion-tonight-layout">
+          <div class="companion-tonight-primary">
+            ${renderJournalPrompt(entry, lastSolve, timeline)}
+            ${renderJournalForm(entry, lastSolve)}
+          </div>
+          ${timelineHtml}
+        </div>
         <p class="companion-tonight-footer">💭 ${escapeHtml(note)}</p>
       </div>`;
   }
@@ -248,28 +353,6 @@ const CompanionPage = (() => {
     const note = CompanionContent.nightNoteForToday();
     const letter = CompanionContent.founderLetterForToday();
     const letterPreview = letter.body.slice(0, 3).map((p) => `<p>${escapeHtml(p)}</p>`).join("");
-
-    const mindsetCards = CompanionContent.MINDSET_ARTICLES.map(
-      (article) => `
-        <button type="button" class="companion-read-row" data-mindset-id="${article.id}">
-          <span class="companion-read-row-icon">${article.icon}</span>
-          <span class="companion-read-row-body">
-            <strong>${escapeHtml(article.title)}</strong>
-            <small>${article.readMin} min · ${escapeHtml(article.teaser)}</small>
-          </span>
-        </button>`,
-    ).join("");
-
-    const letterCards = CompanionContent.FOUNDER_LETTERS.map(
-      (l) => `
-        <button type="button" class="companion-read-row" data-letter-id="${l.id}">
-          <span class="companion-read-row-icon">💌</span>
-          <span class="companion-read-row-body">
-            <strong>Letter #${l.number} · ${escapeHtml(l.title)}</strong>
-            <small>${escapeHtml((l.body[1] || l.body[0]).slice(0, 72))}…</small>
-          </span>
-        </button>`,
-    ).join("");
 
     const notes = CompanionContent.NIGHT_NOTES.slice(0, 6)
       .map((n) => `<li>${escapeHtml(n)}</li>`)
@@ -291,16 +374,9 @@ const CompanionPage = (() => {
           <div class="companion-letter-preview">${letterPreview}</div>
         </section>
 
-        <section class="companion-panel panel">
-          <h3 class="companion-section-title">Interview mindset</h3>
-          <p class="companion-muted">Short reads when your brain is tired.</p>
-          <div class="companion-read-list">${mindsetCards}</div>
-        </section>
-
-        <section class="companion-panel panel">
-          <h3 class="companion-section-title">All founder letters</h3>
-          <div class="companion-read-list">${letterCards}</div>
-        </section>
+        <div class="companion-read-columns">
+          ${renderReadColumns()}
+        </div>
 
         <section class="companion-panel panel">
           <h3 class="companion-section-title">Night notes</h3>
@@ -397,7 +473,7 @@ const CompanionPage = (() => {
         status.hidden = false;
         status.textContent = tomorrowPromise ? "Saved. See you tomorrow 🌙" : "Journal saved.";
       }
-      await loadAndRender(document.getElementById("companionRoot"), { keepTab: true });
+      await loadAndRender(document.getElementById("companionRoot"), { keepTab: true, keepPages: true });
     } catch (err) {
       if (status) {
         status.hidden = false;
@@ -425,6 +501,23 @@ const CompanionPage = (() => {
     });
   }
 
+  function bindReadListEvents(root) {
+    root.querySelectorAll("[data-letter-id]").forEach((btn) => {
+      btn.addEventListener("click", () => openLetter(btn.dataset.letterId));
+    });
+
+    root.querySelectorAll("[data-mindset-id]").forEach((btn) => {
+      btn.addEventListener("click", () => openMindset(btn.dataset.mindsetId));
+    });
+
+    root.querySelectorAll(".companion-pager-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        changeReadPage(btn.dataset.pagerId, btn.dataset.pagerDir);
+      });
+    });
+  }
+
   function bindEvents(root) {
     root.querySelectorAll(".companion-tab").forEach((btn) => {
       btn.addEventListener("click", () => switchTab(btn.dataset.tab));
@@ -439,13 +532,7 @@ const CompanionPage = (() => {
       await saveJournal(true);
     });
 
-    root.querySelectorAll("[data-letter-id]").forEach((btn) => {
-      btn.addEventListener("click", () => openLetter(btn.dataset.letterId));
-    });
-
-    root.querySelectorAll("[data-mindset-id]").forEach((btn) => {
-      btn.addEventListener("click", () => openMindset(btn.dataset.mindsetId));
-    });
+    bindReadListEvents(root);
   }
 
   async function loadJournalData() {
@@ -474,6 +561,11 @@ const CompanionPage = (() => {
       } catch {
         activeTab = "tonight";
       }
+    }
+
+    if (!options.keepPages) {
+      mindsetPage = 1;
+      lettersPage = 1;
     }
 
     const lastSolve = readLastSolve();
