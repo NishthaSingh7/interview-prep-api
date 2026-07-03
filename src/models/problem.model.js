@@ -26,6 +26,28 @@ const problemSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        summary: {
+            type: String,
+            default: "",
+            trim: true,
+        },
+        brief: {
+            scenario: { type: String, default: "" },
+            given: { type: String, default: "" },
+            output: { type: String, default: "" },
+            constraints: { type: String, default: "" },
+            examples: {
+                type: [
+                    {
+                        input: { type: String, default: "" },
+                        output: { type: String, default: "" },
+                        explanation: { type: String, default: "" },
+                    },
+                ],
+                default: [],
+            },
+            fromLeetcode: { type: Boolean, default: false },
+        },
         leetcodeLink: {
             type: String,
         },

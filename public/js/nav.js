@@ -103,7 +103,9 @@ const Nav = {
     await this.loadHeaderBadges();
 
     const page = document.body.dataset.page;
-    if (page) {
+    if (typeof SiteNav !== "undefined") {
+      SiteNav.setActive(page);
+    } else if (page) {
       document.querySelectorAll(".nav-link").forEach((link) => {
         link.classList.toggle("active", link.dataset.nav === page);
       });

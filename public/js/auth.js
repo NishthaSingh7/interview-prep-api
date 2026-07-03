@@ -38,7 +38,19 @@ const Auth = {
     }
 
     const res = await fetch(path, { ...options, headers });
-    const data = await res.json();
+    const text = await res.text();
+    let data = {};
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(
+          res.ok
+            ? "Server returned an invalid response. Try again in a moment."
+            : `Request failed (${res.status}). Check your connection and try again.`,
+        );
+      }
+    }
     if (!res.ok) throw new Error(data.message || "Request failed");
     return data;
   },

@@ -4,7 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
-    <title>💻 Log in — AfterHours</title>
+    <title>DSA Newsletter — AfterHours</title>
+    <meta
+      name="description"
+      content="DSA essays for developers who study after work — patterns, intuition, and interview prep from AfterHours."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AfterHours" />
+    <meta property="og:title" content="DSA Newsletter — AfterHours" />
+    <meta
+      property="og:description"
+      content="Short essays on data structures & algorithms for your after-hours prep ritual."
+    />
+    <meta property="og:url" content="https://afterhours-interview-prep.netlify.app/newsletter" />
+    <meta property="og:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,9 +25,9 @@
       rel="stylesheet"
     />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/style.css?v=20260704x" />
   </head>
-  <body class="auth-page">
+  <body data-page="newsletter">
     <header class="site-header">
       <a href="/" class="logo" aria-label="AfterHours — Progress Never Clocks Out.">
         <div class="logo-mark" aria-hidden="true">
@@ -35,6 +48,7 @@
           <span class="logo-tagline-line">Clocks Out.</span>
         </p>
       </a>
+      <nav class="site-nav" aria-label="Main"></nav>
       <div class="header-actions">
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
           <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -52,32 +66,23 @@
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
           </svg>
         </button>
+        <div id="guestNav" class="nav-links">
+          <a href="/login" class="btn btn-ghost">Log in</a>
+          <a href="/signup" class="btn btn-primary">Sign up</a>
+        </div>
+        <div id="userNav" class="nav-links" hidden>
+          <div class="user-chip">
+            <span class="user-avatar" id="userAvatar" aria-hidden="true"></span>
+            <span class="user-name" id="userName"></span>
+          </div>
+          <button id="logoutBtn" class="btn btn-ghost btn-sm" type="button">Log out</button>
+        </div>
       </div>
     </header>
 
-    <div class="auth-container">
-      <div class="auth-card panel">
-        <h1>Log in</h1>
-        <p class="auth-subtitle">pick up where you left off</p>
-
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" required placeholder="you@example.com" />
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" required placeholder="your password" />
-          </div>
-          <p id="error" class="error-msg" hidden></p>
-          <button type="submit" class="btn btn-primary btn-full">Log in</button>
-        </form>
-
-        <p class="auth-switch">
-          No account yet? <a href="/signup">Sign up</a>
-        </p>
-      </div>
-    </div>
+    <main class="about-main newsletter-main">
+      <div class="about-wrap newsletter-wrap" id="newsletterRoot" aria-live="polite"></div>
+    </main>
 
     <footer class="site-footer">
       <div class="footer-inner">
@@ -87,32 +92,15 @@
     </footer>
 
     <script src="/js/footer.js"></script>
-
     <script src="/js/auth.js"></script>
+    <script src="/js/milestones.js"></script>
+    <script src="/js/nav.js"></script>
+    <script src="/js/newsletter-content.js"></script>
+    <script src="/js/newsletter-page.js?v=20260704i"></script>
     <script>
-      if (Auth.isLoggedIn()) window.location.href = "/";
-
-      document.getElementById("loginForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const errorEl = document.getElementById("error");
-        errorEl.hidden = true;
-
-        try {
-          const { data } = await Auth.api("/api/v1/auth/login", {
-            method: "POST",
-            body: JSON.stringify({
-              email: document.getElementById("email").value,
-              password: document.getElementById("password").value,
-            }),
-          });
-          Auth.setSession(data);
-          const next = new URLSearchParams(window.location.search).get("next");
-          window.location.href =
-            next === "progress" ? "/progress" : next === "companion" ? "/companion" : "/";
-        } catch (err) {
-          errorEl.textContent = err.message;
-          errorEl.hidden = false;
-        }
+      document.addEventListener("DOMContentLoaded", async () => {
+        await Nav.init();
+        NewsletterPage.init();
       });
     </script>
   </body>

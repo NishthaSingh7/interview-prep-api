@@ -1,7 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-  <rect width="48" height="48" rx="10" fill="#141c28" />
-  <rect x="9" y="7" width="30" height="20" rx="2.5" stroke="#f0883e" stroke-width="2" />
-  <rect x="11.5" y="9.5" width="25" height="15" rx="1.5" fill="#0d1117" />
-  <line x1="9" y1="27" x2="39" y2="27" stroke="#f0883e" stroke-width="2" stroke-linecap="round" />
-  <path d="M5.5 27.5H42.5L45.5 34.5C45.5 35.3 44.8 36 44 36H4C3.2 36 2.5 35.3 2.5 34.5L5.5 27.5Z" stroke="#f0883e" stroke-width="2" stroke-linejoin="round" />
+  <rect width="48" height="48" rx="11" fill="#4338ca"/>
+  <rect x="10" y="11" width="28" height="19" rx="2.5" stroke="#ffffff" stroke-width="1.85"/>
+  <rect x="12.5" y="13.5" width="23" height="13" rx="1.5" fill="#312e81"/>
+  <text x="24" y="21.5" text-anchor="middle" fill="#fbbf24" font-family="ui-monospace, monospace" font-size="6.5" font-weight="700">AH</text>
+  <line x1="10" y1="30" x2="38" y2="30" stroke="#ffffff" stroke-width="1.85" stroke-linecap="round"/>
+  <path d="M6.5 30.5H41.5L44 36.5C44 37.2 43.4 37.8 42.7 37.8H5.3C4.6 37.8 4 37.2 4 36.5L6.5 30.5Z" stroke="#ffffff" stroke-width="1.65" stroke-linejoin="round"/>
 </svg>

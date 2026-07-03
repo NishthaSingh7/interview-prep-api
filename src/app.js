@@ -32,9 +32,12 @@ if (process.env.SERVE_STATIC !== "false") {
 
   const htmlPages = [
     ["/", "index.html"],
+    ["/learn", "study.html"],
+    ["/study", "study.html"],
     ["/about", "about.html"],
     ["/progress", "progress.html"],
     ["/companion", "companion.html"],
+    ["/newsletter", "newsletter.html"],
     ["/login", "login.html"],
     ["/signup", "signup.html"],
   ];

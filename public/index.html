@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
     <title>AfterHours — Late-night interview prep</title>
     <meta
       name="description"
@@ -33,9 +33,9 @@
     />
     <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260704" />
+    <link rel="stylesheet" href="/css/style.css?v=20260704x" />
   </head>
-  <body data-page="problems">
+  <body data-page="solve">
     <header class="site-header">
       <a href="/" class="logo" aria-label="AfterHours — Progress Never Clocks Out.">
         <div class="logo-mark" aria-hidden="true">
@@ -56,12 +56,7 @@
           <span class="logo-tagline-line">Clocks Out.</span>
         </p>
       </a>
-      <nav class="site-nav" aria-label="Main">
-        <a href="/" class="nav-link" data-nav="problems">Problems</a>
-        <a href="/progress" class="nav-link" data-nav="progress">Progress</a>
-        <a href="/companion" class="nav-link" data-nav="companion">Companion</a>
-        <a href="/about" class="nav-link" data-nav="about">About</a>
-      </nav>
+      <nav class="site-nav" aria-label="Main"></nav>
       <div class="header-actions">
         <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch theme">
           <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -95,18 +90,32 @@
 
     <div class="layout">
       <button type="button" id="patternDrawerToggle" class="pattern-drawer-toggle btn btn-ghost btn-sm" aria-expanded="false" aria-controls="patternSidebar">
-        Patterns
+        Browse
       </button>
       <div id="patternDrawerBackdrop" class="pattern-drawer-backdrop" hidden></div>
       <aside id="patternSidebar" class="sidebar panel">
+        <div class="sidebar-mode-toggle" role="tablist" aria-label="Browse by">
+          <button type="button" class="sidebar-mode-btn active" data-sidebar-mode="patterns" role="tab" aria-selected="true">Patterns</button>
+          <button type="button" class="sidebar-mode-btn" data-sidebar-mode="structures" role="tab" aria-selected="false">Data structures</button>
+        </div>
+        <div id="sidebarProgressOverview" class="sidebar-progress-overview" hidden>
+          <div class="sidebar-progress-head">
+            <span id="sidebarProgressTitle">Coding patterns</span>
+            <span id="sidebarProgressPct" class="sidebar-progress-pct">0%</span>
+          </div>
+          <div class="sidebar-progress-bar" aria-hidden="true">
+            <div id="sidebarProgressFill" class="sidebar-progress-fill"></div>
+          </div>
+          <p id="sidebarProgressMeta" class="sidebar-progress-meta">0 of 0 completed</p>
+        </div>
         <div class="sidebar-head">
-          <h2>Patterns</h2>
-          <span class="sidebar-badge">20</span>
+          <h2 id="sidebarTitle">Patterns</h2>
+          <span class="sidebar-badge" id="sidebarBadge">20</span>
         </div>
         <ul id="patternList" class="pattern-list">
           <li>
-            <button class="pattern-btn active" data-id="" data-slug="">
-              <span class="pattern-name">All Patterns</span>
+            <button class="pattern-btn active" data-id="" data-slug="" data-structure="">
+              <span class="pattern-name" id="sidebarAllLabel">All Patterns</span>
               <span class="pattern-count" id="allPatternCount"></span>
             </button>
           </li>
@@ -205,6 +214,7 @@
     </footer>
 
     <script src="/js/header.js"></script>
+    <script src="/js/site-nav.js?v=20260704w"></script>
     <script src="/js/analytics.js"></script>
     <script src="/js/footer.js"></script>
 
@@ -222,7 +232,9 @@
     <script src="/js/pattern-guides.js"></script>
     <script src="/js/pattern-diagrams.js"></script>
     <script src="/js/pattern-info.js"></script>
+    <script src="/js/problem-desc-diagram.js?v=20260704o"></script>
+    <script src="/js/problem-description.js?v=20260704o"></script>
     <script src="/js/onboarding.js"></script>
-    <script src="/js/app.js?v=20260703"></script>
+    <script src="/js/app.js?v=20260704j"></script>
   </body>
 </html>

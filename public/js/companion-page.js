@@ -189,6 +189,7 @@ const CompanionPage = (() => {
     const problemTitle = entry?.problemTitle || lastSolve?.title || "";
     const patternName = entry?.patternName || lastSolve?.patternName || "";
     const difficulty = entry?.problemDifficulty || lastSolve?.difficulty || "";
+    const problemId = resolveProblemId(entry?.problemId || lastSolve?.problemId);
 
     return `
       <section class="companion-panel panel" id="companionJournal">
@@ -207,7 +208,7 @@ const CompanionPage = (() => {
         </div>
 
         <form id="companionJournalForm" class="companion-form">
-          <input type="hidden" id="journalProblemId" value="${escapeHtml(entry?.problemId || lastSolve?.problemId || "")}" />
+          <input type="hidden" id="journalProblemId" value="${escapeHtml(problemId)}" />
           <input type="hidden" id="journalProblemTitle" value="${escapeHtml(problemTitle)}" />
           <input type="hidden" id="journalPatternSlug" value="${escapeHtml(entry?.patternSlug || lastSolve?.patternSlug || "")}" />
           <input type="hidden" id="journalPatternName" value="${escapeHtml(patternName)}" />
@@ -501,21 +502,36 @@ const CompanionPage = (() => {
     document.body.classList.remove("motivation-open");
   }
 
+  function resolveProblemId(value) {
+    if (value == null || value === "") return "";
+    if (typeof value === "object" && value._id != null) {
+      return resolveProblemId(value._id);
+    }
+    const id = String(value).trim();
+    if (!/^[a-f\d]{24}$/i.test(id)) return "";
+    return id;
+  }
+
   function getFormPayload(tomorrowPromise = false) {
     const difficulty = document.querySelector('input[name="difficultyFelt"]:checked');
     const energy = document.querySelector('input[name="energy"]:checked');
-    return {
-      problemId: document.getElementById("journalProblemId")?.value || undefined,
+    const payload = {
       problemTitle: document.getElementById("journalProblemTitle")?.value || "",
       patternSlug: document.getElementById("journalPatternSlug")?.value || "",
       patternName: document.getElementById("journalPatternName")?.value || "",
       problemDifficulty: document.getElementById("journalProblemDifficulty")?.value || "",
       reflection: document.getElementById("journalReflection")?.value.trim() || "",
       winNote: document.getElementById("journalWinNote")?.value.trim() || "",
-      difficultyFelt: difficulty?.value || undefined,
-      energy: energy?.value || undefined,
       tomorrowPromise,
     };
+
+    const problemId = resolveProblemId(document.getElementById("journalProblemId")?.value);
+    if (problemId) payload.problemId = problemId;
+
+    if (difficulty?.value) payload.difficultyFelt = difficulty.value;
+    if (energy?.value) payload.energy = energy.value;
+
+    return payload;
   }
 
   async function saveJournal(tomorrowPromise = false) {

@@ -1,6 +1,10 @@
+const mongoose = require("mongoose");
 const JournalEntry = require("../models/journal.model");
 const Progress = require("../models/progress.model");
 const { getDateParts, resolveTimezone } = require("../utils/timezone");
+
+const FELT = new Set(["easy", "medium", "hard"]);
+const ENERGY = new Set(["great", "fine", "exhausted"]);
 
 function shiftDateKey(dateKey, deltaDays) {
   const [y, m, d] = dateKey.split("-").map(Number);
@@ -17,6 +21,18 @@ function lastNDays(dateKey, n) {
     key = shiftDateKey(key, -1);
   }
   return keys;
+}
+
+function parseObjectId(value) {
+  if (value == null || value === "") return undefined;
+  const id = String(value).trim();
+  if (!mongoose.Types.ObjectId.isValid(id)) return undefined;
+  return id;
+}
+
+function pickEnum(value, allowed) {
+  const v = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return allowed.has(v) ? v : undefined;
 }
 
 async function getActiveDateKeys(userId, timezone) {
@@ -36,7 +52,7 @@ const getToday = async (req, res) => {
   try {
     const timezone = resolveTimezone(req.user, req);
     const dateKey = getDateParts(new Date(), timezone).dateKey;
-    const entry = await JournalEntry.findOne({ userId: req.user._id, dateKey });
+    const entry = await JournalEntry.findOne({ userId: req.user._id, dateKey }).lean();
     res.json({ success: true, data: entry });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -48,7 +64,8 @@ const listEntries = async (req, res) => {
     const limit = Math.min(Number(req.query.limit) || 30, 60);
     const entries = await JournalEntry.find({ userId: req.user._id })
       .sort({ dateKey: -1 })
-      .limit(limit);
+      .limit(limit)
+      .lean();
     res.json({ success: true, count: entries.length, data: entries });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -63,7 +80,7 @@ const getTimeline = async (req, res) => {
     const dayKeys = lastNDays(todayKey, days);
 
     const [entries, activeDays] = await Promise.all([
-      JournalEntry.find({ userId: req.user._id, dateKey: { $in: dayKeys } }),
+      JournalEntry.find({ userId: req.user._id, dateKey: { $in: dayKeys } }).lean(),
       getActiveDateKeys(req.user._id, timezone),
     ]);
 
@@ -94,44 +111,54 @@ const upsertToday = async (req, res) => {
     const timezone = resolveTimezone(req.user, req);
     const dateKey = getDateParts(new Date(), timezone).dateKey;
     const {
-      problemId,
+      problemId: rawProblemId,
       problemTitle = "",
       patternSlug = "",
       patternName = "",
       problemDifficulty = "",
       winNote = "",
-      difficultyFelt = null,
-      energy = null,
+      difficultyFelt,
+      energy,
       reflection = "",
       tomorrowPromise = false,
-    } = req.body;
+    } = req.body || {};
 
-    const update = {
-      problemTitle,
-      patternSlug,
-      patternName,
-      problemDifficulty,
-      winNote,
-      reflection,
+    const set = {
+      problemTitle: String(problemTitle).slice(0, 300),
+      patternSlug: String(patternSlug).slice(0, 120),
+      patternName: String(patternName).slice(0, 120),
+      problemDifficulty: String(problemDifficulty).slice(0, 40),
+      winNote: String(winNote).slice(0, 2000),
+      reflection: String(reflection).slice(0, 2000),
       tomorrowPromise: Boolean(tomorrowPromise),
     };
 
-    if (problemId) update.problemId = problemId;
-    if (difficultyFelt) update.difficultyFelt = difficultyFelt;
-    if (energy) update.energy = energy;
+    const problemId = parseObjectId(rawProblemId);
+    if (problemId) set.problemId = problemId;
+
+    const felt = pickEnum(difficultyFelt, FELT);
+    const energyLevel = pickEnum(energy, ENERGY);
+    if (felt) set.difficultyFelt = felt;
+    if (energyLevel) set.energy = energyLevel;
 
     if (tomorrowPromise) {
-      update.tomorrowPromiseAt = new Date();
+      set.tomorrowPromiseAt = new Date();
     }
 
     const entry = await JournalEntry.findOneAndUpdate(
       { userId: req.user._id, dateKey },
-      { userId: req.user._id, dateKey, ...update },
-      { new: true, upsert: true, runValidators: true },
-    );
+      { $set: { userId: req.user._id, dateKey, ...set } },
+      { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true },
+    ).lean();
 
     res.json({ success: true, data: entry });
   } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: "Could not save journal — invalid data. Refresh the page and try again.",
+      });
+    }
     res.status(500).json({ success: false, message: err.message });
   }
 };

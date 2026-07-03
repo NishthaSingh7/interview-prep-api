@@ -1,0 +1,409 @@
+{
+  "version": 1,
+  "structures": {
+    "arrays": {
+      "slug": "arrays",
+      "name": "Arrays",
+      "tagline": "Contiguous memory, index access, and the workhorse of most interview problems.",
+      "readMin": 4,
+      "image": "/images/data-structures/arrays.png?v=2",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is an array?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "An array stores elements in a fixed sequence. Each position has an index (usually starting at 0), so you can read or overwrite any slot in constant time if you already know the index."
+            },
+            {
+              "type": "p",
+              "text": "Most DSA problems do not ask you to implement an array — they ask you to exploit its shape: sorted order, duplicate values, fixed size, or the fact that removing from the middle is expensive."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core operations",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Access by index — O(1)",
+                "Scan left to right — O(n)",
+                "Insert or delete in the middle — O(n) because elements shift",
+                "Sort once, then binary search — O(n log n) setup, O(log n) queries"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Input is sorted or can be sorted — binary search, two pointers",
+                "Need a running aggregate over a range — prefix sums, sliding window",
+                "Count or group by value with small domain — counting sort, bucket ideas",
+                "Answer lives in a subarray or subsequence — expand/shrink a window"
+              ]
+            },
+            {
+              "type": "callout",
+              "text": "When you see an array, ask: is order important? Can I sort? Do I need every pair or only a contiguous block?"
+            }
+          ]
+        }
+      ]
+    },
+    "strings": {
+      "slug": "strings",
+      "name": "Strings",
+      "tagline": "Sequences of characters where pointers, windows, and hashing show up constantly.",
+      "readMin": 4,
+      "image": "/images/data-structures/strings.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a string?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A string is an ordered sequence of characters. In interviews it behaves like an array with extra constraints: palindromes, anagrams, prefixes, and character frequency maps appear all the time."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core operations",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Character access by index — O(1)",
+                "Substring search (naive) — O(n × m)",
+                "Build frequency map — O(n)",
+                "Two pointers from both ends — palindrome checks, pair matching"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Anagram or permutation — sort or count characters",
+                "Longest / shortest valid substring — sliding window with a frequency map",
+                "Palindrome — two pointers inward, or expand around center",
+                "Pattern matching — rolling hash or KMP for advanced cases"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "linked-lists": {
+      "slug": "linked-lists",
+      "name": "Linked Lists",
+      "tagline": "Nodes chained by pointers — reversal, cycle detection, and merge patterns.",
+      "readMin": 4,
+      "image": "/images/data-structures/linked-lists.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a linked list?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Each node stores a value and a reference to the next node (and sometimes the previous). There is no random access: reaching index k costs O(k) steps."
+            },
+            {
+              "type": "p",
+              "text": "The trade-off is flexible insertion and deletion at a known position — O(1) if you already hold the pointer — without shifting the rest of the structure."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core operations",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Traverse from head — O(n)",
+                "Insert or delete at known node — O(1)",
+                "Find k-th node — O(k)",
+                "Reverse in place — three pointers: prev, curr, next"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Cycle in the list — fast and slow pointers (Floyd)",
+                "Merge two sorted lists — dummy head, compare nodes",
+                "Find middle — fast pointer moves twice as fast",
+                "Reorder or reverse a segment — in-place pointer rewiring"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "trees": {
+      "slug": "trees",
+      "name": "Trees",
+      "tagline": "Hierarchical data — recursion, depth, and path questions on every branch.",
+      "readMin": 5,
+      "image": "/images/data-structures/trees.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a tree?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A tree is a connected acyclic graph with a root. Binary trees restrict each node to at most two children. Many problems reduce to: what do I do at this node, and what do I get back from the left and right subtrees?"
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core traversals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "DFS (pre/in/post-order) — go deep first, natural for recursion",
+                "BFS (level order) — queue, process layer by layer",
+                "Height / depth — max edges from root, or from root to a node",
+                "Validate BST — pass valid (min, max) range down the tree"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Path sum or path existence — DFS with running total",
+                "Lowest common ancestor — post-order or parent pointers",
+                "Serialize / deserialize — preorder with null markers",
+                "Diameter or max path — combine left and right results at each node"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "graphs": {
+      "slug": "graphs",
+      "name": "Graphs",
+      "tagline": "Nodes and edges — reachability, shortest paths, and dependency order.",
+      "readMin": 5,
+      "image": "/images/data-structures/graphs.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a graph?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A graph is a set of vertices connected by edges. It may be directed or undirected, weighted or unweighted. Grids, social networks, course prerequisites, and islands on a matrix are all graphs in disguise."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core approaches",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "BFS — shortest path in unweighted graphs, level by level",
+                "DFS — explore all reachable nodes, detect cycles",
+                "Topological sort — ordering with dependencies (DAG only)",
+                "Union-Find — dynamic connectivity, counting components"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Can I reach X from Y? — BFS or DFS with a visited set",
+                "Minimum steps or shortest path — BFS on implicit grid graph",
+                "Course schedule / build order — topological sort",
+                "Number of islands — DFS/BFS flood fill on matrix"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "heaps": {
+      "slug": "heaps",
+      "name": "Heaps",
+      "tagline": "Always know the min or max — top K, merge K lists, and running medians.",
+      "readMin": 4,
+      "image": "/images/data-structures/heaps.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a heap?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A binary heap is a complete binary tree stored in an array where every parent is smaller (min-heap) or larger (max-heap) than its children. The root always holds the extreme value."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core operations",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Peek min or max — O(1)",
+                "Insert — O(log n) bubble up",
+                "Extract min or max — O(log n) bubble down",
+                "Heapify an array — O(n)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Top K largest or smallest — size-K heap beats full sort",
+                "Merge K sorted lists — min-heap of list heads",
+                "Running median — two heaps (max-heap for lower half, min-heap for upper)",
+                "Schedule tasks with cooldown — heap for next available time"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "matrix": {
+      "slug": "matrix",
+      "name": "Matrix",
+      "tagline": "2D grids — neighbors, directions, and graph traversal on rows and columns.",
+      "readMin": 4,
+      "image": "/images/data-structures/matrix.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a matrix?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A matrix is a 2D array: rows and columns. Each cell (r, c) often connects to up to four neighbors. Most grid problems are really graph traversal with careful boundary checks."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core techniques",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Row/column scan — O(rows × cols)",
+                "DFS/BFS flood fill — mark visited, explore neighbors",
+                "Prefix sum on submatrix — build 2D prefix for range queries",
+                "Rotate or transpose — index math, often in-place layers"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Count islands or connected components — DFS from each unvisited 1",
+                "Shortest path in grid — BFS, not DFS",
+                "Search in sorted matrix — treat as graph or use binary search on rows",
+                "Game board / word search — backtracking with visited marks"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "math": {
+      "slug": "math",
+      "name": "Math",
+      "tagline": "Modular arithmetic, primes, and number tricks that unlock clean solutions.",
+      "readMin": 4,
+      "image": "/images/data-structures/math.png",
+      "sections": [
+        {
+          "id": "what",
+          "title": "What shows up in interviews?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "Math problems are not about memorizing formulas — they are about spotting structure: divisibility, remainders, XOR cancellation, combinatorics with constraints, or reducing brute force with number theory."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core ideas",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Modulo — keep numbers bounded, detect cycles in sequences",
+                "GCD / LCM — Euclidean algorithm",
+                "Prime sieve — precompute primes up to n",
+                "XOR — a ^ a = 0, pairs cancel; find the lone element"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Huge numbers — work modulo 10^9 + 7",
+                "Single number among pairs — XOR all values",
+                "Count ways with overflow risk — DP + modulo",
+                "Palindrome number or reverse digits — digit extraction math"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

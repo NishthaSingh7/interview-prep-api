@@ -1,7 +1,11 @@
 const NOTES_CHAR_LIMIT = 2000;
+const STARS_KEY = "afterhours_starred";
 
 const state = {
   patterns: [],
+  structures: [],
+  structureCatalogTotal: 0,
+  sidebarMode: "patterns",
   problems: [],
   page: 1,
   pages: 1,
@@ -10,10 +14,12 @@ const state = {
   difficulty: "",
   patternId: "",
   patternSlug: "",
+  structureSlug: "",
   search: "",
   progressMap: new Map(),
   patternTotals: {},
   patternDone: {},
+  structureDone: {},
   unlockState: null,
   progressEntries: [],
   tonightShuffle: 0,
@@ -66,6 +72,9 @@ function updateAuthUI() {
     Milestones.renderHeaderBadges(0);
   }
 
+  const overview = $("#sidebarProgressOverview");
+  if (overview) overview.hidden = !loggedIn;
+
   Nav.updateAuthNav();
   Nav.bindLogout({
     onLogout: () => {
@@ -77,13 +86,80 @@ function updateAuthUI() {
   updateHomeProgressSnippet();
 }
 
+function formatSidebarCount(done, total) {
+  if (!Auth.isLoggedIn()) return String(total);
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  return `${done}/${total} · ${pct}%`;
+}
+
+function countUniqueStructureSolves() {
+  const allTags = new Set(state.structures.flatMap((s) => s.tags));
+  const ids = new Set();
+  for (const entry of state.progressEntries) {
+    const tags = entry.problemId?.tags || [];
+    if (tags.some((tag) => allTags.has(tag))) {
+      ids.add(String(entry.problemId?._id || entry.problemId));
+    }
+  }
+  return ids.size;
+}
+
+function recomputeStructureDone() {
+  state.structureDone = {};
+  for (const structure of state.structures) {
+    state.structureDone[structure.slug] = 0;
+  }
+  for (const entry of state.progressEntries) {
+    const tags = entry.problemId?.tags || [];
+    for (const structure of state.structures) {
+      if (structure.tags.some((tag) => tags.includes(tag))) {
+        state.structureDone[structure.slug] = (state.structureDone[structure.slug] || 0) + 1;
+      }
+    }
+  }
+}
+
+function updateSidebarOverview() {
+  const overview = $("#sidebarProgressOverview");
+  if (!overview) return;
+  overview.hidden = !Auth.isLoggedIn();
+  if (!Auth.isLoggedIn()) return;
+
+  const title = $("#sidebarProgressTitle");
+  const pctEl = $("#sidebarProgressPct");
+  const fill = $("#sidebarProgressFill");
+  const meta = $("#sidebarProgressMeta");
+  if (!title || !pctEl || !fill || !meta) return;
+
+  if (state.sidebarMode === "patterns") {
+    const done = getTotalDone();
+    const total = Unlocks.TOTAL_PROBLEMS;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    title.textContent = "Coding patterns";
+    pctEl.textContent = `${pct}%`;
+    fill.style.width = `${pct}%`;
+    meta.textContent = `${done} of ${total} problems completed`;
+    return;
+  }
+
+  const done = countUniqueStructureSolves();
+  const total = state.structureCatalogTotal || 0;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  title.textContent = "Data structures";
+  pctEl.textContent = `${pct}%`;
+  fill.style.width = `${pct}%`;
+  meta.textContent = `${done} of ${total} problems completed`;
+}
+
 function persistSession() {
   try {
     localStorage.setItem(
       SESSION_KEY,
       JSON.stringify({
+        sidebarMode: state.sidebarMode,
         patternId: state.patternId,
         patternSlug: state.patternSlug,
+        structureSlug: state.structureSlug,
         difficulty: state.difficulty,
         search: state.search,
         page: state.page,
@@ -107,13 +183,16 @@ function updateContinueSession() {
 
 function restoreSession() {
   if (new URLSearchParams(window.location.search).get("pattern")) return false;
+  if (new URLSearchParams(window.location.search).get("structure")) return false;
 
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return false;
     const saved = JSON.parse(raw);
+    state.sidebarMode = saved.sidebarMode === "structures" ? "structures" : "patterns";
     state.patternId = saved.patternId || "";
     state.patternSlug = saved.patternSlug || "";
+    state.structureSlug = saved.structureSlug || "";
     state.difficulty = saved.difficulty || "";
     state.search = saved.search || "";
     state.page = saved.page > 0 ? saved.page : 1;
@@ -131,9 +210,20 @@ function applySessionUI() {
     btn.classList.toggle("active", btn.dataset.difficulty === state.difficulty);
   });
 
+  setSidebarMode(state.sidebarMode, { skipLoad: true });
+
   $$(".pattern-btn").forEach((btn) => btn.classList.remove("active"));
 
-  if (state.patternSlug) {
+  if (state.sidebarMode === "structures" && state.structureSlug) {
+    const btn = document.querySelector(`.pattern-btn[data-structure="${state.structureSlug}"]`);
+    if (btn) {
+      btn.classList.add("active");
+      return;
+    }
+    state.structureSlug = "";
+  }
+
+  if (state.sidebarMode === "patterns" && state.patternSlug) {
     const btn = document.querySelector(`.pattern-btn[data-slug="${state.patternSlug}"]`);
     if (btn && !btn.disabled) {
       btn.classList.add("active");
@@ -143,7 +233,7 @@ function applySessionUI() {
     state.patternSlug = "";
   }
 
-  const allBtn = document.querySelector('.pattern-btn[data-slug=""]');
+  const allBtn = document.querySelector('.pattern-btn[data-slug=""][data-structure=""]');
   if (allBtn) allBtn.classList.add("active");
 }
 
@@ -253,24 +343,35 @@ async function loadTonightsProblem() {
   }
 }
 
-async function loadPatterns() {
-  const { data } = await api("/api/v1/patterns");
-  state.patterns = data;
+async function loadStructureStats() {
+  const { data, catalogTotal } = await api("/api/v1/problems/structure-stats");
+  state.structures = data || [];
+  state.structureCatalogTotal = catalogTotal || 0;
+  recomputeStructureDone();
+}
 
-  for (const p of data) {
-    state.patternTotals[p._id] = p.problemCount ?? Unlocks.PROBLEMS_PER_PATTERN;
-  }
-
+function renderPatternSidebarList() {
   const list = $("#patternList");
-  data.forEach((p) => {
+  if (!list) return;
+
+  list.innerHTML = `
+    <li>
+      <button class="pattern-btn${!state.patternId && !state.structureSlug ? " active" : ""}" data-id="" data-slug="" data-structure="">
+        <span class="pattern-name">All Patterns</span>
+        <span class="pattern-count" id="allPatternCount"></span>
+      </button>
+    </li>`;
+
+  state.patterns.forEach((p) => {
     const li = document.createElement("li");
     li.className = "pattern-item";
     const done = state.patternDone[p._id] || 0;
     const total = state.patternTotals[p._id] || Unlocks.PROBLEMS_PER_PATTERN;
+    const active = state.patternId === p._id;
     li.innerHTML = `
-      <button class="pattern-btn" data-id="${p._id}" data-slug="${p.slug}">
+      <button class="pattern-btn${active ? " active" : ""}" data-id="${p._id}" data-slug="${p.slug}" data-structure="">
         <span class="pattern-name">${escapeHtml(p.name)}</span>
-        <span class="pattern-count">${Auth.isLoggedIn() ? `${done}/${total}` : total}</span>
+        <span class="pattern-count">${formatSidebarCount(done, total)}</span>
       </button>
       <button
         type="button"
@@ -283,15 +384,111 @@ async function loadPatterns() {
   });
 
   updateAllPatternCount();
+  refreshPatternLocks();
+}
+
+function renderStructureSidebarList() {
+  const list = $("#patternList");
+  if (!list) return;
+
+  list.innerHTML = `
+    <li>
+      <button class="pattern-btn${!state.structureSlug ? " active" : ""}" data-id="" data-slug="" data-structure="">
+        <span class="pattern-name">All Data Structures</span>
+        <span class="pattern-count" id="allPatternCount"></span>
+      </button>
+    </li>`;
+
+  state.structures.forEach((structure) => {
+    const li = document.createElement("li");
+    li.className = "pattern-item pattern-item-structure";
+    const done = state.structureDone[structure.slug] || 0;
+    const total = structure.total || 0;
+    const active = state.structureSlug === structure.slug;
+    li.innerHTML = `
+      <button class="pattern-btn${active ? " active" : ""}" data-id="" data-slug="" data-structure="${structure.slug}">
+        <span class="pattern-name">${escapeHtml(structure.name)}</span>
+        <span class="pattern-count">${formatSidebarCount(done, total)}</span>
+      </button>`;
+    list.appendChild(li);
+  });
+
+  updateAllStructureCount();
+}
+
+function setSidebarMode(mode, options = {}) {
+  state.sidebarMode = mode === "structures" ? "structures" : "patterns";
+
+  $$(".sidebar-mode-btn").forEach((btn) => {
+    const active = btn.dataset.sidebarMode === state.sidebarMode;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
+
+  const title = $("#sidebarTitle");
+  const badge = $("#sidebarBadge");
+  if (title) title.textContent = state.sidebarMode === "structures" ? "Data Structures" : "Patterns";
+  if (badge) {
+    badge.textContent =
+      state.sidebarMode === "structures" ? String(state.structures.length) : "20";
+  }
+
+  if (state.sidebarMode === "structures") {
+    state.patternId = "";
+    state.patternSlug = "";
+    renderStructureSidebarList();
+  } else {
+    state.structureSlug = "";
+    renderPatternSidebarList();
+  }
+
+  updateSidebarOverview();
+
+  if (!options.skipLoad) {
+    state.page = 1;
+    persistSession();
+    loadProblems();
+  }
+}
+
+async function loadPatterns() {
+  const { data } = await api("/api/v1/patterns");
+  state.patterns = data;
+
+  for (const p of data) {
+    state.patternTotals[p._id] = p.problemCount ?? Unlocks.PROBLEMS_PER_PATTERN;
+  }
+
+  if (state.sidebarMode === "patterns") {
+    renderPatternSidebarList();
+  }
+  updateAllPatternCount();
 }
 
 function updateAllPatternCount() {
   const el = $("#allPatternCount");
+  if (!el) return;
+  if (state.sidebarMode === "structures") {
+    updateAllStructureCount();
+    return;
+  }
   if (Auth.isLoggedIn()) {
-    const done = Object.values(state.patternDone).reduce((a, b) => a + b, 0);
-    el.textContent = `${done} solved`;
+    const done = getTotalDone();
+    const total = Unlocks.TOTAL_PROBLEMS;
+    el.textContent = formatSidebarCount(done, total);
   } else {
     el.textContent = `${Unlocks.TOTAL_PROBLEMS} problems`;
+  }
+}
+
+function updateAllStructureCount() {
+  const el = $("#allPatternCount");
+  if (!el) return;
+  const total = state.structureCatalogTotal || 0;
+  if (Auth.isLoggedIn()) {
+    el.textContent = formatSidebarCount(countUniqueStructureSolves(), total);
+  } else {
+    el.textContent = `${total} problems`;
   }
 }
 
@@ -326,8 +523,12 @@ async function loadProgress() {
       }
     });
 
+    recomputeStructureDone();
+
     updateProgressUI();
     refreshPatternCounts();
+    refreshStructureCounts();
+    updateSidebarOverview();
     updateUnlockState();
     if (state.problems.length) renderProblems();
     updateHomeProgressSnippet();
@@ -363,9 +564,52 @@ function refreshPatternLocks() {
 
 function practiceLinkHtml(problem) {
   const url = problem.leetcodeLink || problem.practiceLink;
-  if (!url) return `<span class="muted-text">—</span>`;
+  if (!url) return `<span class="table-icon-muted">—</span>`;
   const source = problem.source || (problem.leetcodeLink ? "LeetCode" : "Practice");
-  return `<a href="${url}" target="_blank" rel="noopener" class="link-btn">${escapeHtml(source)} ↗</a>`;
+  return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="table-icon-btn table-icon-btn-practice" aria-label="Open on ${escapeHtml(source)}" title="Open on ${escapeHtml(source)}">${iconExternalLink()}</a>`;
+}
+
+function getStarredSet() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(STARS_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveStarredSet(stars) {
+  localStorage.setItem(STARS_KEY, JSON.stringify([...stars]));
+}
+
+function iconExternalLink() {
+  return `<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+    <path d="M11 3h6v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8 12 17 3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M15 11v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function iconStar(filled = false) {
+  if (filled) {
+    return `<svg class="star-icon star-icon-filled" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+      <path d="M10 2.5l2.35 4.76 5.25.77-3.8 3.7.9 5.23L10 14.77l-4.7 2.47.9-5.23-3.8-3.7 5.25-.77L10 2.5Z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+    </svg>`;
+  }
+  return `<svg class="star-icon" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+    <path d="M10 2.5l2.35 4.76 5.25.77-3.8 3.7.9 5.23L10 14.77l-4.7 2.47.9-5.23-3.8-3.7 5.25-.77L10 2.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function starButtonHtml(problem) {
+  const starred = getStarredSet().has(problem._id);
+  const cls = starred ? "table-icon-btn star-btn star-btn-on" : "table-icon-btn star-btn";
+  const label = starred ? "Remove from starred" : "Star this problem";
+  return `<button type="button" class="${cls}" data-star-id="${problem._id}" aria-label="${label}" title="${label}" aria-pressed="${starred}">${iconStar(starred)}</button>`;
+}
+
+function difficultyLabelHtml(d) {
+  const cls = difficultyClass(d);
+  return `<span class="diff-label diff-label-${cls}">${escapeHtml(d)}</span>`;
 }
 function updateProgressUI(milestonePrevCount) {
   if (!Auth.isLoggedIn()) return;
@@ -374,19 +618,37 @@ function updateProgressUI(milestonePrevCount) {
 }
 
 function refreshPatternCounts() {
+  if (state.sidebarMode !== "patterns") return;
   $$(".pattern-btn").forEach((btn) => {
     const countEl = btn.querySelector(".pattern-count");
     if (!countEl) return;
 
-    if (btn.dataset.id === "") {
-      const done = Object.values(state.patternDone).reduce((a, b) => a + b, 0);
-      countEl.textContent = Auth.isLoggedIn() ? `${done} solved` : `${Unlocks.TOTAL_PROBLEMS} problems`;
+    if (!btn.dataset.id && !btn.dataset.structure) {
+      updateAllPatternCount();
       return;
     }
 
     const total = state.patternTotals[btn.dataset.id] || Unlocks.PROBLEMS_PER_PATTERN;
     const done = state.patternDone[btn.dataset.id] || 0;
-    countEl.textContent = Auth.isLoggedIn() ? `${done}/${total}` : String(total);
+    countEl.textContent = formatSidebarCount(done, total);
+  });
+}
+
+function refreshStructureCounts() {
+  if (state.sidebarMode !== "structures") return;
+  $$(".pattern-btn").forEach((btn) => {
+    const countEl = btn.querySelector(".pattern-count");
+    if (!countEl) return;
+
+    if (!btn.dataset.structure) {
+      updateAllStructureCount();
+      return;
+    }
+
+    const structure = state.structures.find((s) => s.slug === btn.dataset.structure);
+    if (!structure) return;
+    const done = state.structureDone[structure.slug] || 0;
+    countEl.textContent = formatSidebarCount(done, structure.total);
   });
 }
 
@@ -397,6 +659,7 @@ async function loadProblems() {
   });
   if (state.difficulty) params.set("difficulty", state.difficulty);
   if (state.patternId) params.set("patternId", state.patternId);
+  if (state.structureSlug) params.set("structure", state.structureSlug);
   if (state.search) params.set("search", state.search);
 
   const { data, total, pages, page } = await api(`/api/v1/problems?${params}`);
@@ -405,9 +668,14 @@ async function loadProblems() {
   state.pages = pages;
   state.page = page;
 
-  if (state.patternId) {
+  if (state.structureSlug) {
+    const structure = state.structures.find((s) => s.slug === state.structureSlug);
+    $("#viewTitle").textContent = structure?.name || "Data Structures";
+  } else if (state.patternId) {
     const pattern = state.patterns.find((p) => p._id === state.patternId);
     $("#viewTitle").textContent = pattern?.name || "Problems";
+  } else if (state.sidebarMode === "structures") {
+    $("#viewTitle").textContent = "All Data Structures";
   } else {
     $("#viewTitle").textContent = "All Problems";
   }
@@ -432,6 +700,8 @@ function renderProblems() {
     state.unlockState = Unlocks.getClientState(state.patternDone, state.patterns);
   }
 
+  const starred = getStarredSet();
+
   const rows = state.problems
     .map((p, i) => {
       const isDone = state.progressMap.has(p._id);
@@ -450,41 +720,43 @@ function renderProblems() {
       }
 
       return `
-        <tr class="problem-row ${isDone ? "row-done" : ""} ${locked ? "row-locked" : ""}" data-id="${p._id}">
+        <tr class="problem-row ${isDone ? "row-done" : ""} ${locked ? "row-locked" : ""} ${starred.has(p._id) ? "row-starred" : ""}" data-id="${p._id}">
           <td class="col-status">${statusCell}</td>
           <td class="col-num">${offset + i + 1}</td>
           <td class="col-title">
-            <span>${escapeHtml(p.title)}</span>
+            <span class="problem-title-text">${escapeHtml(p.title)}</span>
             ${locked ? `<span class="lock-hint">${escapeHtml(lockReason)}</span>` : ""}
           </td>
-          <td class="col-notes">${notesButtonHtml(p, isDone, progress, locked)}</td>
-          <td class="col-difficulty"><span class="badge ${difficultyClass(p.difficulty)}">${p.difficulty}</span></td>
-          <td class="col-pattern">
-            <span>${escapeHtml(p.patternId?.name || "—")}</span>
-            ${p.patternId?.slug ? `<button type="button" class="pattern-info-btn table-info-btn" data-slug="${p.patternId.slug}" aria-label="About ${escapeHtml(p.patternId.name)}" title="Pattern guide">i</button>` : ""}
+          <td class="col-difficulty">${difficultyLabelHtml(p.difficulty)}</td>
+          <td class="col-brief">${ProblemDescription.iconButton(p, "table-icon-btn problem-desc-btn")}</td>
+          <td class="col-practice">${locked ? `<span class="table-icon-muted" title="${escapeHtml(lockReason)}">—</span>` : link}</td>
+          <td class="col-actions">
+            <div class="table-actions">${notesButtonHtml(p, isDone, progress, locked)}${starButtonHtml(p)}</div>
           </td>
-          <td class="col-link">${locked ? `<span class="muted-text" title="${escapeHtml(lockReason)}">locked</span>` : link}</td>
         </tr>`;
     })
     .join("");
 
   container.innerHTML = `
-    <div class="table-wrap">
-      <table class="problem-table">
+    <div class="table-wrap solve-table-wrap">
+      <table class="problem-table solve-table">
         <thead>
           <tr>
-            <th class="col-status">Done</th>
+            <th class="col-status" aria-label="Status"></th>
             <th class="col-num">#</th>
-            <th class="col-title">Title</th>
-            <th class="col-notes">Notes</th>
+            <th class="col-title">Problem</th>
             <th class="col-difficulty">Difficulty</th>
-            <th class="col-pattern">Pattern</th>
-            <th class="col-link">Practice</th>
+            <th class="col-brief" aria-label="Brief">Brief</th>
+            <th class="col-practice">Practice</th>
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
+
+  const byId = new Map(state.problems.map((p) => [p._id, p]));
+  ProblemDescription.bindButtons(container, byId);
 
   container.querySelectorAll(".done-check").forEach((cb) => {
     cb.addEventListener("change", () => toggleProgress(cb));
@@ -494,6 +766,17 @@ function renderProblems() {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       openNotesModal(btn.dataset.problemId);
+    });
+  });
+
+  container.querySelectorAll(".star-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const stars = getStarredSet();
+      if (stars.has(btn.dataset.starId)) stars.delete(btn.dataset.starId);
+      else stars.add(btn.dataset.starId);
+      saveStarredSet(stars);
+      renderProblems();
     });
   });
 }
@@ -603,6 +886,8 @@ async function toggleProgress(checkbox) {
 
     updateProgressUI(isChecked ? prevDone : undefined);
     refreshPatternCounts();
+    refreshStructureCounts();
+    updateSidebarOverview();
     updateUnlockState();
     renderProblems();
     await refreshConsistencyStats();
@@ -641,11 +926,28 @@ document.addEventListener("click", (e) => {
   if (patternBtn && !patternBtn.disabled) {
     $$(".pattern-btn").forEach((b) => b.classList.remove("active"));
     patternBtn.classList.add("active");
-    state.patternId = patternBtn.dataset.id || "";
-    state.patternSlug = patternBtn.dataset.slug || "";
+
+    if (state.sidebarMode === "structures") {
+      state.structureSlug = patternBtn.dataset.structure || "";
+      state.patternId = "";
+      state.patternSlug = "";
+    } else {
+      state.patternId = patternBtn.dataset.id || "";
+      state.patternSlug = patternBtn.dataset.slug || "";
+      state.structureSlug = "";
+    }
+
     state.page = 1;
     persistSession();
     loadProblems();
+  }
+
+  const modeBtn = e.target.closest(".sidebar-mode-btn");
+  if (modeBtn) {
+    const mode = modeBtn.dataset.sidebarMode;
+    if (mode && mode !== state.sidebarMode) {
+      setSidebarMode(mode);
+    }
   }
 
   const diffBtn = e.target.closest(".filter-btn");
@@ -693,24 +995,35 @@ $("#nextPage").addEventListener("click", () => {
 
 function selectPatternFromUrl() {
   const params = new URLSearchParams(window.location.search);
+  const structure = params.get("structure");
+  if (structure) {
+    setSidebarMode("structures", { skipLoad: true });
+    const btn = document.querySelector(`.pattern-btn[data-structure="${structure}"]`);
+    if (btn) btn.click();
+    return;
+  }
+
   const slug = params.get("pattern");
   if (!slug) return;
+  setSidebarMode("patterns", { skipLoad: true });
   const btn = document.querySelector(`.pattern-btn[data-slug="${slug}"]`);
   if (btn) btn.click();
 }
 
 function notesIconSvg(saved = false) {
   if (saved) {
-    return `<svg class="notes-icon notes-icon-saved" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">
-      <path d="M3.5 2.5h6l3 3V13a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
-      <path d="M9.5 2.5V6H13" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
-      <path d="M5 8.25h6M5 10.25h6M5 12.25h4" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+    return `<svg class="action-icon action-icon-saved" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+      <path d="M6 3.5h6.5L16 7v9.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+      <path d="M11.5 3.5V7H16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+      <path d="M7.25 9.5h5.5M7.25 11.75h5.5M7.25 14h3.5" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+      <path d="M12.5 14.25 14 16l2.75-3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
   }
-  return `<svg class="notes-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
-    <path d="M3.5 2.5h6l3 3V13a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-    <path d="M9.5 2.5V6H13" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-    <path d="M5 8.5h6M5 10.5h4" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+  return `<svg class="action-icon" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false">
+    <path d="M6 3.5h6.5L16 7v9.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M11.5 3.5V7H16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M7.25 9.5h5.5M7.25 11.75h3.75" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M13.5 12.5 15 14l1.75-2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -727,7 +1040,7 @@ function notesButtonHtml(p, isDone, progress, locked) {
 
   const savedClass = hasNotes ? " notes-btn-saved" : "";
 
-  return `<button type="button" class="notes-btn${savedClass}" data-problem-id="${p._id}" data-progress-id="${progress?.id || ""}" data-done="${isDone ? "1" : "0"}" title="${escapeHtml(title)}" aria-label="Notes for ${escapeHtml(p.title)}">${notesIconSvg(hasNotes)}</button>`;
+  return `<button type="button" class="table-icon-btn notes-btn${savedClass}" data-problem-id="${p._id}" data-progress-id="${progress?.id || ""}" data-done="${isDone ? "1" : "0"}" title="${escapeHtml(title)}" aria-label="Notes for ${escapeHtml(p.title)}">${notesIconSvg(hasNotes)}</button>`;
 }
 
 function openNotesModal(problemId) {
@@ -946,12 +1259,15 @@ async function init() {
     Push.startClientReminderChecker();
   }
   try {
-    const hasPatternParam = new URLSearchParams(window.location.search).get("pattern");
-    const restoredSession = !hasPatternParam && restoreSession();
+    const hasBrowseParam =
+      new URLSearchParams(window.location.search).get("pattern") ||
+      new URLSearchParams(window.location.search).get("structure");
+    const restoredSession = !hasBrowseParam && restoreSession();
 
-    await loadPatterns();
+    await Promise.all([loadPatterns(), loadStructureStats()]);
 
     if (restoredSession) applySessionUI();
+    else setSidebarMode(state.sidebarMode, { skipLoad: true });
 
     if (Auth.isLoggedIn()) {
       await loadProgress();
@@ -963,12 +1279,14 @@ async function init() {
       }
     }
 
-    if (!hasPatternParam) {
+    if (!hasBrowseParam) {
       await loadProblems();
     }
 
     updateUnlockState();
     refreshPatternCounts();
+    refreshStructureCounts();
+    updateSidebarOverview();
     if (state.problems.length) renderProblems();
     selectPatternFromUrl();
     updateContinueSession();
