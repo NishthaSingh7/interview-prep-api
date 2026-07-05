@@ -12,6 +12,7 @@ const state = {
   total: 0,
   limit: 50,
   difficulty: "",
+  statusFilter: "",
   patternId: "",
   patternSlug: "",
   structureSlug: "",
@@ -83,6 +84,8 @@ function updateAuthUI() {
       updateHomeProgressSnippet();
     },
   });
+  const statusFilters = $("#statusFilters");
+  if (statusFilters) statusFilters.hidden = !loggedIn;
   updateHomeProgressSnippet();
 }
 
@@ -165,6 +168,7 @@ function persistSession() {
         patternSlug: state.patternSlug,
         structureSlug: state.structureSlug,
         difficulty: state.difficulty,
+        statusFilter: state.statusFilter,
         search: state.search,
         page: state.page,
       }),
@@ -198,12 +202,47 @@ function restoreSession() {
     state.patternSlug = saved.patternSlug || "";
     state.structureSlug = saved.structureSlug || "";
     state.difficulty = saved.difficulty || "";
+    state.statusFilter = saved.statusFilter || "";
     state.search = saved.search || "";
     state.page = saved.page > 0 ? saved.page : 1;
     return true;
   } catch {
     return false;
   }
+}
+
+function reconcileSessionFilters() {
+  let changed = false;
+  const patternBySlug = state.patternSlug
+    ? state.patterns.find((p) => p.slug === state.patternSlug)
+    : null;
+
+  if (state.patternId) {
+    const patternById = state.patterns.find((p) => p._id === state.patternId);
+    if (!patternById) {
+      if (patternBySlug) {
+        state.patternId = patternBySlug._id;
+      } else {
+        state.patternId = "";
+        state.patternSlug = "";
+      }
+      changed = true;
+    } else if (state.patternSlug && patternById.slug !== state.patternSlug) {
+      state.patternSlug = patternById.slug;
+      changed = true;
+    }
+  } else if (patternBySlug) {
+    state.patternId = patternBySlug._id;
+    changed = true;
+  }
+
+  if (state.structureSlug && !state.structures.some((s) => s.slug === state.structureSlug)) {
+    state.structureSlug = "";
+    if (state.sidebarMode === "structures") state.sidebarMode = "patterns";
+    changed = true;
+  }
+
+  if (changed) persistSession();
 }
 
 function applySessionUI() {
@@ -214,24 +253,45 @@ function applySessionUI() {
     btn.classList.toggle("active", btn.dataset.difficulty === state.difficulty);
   });
 
+  $$("#statusFilters .filter-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.status === state.statusFilter);
+  });
+
   setSidebarMode(state.sidebarMode, { skipLoad: true });
 
   $$(".pattern-btn").forEach((btn) => btn.classList.remove("active"));
 
   if (state.sidebarMode === "structures" && state.structureSlug) {
-    const btn = document.querySelector(`.pattern-btn[data-structure="${state.structureSlug}"]`);
+    const btn = document.querySelector(
+      `.pattern-btn[data-structure="${CSS.escape(state.structureSlug)}"]`,
+    );
     if (btn) {
       btn.classList.add("active");
+      state.patternId = "";
+      state.patternSlug = "";
       return;
     }
     state.structureSlug = "";
   }
 
   if (state.sidebarMode === "patterns" && state.patternSlug) {
-    const btn = document.querySelector(`.pattern-btn[data-slug="${state.patternSlug}"]`);
+    const btn = document.querySelector(`.pattern-btn[data-slug="${CSS.escape(state.patternSlug)}"]`);
     if (btn && !btn.disabled) {
       btn.classList.add("active");
+      state.patternId = btn.dataset.id || "";
       return;
+    }
+    state.patternId = "";
+    state.patternSlug = "";
+  } else if (state.sidebarMode === "patterns" && state.patternId) {
+    const pattern = state.patterns.find((p) => p._id === state.patternId);
+    if (pattern) {
+      state.patternSlug = pattern.slug || "";
+      const btn = document.querySelector(`.pattern-btn[data-slug="${CSS.escape(state.patternSlug)}"]`);
+      if (btn && !btn.disabled) {
+        btn.classList.add("active");
+        return;
+      }
     }
     state.patternId = "";
     state.patternSlug = "";
@@ -239,6 +299,8 @@ function applySessionUI() {
 
   const allBtn = document.querySelector('.pattern-btn[data-slug=""][data-structure=""]');
   if (allBtn) allBtn.classList.add("active");
+  state.patternId = "";
+  state.patternSlug = "";
 }
 
 function getCompletedDates() {
@@ -662,9 +724,10 @@ function refreshStructureCounts() {
 }
 
 async function loadProblems() {
+  const clientStatusFilter = state.statusFilter && Auth.isLoggedIn();
   const params = new URLSearchParams({
-    page: state.page,
-    limit: state.limit,
+    page: clientStatusFilter ? 1 : state.page,
+    limit: clientStatusFilter ? 500 : state.limit,
   });
   if (state.difficulty) params.set("difficulty", state.difficulty);
   if (state.patternId) params.set("patternId", state.patternId);
@@ -672,10 +735,40 @@ async function loadProblems() {
   if (state.search) params.set("search", state.search);
 
   const { data, total, pages, page } = await api(`/api/v1/problems?${params}`);
-  state.problems = data;
-  state.total = total;
-  state.pages = pages;
-  state.page = page;
+
+  const stalePattern =
+    state.patternId && !state.patterns.some((p) => p._id === state.patternId);
+  const staleStructure =
+    state.structureSlug && !state.structures.some((s) => s.slug === state.structureSlug);
+  if (total === 0 && (stalePattern || staleStructure)) {
+    if (stalePattern) {
+      state.patternId = "";
+      state.patternSlug = "";
+    }
+    if (staleStructure) state.structureSlug = "";
+    persistSession();
+    return loadProblems();
+  }
+
+  let problems = data;
+  if (clientStatusFilter) {
+    const filtered = data.filter((p) =>
+      state.statusFilter === "solved"
+        ? state.progressMap.has(p._id)
+        : !state.progressMap.has(p._id),
+    );
+    state.total = filtered.length;
+    state.pages = Math.max(1, Math.ceil(filtered.length / state.limit));
+    state.page = Math.min(state.page, state.pages);
+    const start = (state.page - 1) * state.limit;
+    problems = filtered.slice(start, start + state.limit);
+  } else {
+    state.total = total;
+    state.pages = pages;
+    state.page = page;
+  }
+
+  state.problems = problems;
 
   if (state.structureSlug) {
     const structure = state.structures.find((s) => s.slug === state.structureSlug);
@@ -698,7 +791,13 @@ function renderProblems() {
   const container = $("#problemsContainer");
 
   if (!state.problems.length) {
-    container.innerHTML = '<div class="empty-state">No problems found.</div>';
+    const emptyMsg =
+      state.statusFilter === "solved"
+        ? "No solved problems match these filters."
+        : state.statusFilter === "unsolved"
+          ? "No unsolved problems match these filters."
+          : "No problems found.";
+    container.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
     return;
   }
 
@@ -968,6 +1067,16 @@ document.addEventListener("click", (e) => {
     persistSession();
     loadProblems();
   }
+
+  const statusBtn = e.target.closest(".filter-btn");
+  if (statusBtn?.closest("#statusFilters")) {
+    $$("#statusFilters .filter-btn").forEach((b) => b.classList.remove("active"));
+    statusBtn.classList.add("active");
+    state.statusFilter = statusBtn.dataset.status || "";
+    state.page = 1;
+    persistSession();
+    loadProblems();
+  }
 });
 
 $("#tonightsShuffle")?.addEventListener("click", () => {
@@ -1007,16 +1116,23 @@ function selectPatternFromUrl() {
   const structure = params.get("structure");
   if (structure) {
     setSidebarMode("structures", { skipLoad: true });
-    const btn = document.querySelector(`.pattern-btn[data-structure="${structure}"]`);
-    if (btn) btn.click();
-    return;
+    const btn = document.querySelector(`.pattern-btn[data-structure="${CSS.escape(structure)}"]`);
+    if (btn) {
+      btn.click();
+      return true;
+    }
+    return false;
   }
 
   const slug = params.get("pattern");
-  if (!slug) return;
+  if (!slug) return false;
   setSidebarMode("patterns", { skipLoad: true });
-  const btn = document.querySelector(`.pattern-btn[data-slug="${slug}"]`);
-  if (btn) btn.click();
+  const btn = document.querySelector(`.pattern-btn[data-slug="${CSS.escape(slug)}"]`);
+  if (btn) {
+    btn.click();
+    return true;
+  }
+  return false;
 }
 
 function notesIconSvg(saved = false) {
@@ -1274,6 +1390,7 @@ async function init() {
     const restoredSession = !hasBrowseParam && restoreSession();
 
     await Promise.all([loadPatterns(), loadStructureStats()]);
+    reconcileSessionFilters();
 
     if (restoredSession) applySessionUI();
     else setSidebarMode(state.sidebarMode, { skipLoad: true });
@@ -1297,7 +1414,10 @@ async function init() {
     refreshStructureCounts();
     updateSidebarOverview();
     if (state.problems.length) renderProblems();
-    selectPatternFromUrl();
+    const urlFilterApplied = selectPatternFromUrl();
+    if (hasBrowseParam && !urlFilterApplied) {
+      await loadProblems();
+    }
     updateContinueSession();
     await loadTonightsProblem();
     if (typeof Onboarding !== "undefined") Onboarding.init();

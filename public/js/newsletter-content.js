@@ -78,6 +78,7 @@ const NewsletterContent = (() => {
       readMin: 9,
       tags: ["Habits", "Consistency", "AfterHours"],
       featured: false,
+      archived: true,
       body: [
         {
           type: "p",
@@ -196,18 +197,22 @@ const NewsletterContent = (() => {
     },
   ];
 
-  const ALL_TAGS = [...new Set(POSTS.flatMap((p) => p.tags))].sort();
+  const visiblePosts = () => POSTS.filter((p) => !p.archived);
+
+  const ALL_TAGS = [...new Set(visiblePosts().flatMap((p) => p.tags))].sort();
 
   function getPosts() {
-    return [...POSTS].sort((a, b) => b.date.localeCompare(a.date));
+    return [...visiblePosts()].sort((a, b) => b.date.localeCompare(a.date));
   }
 
   function getPost(slug) {
-    return POSTS.find((p) => p.slug === slug) || null;
+    const post = POSTS.find((p) => p.slug === slug);
+    if (!post || post.archived) return null;
+    return post;
   }
 
   function getFeatured() {
-    return POSTS.find((p) => p.featured) || getPosts()[0] || null;
+    return visiblePosts().find((p) => p.featured) || getPosts()[0] || null;
   }
 
   return { getPosts, getPost, getFeatured, ALL_TAGS };

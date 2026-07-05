@@ -33,7 +33,7 @@
     />
     <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260706a" />
+    <link rel="stylesheet" href="/css/style.css?v=20260706e" />
   </head>
   <body data-page="solve">
     <header class="site-header">
@@ -162,6 +162,11 @@
             <button class="filter-btn" data-difficulty="Medium">Medium</button>
             <button class="filter-btn" data-difficulty="Hard">Hard</button>
           </div>
+          <div class="filter-group" id="statusFilters" hidden>
+            <button class="filter-btn active" data-status="">All</button>
+            <button class="filter-btn filter-btn-solved" data-status="solved">Solved</button>
+            <button class="filter-btn" data-status="unsolved">Unsolved</button>
+          </div>
         </div>
 
         <p id="loginPrompt" class="guest-hint" hidden>
@@ -219,6 +224,6 @@
     <script src="/js/problem-desc-diagram.js?v=20260704o"></script>
     <script src="/js/problem-description.js?v=20260704o"></script>
     <script src="/js/onboarding.js"></script>
-    <script src="/js/app.js?v=20260706a"></script>
+    <script src="/js/app.js?v=20260706e"></script>
   </body>
 </html>

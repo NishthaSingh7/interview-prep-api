@@ -73,6 +73,9 @@
           <button type="submit" class="btn btn-primary btn-full">Log in</button>
         </form>
 
+        <div class="auth-divider" id="googleDivider" hidden><span>or</span></div>
+        <div id="googleSignInBtn" class="google-signin-wrap" data-google-text="signin_with" hidden></div>
+
         <p class="auth-switch">
           No account yet? <a href="/signup">Sign up</a>
         </p>
@@ -89,8 +92,19 @@
     <script src="/js/footer.js"></script>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/google-signin.js"></script>
     <script>
       if (Auth.isLoggedIn()) window.location.href = "/";
+
+      const errorEl = document.getElementById("error");
+      GoogleSignIn.mount("googleSignInBtn", {
+        onError: (msg) => {
+          errorEl.textContent = msg;
+          errorEl.hidden = false;
+        },
+      }).then((enabled) => {
+        if (enabled) document.getElementById("googleDivider").hidden = false;
+      });
 
       document.getElementById("loginForm").addEventListener("submit", async (e) => {
         e.preventDefault();

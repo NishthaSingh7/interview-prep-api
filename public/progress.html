@@ -26,7 +26,7 @@
       rel="stylesheet"
     />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260704x" />
+    <link rel="stylesheet" href="/css/style.css?v=20260706d" />
   </head>
   <body data-page="progress">
     <header class="site-header">
@@ -118,24 +118,12 @@
 
         <div id="unlockBanners" class="unlock-banners" hidden></div>
 
-        <section id="todayCard" class="today-card panel" hidden>
-          <p id="todayStatus" class="today-status">Tonight's one problem</p>
+        <section id="todayCard" class="today-card panel night-pick-card" hidden>
+          <div class="night-pick-head">
+            <p id="todayStatus" class="today-status">Tonight's pick</p>
+          </div>
           <div id="todayBody" class="today-body"></div>
-        </section>
-
-        <section id="tonightsProblem" class="tonights-problem panel tonights-inline" hidden>
-          <div class="tonights-inline-main">
-            <div class="tonights-problem-head">
-              <p class="tonights-kicker">Tonight&rsquo;s problem</p>
-              <span id="tonightsReason" class="tonights-reason"></span>
-            </div>
-            <h3 id="tonightsTitle" class="tonights-title"></h3>
-            <p id="tonightsMeta" class="tonights-meta"></p>
-          </div>
-          <div class="tonights-actions">
-            <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
-            <a href="/" class="btn btn-ghost btn-sm">Go to problems</a>
-          </div>
+          <button type="button" id="tonightsShuffle" hidden aria-hidden="true"></button>
         </section>
 
         <div id="reviewQueue" class="stats-card panel review-queue-card" hidden>

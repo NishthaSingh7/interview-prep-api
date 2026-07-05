@@ -906,9 +906,6 @@ async function loadFocusPanels(data) {
       }
     }
     Focus.renderTodayCard({ completedDates, tonightResult: result, tonightIds });
-    if (!Insights.completedToday(completedDates)) {
-      Focus.renderTonightsProblem(result, tonightIds);
-    }
   } catch {
     /* ignore */
   }
