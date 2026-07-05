@@ -173,13 +173,16 @@ const StudyPage = (() => {
   }
 
   async function loadCatalog() {
-    const [patternsRes, structuresRes] = await Promise.all([
+    const [patternsRes, structuresRes] = await Promise.allSettled([
       api("/api/v1/patterns"),
       api("/api/v1/problems/structure-stats"),
     ]);
-    state.patterns = patternsRes.data || [];
-    state.structures = structuresRes.data || [];
-    state.structureCatalogTotal = structuresRes.catalogTotal || 0;
+    state.patterns =
+      patternsRes.status === "fulfilled" ? patternsRes.value.data || [] : [];
+    state.structures =
+      structuresRes.status === "fulfilled" ? structuresRes.value.data || [] : [];
+    state.structureCatalogTotal =
+      structuresRes.status === "fulfilled" ? structuresRes.value.catalogTotal || 0 : 0;
     state.patterns.forEach((p) => {
       state.patternTotals[p._id] = p.problemCount ?? 15;
     });

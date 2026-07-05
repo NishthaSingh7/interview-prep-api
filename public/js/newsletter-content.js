@@ -1,5 +1,5 @@
 /**
- * DSA Newsletter posts — edit this file to publish new articles.
+ * Khulasa posts — edit this file to publish new articles.
  *
  * Body blocks:
  *   { type: "p", text: "..." }
@@ -13,6 +13,63 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "three-sum-two-sum-discipline-bhai",
+      title: "🚨 Khulasa: Three Sum Sirf Two Sum Hai — Discipline Bhai Ke Saath",
+      excerpt:
+        "Breaking from tonight's desk: Three Sum naya pattern nahi hai. Do chote bhai (left-right pointers) hain, aur ek discipline bhai anchor pakad ke unhe control kar raha hai. Bas.",
+      date: "2026-07-05",
+      readMin: 4,
+      tags: ["Two Pointers", "Arrays", "Three Sum"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "🎙️ Reporting live from AfterHours. Aaj raat Three Sum solve kiya — teen numbers dhoondhne hain jo milke zero ban jayein. Pehle lagta hai alag beast hai. Spoiler: nahi hai. Khulasa yeh hai — Three Sum = Two Sum + ek discipline bhai jo sab sambhal raha hai.",
+        },
+        {
+          type: "h2",
+          text: "The cast 🎬",
+        },
+        {
+          type: "ul",
+          items: [
+            "Discipline Bhai (the anchor) — outer loop mein ek index fix karke baith jaata hai. Hilta nahi jab tak andar ka kaam khatam na ho. Pehla number yahi decide karta hai.",
+            "Left Bhai (chota bhai #1) — anchor ke right side se start. Sum kam hai? Aage badho, bada number chahiye.",
+            "Right Bhai (chota bhai #2) — array ke end se start. Sum zyada hai? Peechhe jao, chota number chahiye.",
+            "Teeno ka sum — anchor + left + right. Zero mila? Triplet pakka. Simple.",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Yaad rakhna: Three Sum = Two Sum + Discipline Bhai. Woh anchor pakad ke baithta hai, do chote bhai andar traverse karte hain. Yeh line yaad rahegi toh question khud solve ho jayega.",
+        },
+        {
+          type: "h2",
+          text: "Scene kya hai?",
+        },
+        {
+          type: "p",
+          text: "Pehle array sort karo — warna left-right move karna guesswork ban jaata hai. Phir discipline bhai ek index pakadta hai. Uske baad left aur right andar aate hain — classic Two Sum wala scene, bas target ab dynamic hai kyunki anchor ne pehla number already fix kar diya.",
+        },
+        {
+          type: "p",
+          text: "Sum zero? Record karo, aage badho. Sum chota? Left bhai aage. Sum bada? Right bhai peeche. Discipline bhai tab tak nahi hilta jab tak us position pe saari possibilities check na ho jayein. Phir next anchor. Same film, next show.",
+        },
+        {
+          type: "h2",
+          text: "Reporter ki final line 📰",
+        },
+        {
+          type: "p",
+          text: "Three Sum scary nahi hai bhai. Two Sum toh pehle se jaante ho — do pointers, andar se milte hain. Bas ek discipline bhai add ho gaya jo bahar se anchor pakad ke dono chote bhaiyon ko control kar raha hai. Itna hi khulasa tha.",
+        },
+        {
+          type: "callout",
+          text: "Ab tumhari baari — AfterHours pe jao, Three Sum kholo, aur khud code likho. Story sun li, ab solve karo. 💪",
+        },
+      ],
+    },
+    {
       slug: "stay-consistent-after-work",
       title: "How to Stay Consistent With DSA When You Have a Day Job",
       excerpt:
@@ -20,7 +77,7 @@ const NewsletterContent = (() => {
       date: "2026-07-03",
       readMin: 9,
       tags: ["Habits", "Consistency", "AfterHours"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",

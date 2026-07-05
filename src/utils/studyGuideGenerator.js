@@ -2,6 +2,7 @@
  * Generates full Study-route guides (separate from Solve brief popups).
  */
 const { buildProblemBrief } = require("./problemBrief");
+const { resolveStudyApproach } = require("./studyApproachResolver");
 
 const PATTERN_META = {
   "sliding-window": {
@@ -477,9 +478,16 @@ function diagramTypeApproach2(patternSlug, title) {
 }
 
 function buildSections(problem, patternSlug, brief, patternMeta) {
-  const meta = patternMeta || PATTERN_META["dynamic-programming"];
+  const meta = { ...(patternMeta || PATTERN_META["dynamic-programming"]) };
+  const custom = resolveStudyApproach(problem, patternSlug);
+  if (custom) {
+    meta.optimal = custom.optimal;
+    meta.optimalDetail = custom.optimalDetail;
+  }
+
   const ex = brief.examples?.[0];
   const fn = fnName(problem.slug);
+  const algoSteps = custom?.steps || patternAlgorithmSteps(patternSlug, problem.title);
 
   return [
     {
@@ -562,7 +570,7 @@ function buildSections(problem, patternSlug, brief, patternMeta) {
         },
         {
           type: "ol",
-          items: patternAlgorithmSteps(patternSlug, problem.title),
+          items: algoSteps,
         },
         ...(ex
           ? [{ type: "h3", text: "Example walkthrough" }, { type: "walkthrough", steps: walkthroughSteps(ex, patternSlug, 1) }]
@@ -639,9 +647,12 @@ function generateGuide(problem, pattern) {
   }
 
   const brief = buildProblemBrief({
+    slug: problem.slug,
     title: problem.title,
     tags: problem.tags || [],
     difficulty: problem.difficulty,
+    leetcodeLink: problem.leetcodeLink,
+    practiceLink: problem.practiceLink,
   });
 
   const patternMeta = PATTERN_META[pattern.slug] || PATTERN_META["dynamic-programming"];

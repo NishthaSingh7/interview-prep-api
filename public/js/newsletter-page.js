@@ -58,7 +58,7 @@ const NewsletterPage = (() => {
         <p class="newsletter-featured-excerpt">${escapeHtml(post.excerpt)}</p>
         <div class="newsletter-featured-foot">
           <span class="newsletter-featured-tags">${tagPills(post.tags.slice(0, 3))}</span>
-          <a href="${href}" class="newsletter-read-link">Read essay →</a>
+          <a href="${href}" class="newsletter-read-link">Khulasa padho →</a>
         </div>
       </article>`;
   }
@@ -92,9 +92,9 @@ const NewsletterPage = (() => {
 
     return `
       <header class="newsletter-hero panel">
-        <p class="newsletter-kicker">DSA Newsletter</p>
-        <h1 class="newsletter-title">Essays on patterns, habits, and interview prep</h1>
-        <p class="newsletter-lead">Deep dives on DSA patterns, comparisons, and the systems that make daily practice stick — written for developers with a day job.</p>
+        <p class="newsletter-kicker">Khulasa</p>
+        <h1 class="newsletter-title">Raat ko solve kiya? Khulasa suno.</h1>
+        <p class="newsletter-lead">Main reporter hoon, tum reader. Jab koi question finally click karta hai — analogy, trick, woh "arre haan!" moment — yahan report karti hoon. Tutorial nahi. Khulasa hai.</p>
       </header>
 
       ${activeTag ? "" : renderFeatured(featured)}
@@ -114,13 +114,13 @@ const NewsletterPage = (() => {
   function renderArticle(post) {
     const body = (post.body || []).map(renderBodyBlock).join("");
 
-    document.title = `${post.title} — AfterHours Newsletter`;
+    document.title = `${post.title} — AfterHours Khulasa`;
 
     return `
       <article class="newsletter-article">
-        <a href="/newsletter" class="newsletter-back">← All essays</a>
+        <a href="/newsletter" class="newsletter-back">← Saare khulase</a>
         <header class="newsletter-article-header panel">
-          <p class="newsletter-kicker">DSA Newsletter</p>
+          <p class="newsletter-kicker">Khulasa</p>
           <h1 class="newsletter-article-title">${escapeHtml(post.title)}</h1>
           <div class="newsletter-article-meta">
             <span>${formatDate(post.date)}</span>
@@ -165,7 +165,7 @@ const NewsletterPage = (() => {
         root.innerHTML = `
           <div class="newsletter-hero panel">
             <h1 class="newsletter-title">Post not found</h1>
-            <p class="newsletter-lead"><a href="/newsletter">← Back to all essays</a></p>
+            <p class="newsletter-lead"><a href="/newsletter">← Saare khulase</a></p>
           </div>`;
         return;
       }

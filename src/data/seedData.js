@@ -26,6 +26,7 @@ const makeProblems = (patternSlug, items) =>
   });
 
 const { extraProblems } = require("./extraProblems");
+const { extraProblemsBatch2 } = require("./extraProblemsBatch2");
 
 const patterns = [
   {
@@ -372,6 +373,7 @@ const problems = [
     ["Merge Triplets to Form Target Triplet", "Medium", "merge-triplets-to-form-target-triplet", ["greedy"]],
   ]),
   ...extraProblems,
+  ...extraProblemsBatch2,
 ];
 
 patterns.forEach((p, i) => {

@@ -1,5 +1,19 @@
 const { primaryTopic } = require("./problemSummary");
 
+let STATIC_BRIEFS = null;
+try {
+  STATIC_BRIEFS = require("../data/staticProblemBriefs.json").briefs;
+} catch {
+  STATIC_BRIEFS = null;
+}
+
+let GFG_BRIEFS = {};
+try {
+  GFG_BRIEFS = require("../data/gfgProblemBriefs").GFG_PROBLEM_BRIEFS;
+} catch {
+  /* optional until built */
+}
+
 const EXAMPLE_POOLS = {
   array: {
     given: "An integer array `nums` and any extra parameters described in the title.",
@@ -574,8 +588,18 @@ function finalizeBrief(brief) {
   };
 }
 
-function buildProblemBrief({ title, tags = [], difficulty = "Medium" } = {}) {
+function buildProblemBrief({ slug, title, tags = [], difficulty = "Medium", leetcodeLink, practiceLink } = {}) {
   const key = normalizeTitleKey(title);
+
+  if (slug && STATIC_BRIEFS?.[slug]) {
+    const cached = STATIC_BRIEFS[slug];
+    return finalizeBrief({ ...cached });
+  }
+
+  if (slug && GFG_BRIEFS[slug]) {
+    return finalizeBrief({ ...GFG_BRIEFS[slug] });
+  }
+
   if (TITLE_BRIEFS[key]) return finalizeBrief({ ...TITLE_BRIEFS[key] });
 
   for (const family of FAMILY_BRIEFS) {

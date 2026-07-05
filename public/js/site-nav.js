@@ -7,7 +7,7 @@ const SiteNav = (() => {
 
   const SECONDARY = [
     { href: "/companion", label: "Companion", page: "companion" },
-    { href: "/newsletter", label: "Newsletter", page: "newsletter" },
+    { href: "/newsletter", label: "Khulasa", page: "newsletter" },
     { href: "/about", label: "About", page: "about" },
   ];
 

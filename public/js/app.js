@@ -344,10 +344,15 @@ async function loadTonightsProblem() {
 }
 
 async function loadStructureStats() {
-  const { data, catalogTotal } = await api("/api/v1/problems/structure-stats");
-  state.structures = data || [];
-  state.structureCatalogTotal = catalogTotal || 0;
-  recomputeStructureDone();
+  try {
+    const { data, catalogTotal } = await api("/api/v1/problems/structure-stats");
+    state.structures = data || [];
+    state.structureCatalogTotal = catalogTotal || 0;
+    recomputeStructureDone();
+  } catch {
+    state.structures = [];
+    state.structureCatalogTotal = 0;
+  }
 }
 
 function renderPatternSidebarList() {

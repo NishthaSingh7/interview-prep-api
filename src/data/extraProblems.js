@@ -17,7 +17,7 @@ const extraRows = [
   ["sliding-window", "Maximum of All Subarrays of Size K", "Medium", GFG("maximum-of-all-subarrays-of-size-k3101"), "GeeksforGeeks", ["sliding-window", "variant"]],
   // Two Pointers
   ["two-pointers", "Pair with Given Difference", "Easy", GFG("pair-with-given-difference1559"), "GeeksforGeeks", ["two-pointers", "variant"]],
-  ["two-pointers", "Triplets with Sum in Given Range", "Medium", "https://leetcode.com/problems/3sum/", "LeetCode", ["two-pointers", "variant"]],
+  ["two-pointers", "Triplets with Sum in Given Range", "Medium", GFG("count-triplets-with-sum-smaller-than-a-given-value"), "GeeksforGeeks", ["two-pointers", "variant"]],
   ["two-pointers", "Remove Duplicates from Sorted Array II", "Medium", GFG("remove-duplicates-from-sorted-array"), "GeeksforGeeks", ["two-pointers", "variant"]],
   ["two-pointers", "Partition Array According to Pivot", "Medium", "https://leetcode.com/problems/partition-array-according-to-pivot/", "LeetCode", ["two-pointers", "variant"]],
   ["two-pointers", "3Sum Closest", "Medium", "https://leetcode.com/problems/3sum-closest/", "LeetCode", ["two-pointers", "variant"]],
