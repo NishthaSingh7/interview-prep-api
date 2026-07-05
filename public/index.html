@@ -33,7 +33,7 @@
     />
     <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260704x" />
+    <link rel="stylesheet" href="/css/style.css?v=20260706a" />
   </head>
   <body data-page="solve">
     <header class="site-header">
@@ -135,31 +135,15 @@
           <div class="home-pulse-grid" id="homePulseGrid">
             <aside id="dailyQuote" class="daily-quote panel home-pulse-card" hidden aria-label="Daily motivation"></aside>
 
-            <section id="todayCard" class="today-card panel home-pulse-card" hidden>
-              <p id="todayStatus" class="today-status">Tonight's one problem</p>
+            <section id="todayCard" class="today-card panel home-pulse-card night-pick-card" hidden>
+              <div class="night-pick-head">
+                <p id="todayStatus" class="today-status">Tonight's pick</p>
+              </div>
               <div id="todayBody" class="today-body"></div>
-            </section>
-
-            <section id="continueSession" class="continue-session panel continue-inline home-pulse-card" hidden>
-              <div class="continue-inline-main">
-                <p class="continue-kicker">Continue where you left off</p>
-                <p id="continueSessionDetail" class="continue-session-detail"></p>
+              <div id="todayContinueWrap" class="today-continue-wrap" hidden>
+                <a href="/" id="todayContinueLink" class="today-continue-link"></a>
               </div>
-            </section>
-
-            <section id="tonightsProblem" class="tonights-problem panel tonights-inline home-pulse-card" hidden>
-              <div class="tonights-inline-main">
-                <div class="tonights-problem-head">
-                  <p class="tonights-kicker">Tonight&rsquo;s problem</p>
-                  <span id="tonightsReason" class="tonights-reason"></span>
-                </div>
-                <h3 id="tonightsTitle" class="tonights-title"></h3>
-                <p id="tonightsMeta" class="tonights-meta"></p>
-              </div>
-              <div class="tonights-actions">
-                <a id="tonightsLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener noreferrer">Open practice ↗</a>
-                <button type="button" id="tonightsShuffle" class="btn btn-ghost btn-sm" title="Default pick is intentional — use only if you need a different problem">Different pick</button>
-              </div>
+              <button type="button" id="tonightsShuffle" hidden aria-hidden="true"></button>
             </section>
           </div>
 
@@ -222,19 +206,19 @@
     <script src="/js/milestones.js?v=20260702d"></script>
     <script src="/js/nav.js"></script>
     <script src="/js/push.js"></script>
-    <script src="/js/unlocks.js"></script>
-    <script src="/js/insights.js"></script>
+    <script src="/js/unlocks.js?v=20260706a"></script>
+    <script src="/js/insights.js?v=20260706a"></script>
     <script src="/js/motivation.js"></script>
     <script src="/js/daily-quote.js"></script>
     <script src="/js/share-cards.js"></script>
     <script src="/js/confetti.js"></script>
-    <script src="/js/focus.js?v=20260703"></script>
+    <script src="/js/focus.js?v=20260706a"></script>
     <script src="/js/pattern-guides.js"></script>
     <script src="/js/pattern-diagrams.js"></script>
     <script src="/js/pattern-info.js"></script>
     <script src="/js/problem-desc-diagram.js?v=20260704o"></script>
     <script src="/js/problem-description.js?v=20260704o"></script>
     <script src="/js/onboarding.js"></script>
-    <script src="/js/app.js?v=20260704k"></script>
+    <script src="/js/app.js?v=20260706a"></script>
   </body>
 </html>

@@ -119,6 +119,10 @@ function recomputeStructureDone() {
   }
 }
 
+function getCatalogTotal() {
+  return Unlocks.catalogTotal(state.patterns, state.patternTotals);
+}
+
 function updateSidebarOverview() {
   const overview = $("#sidebarProgressOverview");
   if (!overview) return;
@@ -133,7 +137,7 @@ function updateSidebarOverview() {
 
   if (state.sidebarMode === "patterns") {
     const done = getTotalDone();
-    const total = Unlocks.TOTAL_PROBLEMS;
+    const total = getCatalogTotal();
     const pct = total ? Math.round((done / total) * 100) : 0;
     title.textContent = "Coding patterns";
     pctEl.textContent = `${pct}%`;
@@ -174,8 +178,8 @@ function persistSession() {
 function updateContinueSession() {
   if (typeof Focus === "undefined") return;
   Focus.renderContinue(
-    $("#continueSession"),
-    $("#continueSessionDetail"),
+    null,
+    $("#todayContinueLink"),
     state.patterns,
     state,
   );
@@ -329,7 +333,7 @@ async function loadTonightsProblem() {
       tonightResult: result,
       tonightIds: TONIGHT_IDS,
     });
-    if (!Insights.completedToday(dates) && document.body.dataset.page !== "problems") {
+    if (!Insights.completedToday(dates) && !Focus.isSolvePage()) {
       Focus.renderTonightsProblem(result, TONIGHT_IDS);
     }
     if (typeof Analytics !== "undefined") {
@@ -479,10 +483,10 @@ function updateAllPatternCount() {
   }
   if (Auth.isLoggedIn()) {
     const done = getTotalDone();
-    const total = Unlocks.TOTAL_PROBLEMS;
+    const total = getCatalogTotal();
     el.textContent = formatSidebarCount(done, total);
   } else {
-    el.textContent = `${Unlocks.TOTAL_PROBLEMS} problems`;
+    el.textContent = `${getCatalogTotal()} problems`;
   }
 }
 
@@ -545,7 +549,7 @@ async function loadProgress() {
 }
 
 function updateUnlockState() {
-  state.unlockState = Unlocks.getClientState(state.patternDone, state.patterns);
+  state.unlockState = Unlocks.getClientState(state.patternDone, state.patterns, state.patternTotals);
   refreshPatternLocks();
 }
 
@@ -702,7 +706,7 @@ function renderProblems() {
   const offset = (state.page - 1) * state.limit;
 
   if (!state.unlockState) {
-    state.unlockState = Unlocks.getClientState(state.patternDone, state.patterns);
+    state.unlockState = Unlocks.getClientState(state.patternDone, state.patterns, state.patternTotals);
   }
 
   const starred = getStarredSet();

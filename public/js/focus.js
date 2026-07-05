@@ -1,6 +1,11 @@
 const Focus = (() => {
   const SESSION_KEY = "afterhours_home_session";
 
+  function isSolvePage() {
+    const page = document.body.dataset.page || "";
+    return page === "solve" || page === "problems";
+  }
+
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, "&amp;")
@@ -53,16 +58,31 @@ const Focus = (() => {
   }
 
   function renderContinue(panel, detailEl, patterns, state) {
-    if (!panel || !detailEl) return false;
-
     const summary = state ? sessionSummaryFromState(state, patterns) : sessionSummary(patterns);
+    const linkEl = detailEl || document.getElementById("todayContinueLink");
+    const wrapEl = document.getElementById("todayContinueWrap");
+
+    if (panel) {
+      if (!summary) {
+        panel.hidden = true;
+        return false;
+      }
+      if (detailEl) detailEl.textContent = summary.label;
+      panel.hidden = false;
+      return true;
+    }
+
+    if (!linkEl) return false;
     if (!summary) {
-      panel.hidden = true;
+      if (wrapEl) wrapEl.hidden = true;
+      linkEl.hidden = true;
       return false;
     }
 
-    detailEl.textContent = summary.label;
-    panel.hidden = false;
+    linkEl.textContent = `Continue: ${summary.label} →`;
+    linkEl.href = "/";
+    linkEl.hidden = false;
+    if (wrapEl) wrapEl.hidden = false;
     return true;
   }
 
@@ -91,7 +111,7 @@ const Focus = (() => {
   }) {
     if (!patterns.length) return null;
 
-    const unlock = unlockState || Unlocks.getClientState(patternDone, patterns);
+    const unlock = unlockState || Unlocks.getClientState(patternDone, patterns, patternTotals);
     const api = apiFn || ((path) => Auth.api(path));
 
     if (Auth.isLoggedIn()) {
@@ -188,6 +208,9 @@ const Focus = (() => {
     const todayDone = Insights.completedToday(completedDates);
     const statusEl = document.getElementById("todayStatus");
     const bodyEl = document.getElementById("todayBody");
+    const tonightPanel = tonightIds?.panel ? document.getElementById(tonightIds.panel) : null;
+
+    if (tonightPanel) tonightPanel.hidden = true;
 
     if (todayDone) {
       if (statusEl) {
@@ -199,33 +222,21 @@ const Focus = (() => {
           <p class="today-done-msg">${streak}-day streak · you showed up today. Same time tomorrow.</p>`;
       }
       card.hidden = false;
-      const tonightPanel = tonightIds?.panel ? document.getElementById(tonightIds.panel) : null;
-      if (tonightPanel) tonightPanel.hidden = true;
       return;
     }
 
     if (statusEl) {
-      statusEl.textContent = "Tonight's one problem";
+      statusEl.textContent = "Tonight's pick";
       statusEl.className = "today-status";
     }
-    if (bodyEl) {
-      bodyEl.innerHTML = `<p class="today-hint">One quality rep after work — mark done when you finish.</p>`;
+
+    if (tonightResult?.problem && bodyEl) {
+      renderTonightInline(tonightResult, tonightIds, bodyEl);
+    } else if (bodyEl) {
+      bodyEl.innerHTML = `<p class="today-hint">One quality rep after work — we'll suggest a problem once patterns load.</p>`;
     }
+
     card.hidden = false;
-
-    const tonightPanel = tonightIds?.panel ? document.getElementById(tonightIds.panel) : null;
-    const onHome = document.body.dataset.page === "problems";
-
-    if (tonightResult && tonightIds) {
-      if (onHome) {
-        renderTonightInline(tonightResult, tonightIds, bodyEl);
-        if (tonightPanel) tonightPanel.hidden = true;
-      } else {
-        renderTonightsProblem(tonightResult, tonightIds);
-      }
-    } else if (onHome && tonightPanel) {
-      tonightPanel.hidden = true;
-    }
   }
 
   function renderTonightInline(result, ids, bodyEl) {
@@ -291,6 +302,7 @@ const Focus = (() => {
 
   return {
     SESSION_KEY,
+    isSolvePage,
     readSession,
     buildSummary,
     sessionSummary,

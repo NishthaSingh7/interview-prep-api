@@ -218,7 +218,10 @@ const StudyPage = (() => {
     if (!root) return;
 
     const allDone = Auth.isLoggedIn() ? state.progressMap.size : 0;
-    const allTotal = 300;
+    const allTotal = state.patterns.reduce(
+      (n, p) => n + (state.patternTotals[p._id] ?? p.problemCount ?? 0),
+      0,
+    ) || 365;
 
     const structureItems = state.structures
       .map((s) => {

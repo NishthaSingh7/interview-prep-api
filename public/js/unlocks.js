@@ -1,22 +1,46 @@
 const Unlocks = {
-  TOTAL_PROBLEMS: 300,
-  PROBLEMS_PER_PATTERN: 15,
+  TOTAL_PROBLEMS: 365,
+  PROBLEMS_PER_PATTERN: 18,
   FIRST_TIER_PATTERN_COUNT: 10,
-  FIRST_TIER_TOTAL: 150,
+  FIRST_TIER_TOTAL: 183,
   HARD_UNLOCK_RATIO: 0.15,
   ADVANCED_PATTERNS_UNLOCK_RATIO: 0.7,
-  HARD_UNLOCK_REQUIRED: Math.ceil(300 * 0.15),
-  ADVANCED_PATTERNS_REQUIRED: Math.ceil(150 * 0.7),
+  HARD_UNLOCK_REQUIRED: Math.ceil(365 * 0.15),
+  ADVANCED_PATTERNS_REQUIRED: Math.ceil(183 * 0.7),
 
-  compute(firstTierDone, totalDone) {
+  catalogTotal(patterns = [], patternTotals = {}) {
+    if (!patterns.length) return this.TOTAL_PROBLEMS;
+    const sum = patterns.reduce(
+      (n, p) => n + (patternTotals[p._id] ?? p.problemCount ?? 0),
+      0,
+    );
+    return sum > 0 ? sum : this.TOTAL_PROBLEMS;
+  },
+
+  firstTierTotal(patterns = [], patternTotals = {}) {
+    const tier = patterns.filter((p) => (p.order ?? 99) <= this.FIRST_TIER_PATTERN_COUNT);
+    if (!tier.length) return this.FIRST_TIER_TOTAL;
+    const sum = tier.reduce(
+      (n, p) => n + (patternTotals[p._id] ?? p.problemCount ?? 0),
+      0,
+    );
+    return sum > 0 ? sum : this.FIRST_TIER_TOTAL;
+  },
+
+  compute(firstTierDone, totalDone, patterns = [], patternTotals = {}) {
+    const totalProblems = this.catalogTotal(patterns, patternTotals);
+    const firstTierTotal = this.firstTierTotal(patterns, patternTotals);
+    const hardUnlockRequired = Math.ceil(totalProblems * this.HARD_UNLOCK_RATIO);
+    const advancedPatternsRequired = Math.ceil(firstTierTotal * this.ADVANCED_PATTERNS_UNLOCK_RATIO);
+
     return {
-      totalProblems: this.TOTAL_PROBLEMS,
+      totalProblems,
       problemsPerPattern: this.PROBLEMS_PER_PATTERN,
-      firstTierTotal: this.FIRST_TIER_TOTAL,
-      advancedPatternsUnlocked: firstTierDone >= this.ADVANCED_PATTERNS_REQUIRED,
-      hardUnlocked: totalDone >= this.HARD_UNLOCK_REQUIRED,
-      advancedPatternsRequired: this.ADVANCED_PATTERNS_REQUIRED,
-      hardUnlockRequired: this.HARD_UNLOCK_REQUIRED,
+      firstTierTotal,
+      advancedPatternsUnlocked: firstTierDone >= advancedPatternsRequired,
+      hardUnlocked: totalDone >= hardUnlockRequired,
+      advancedPatternsRequired,
+      hardUnlockRequired,
       firstTierDone,
       totalDone,
     };
@@ -57,7 +81,7 @@ const Unlocks = {
     return "";
   },
 
-  getClientState(patternDone, patterns) {
+  getClientState(patternDone, patterns, patternTotals = {}) {
     const firstTierIds = new Set(patterns.slice(0, this.FIRST_TIER_PATTERN_COUNT).map((p) => p._id));
     let firstTierDone = 0;
     let totalDone = 0;
@@ -65,6 +89,9 @@ const Unlocks = {
       totalDone += count;
       if (firstTierIds.has(pid)) firstTierDone += count;
     }
-    return this.compute(firstTierDone, totalDone);
+    const totals = Object.keys(patternTotals).length
+      ? patternTotals
+      : Object.fromEntries(patterns.map((p) => [p._id, p.problemCount ?? 0]));
+    return this.compute(firstTierDone, totalDone, patterns, totals);
   },
 };

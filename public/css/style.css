@@ -960,6 +960,61 @@ body[data-page="progress"] .header-earned-badges {
   grid-column: 1 / -1;
 }
 
+.night-pick-card {
+  padding: 0.7rem 0.85rem;
+}
+
+.night-pick-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.night-pick-card .today-status {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.night-pick-card .today-body {
+  margin: 0;
+}
+
+.night-pick-card .today-hint,
+.night-pick-card .today-done-msg {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.today-continue-wrap {
+  margin-top: 0.45rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border);
+}
+
+.today-continue-link {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.today-continue-link:hover {
+  color: var(--accent);
+}
+
+@media (min-width: 900px) {
+  .home-pulse-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .home-pulse-grid .continue-session {
   grid-column: span 1;
 }

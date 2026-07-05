@@ -1,5 +1,5 @@
 const Insights = {
-  TOTAL_PROBLEMS: 300,
+  TOTAL_PROBLEMS: 365,
 
   dayKey(dateInput) {
     const d = new Date(dateInput);
