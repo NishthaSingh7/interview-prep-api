@@ -14,6 +14,13 @@ try {
   /* optional until built */
 }
 
+let SLUG_BRIEFS = {};
+try {
+  SLUG_BRIEFS = require("../data/problemBriefBySlug").PROBLEM_BRIEF_BY_SLUG;
+} catch {
+  /* optional until generated */
+}
+
 const EXAMPLE_POOLS = {
   array: {
     given: "An integer array `nums` and any extra parameters described in the title.",
@@ -231,6 +238,46 @@ const TITLE_BRIEFS = {
       { input: "nums = [-1,0,3,5,9,12], target = 2", output: "-1", explanation: "2 not present." },
     ],
   },
+  "middle of the linked list": {
+    scenario: "Find the middle node of a singly linked list. For even length, return the second middle node.",
+    given: "Head of a singly linked list.",
+    output: "The middle node.",
+    constraints: "Use fast/slow pointers.",
+    examples: [
+      { input: "head = 1→2→3→4→5", output: "3", explanation: "Odd length middle." },
+      { input: "head = 1→2→3→4→5→6", output: "4", explanation: "Even length: second middle." },
+    ],
+  },
+  "middle element of linked list": {
+    scenario: "Find the middle node of a singly linked list. For even length, return the second middle node.",
+    given: "Head of a singly linked list.",
+    output: "The middle node (or its value).",
+    constraints: "Use fast/slow pointers.",
+    examples: [
+      { input: "head = 1→2→3→4→5", output: "3", explanation: "Odd length middle." },
+      { input: "head = 1→2→3→4→5→6", output: "4", explanation: "Even length: second middle." },
+    ],
+  },
+  "meeting rooms": {
+    scenario: "Can one person attend all meetings without time conflicts?",
+    given: "Array `intervals` where each interval is [start, end].",
+    output: "true if all meetings can be attended, else false.",
+    constraints: "Meetings overlap if one starts before another ends.",
+    examples: [
+      { input: "intervals = [[0,30],[5,10],[15,20]]", output: "false", explanation: "Overlaps with [0,30]." },
+      { input: "intervals = [[7,10],[2,4]]", output: "true", explanation: "No overlap." },
+    ],
+  },
+  "meeting rooms ii": {
+    scenario: "Find the minimum number of conference rooms needed so every meeting can be held.",
+    given: "Array `intervals` of meeting [start, end] times.",
+    output: "Minimum room count.",
+    constraints: "A room can host back-to-back non-overlapping meetings.",
+    examples: [
+      { input: "intervals = [[0,30],[5,10],[15,20]]", output: "2", explanation: "Two rooms at peak." },
+      { input: "intervals = [[7,10],[2,4]]", output: "1", explanation: "No overlap." },
+    ],
+  },
 };
 
 const FAMILY_BRIEFS = [
@@ -313,6 +360,59 @@ const FAMILY_BRIEFS = [
     }),
   },
   {
+    test: /middle (of the |element of )?linked list/i,
+    brief: () => ({
+      scenario: "Find the middle node of a singly linked list. For even length, return the second middle node.",
+      given: "Head of a singly linked list.",
+      output: "The middle node.",
+      constraints: "Use fast/slow pointers; O(n) time, O(1) space.",
+      examples: [
+        { input: "head = 1→2→3→4→5", output: "3", explanation: "Odd length middle." },
+        { input: "head = 1→2→3→4→5→6", output: "4", explanation: "Even length: second middle." },
+      ],
+    }),
+  },
+  {
+    test: /meeting rooms(?! iii)/i,
+    brief: (title) => {
+      const isII = /ii\b|2\b/i.test(title);
+      return isII
+        ? {
+            scenario: "Find the minimum number of conference rooms needed so every meeting can be held.",
+            given: "Array `intervals` of meeting [start, end] times.",
+            output: "Minimum room count.",
+            constraints: "A room can host back-to-back non-overlapping meetings.",
+            examples: [
+              { input: "intervals = [[0,30],[5,10],[15,20]]", output: "2", explanation: "Two rooms at peak." },
+              { input: "intervals = [[7,10],[2,4]]", output: "1", explanation: "No overlap." },
+            ],
+          }
+        : {
+            scenario: "Can one person attend all meetings without time conflicts?",
+            given: "Array `intervals` where each interval is [start, end].",
+            output: "true if all meetings can be attended, else false.",
+            constraints: "Meetings overlap if one starts before another ends.",
+            examples: [
+              { input: "intervals = [[0,30],[5,10],[15,20]]", output: "false", explanation: "Overlaps." },
+              { input: "intervals = [[7,10],[2,4]]", output: "true", explanation: "No overlap." },
+            ],
+          };
+    },
+  },
+  {
+    test: /linked list cycle ii|start of loop/i,
+    brief: () => ({
+      scenario: "Find the node where a cycle begins in a linked list.",
+      given: "Head of a linked list that may contain a cycle.",
+      output: "The node where the cycle starts, or null if no cycle.",
+      constraints: "Floyd's algorithm — find entrance to cycle.",
+      examples: [
+        { input: "3→2→0→-4, tail points to node 2", output: "node 2", explanation: "Cycle starts at 2." },
+        { input: "head = 1→2→null", output: "null", explanation: "No cycle." },
+      ],
+    }),
+  },
+  {
     test: /trapping rain|rain water/i,
     brief: () => ({
       scenario: "How much water gets trapped between bars of different heights?",
@@ -327,11 +427,30 @@ const FAMILY_BRIEFS = [
   },
 ];
 
-function pickPool(tags = []) {
+function inferTopic(title = "", tags = []) {
+  const t = title.toLowerCase();
+  if (/linked list|list node|linked-list/i.test(t) || tags.includes("linked-list")) return "linked-list";
+  if (/interval|meeting room|platform/i.test(t) || tags.includes("intervals")) return "intervals";
+  if (/binary tree|tree node|bst|root of/i.test(t) || tags.includes("tree")) return "tree";
+  if (/graph|course schedule|topological|alien dictionary/i.test(t) || tags.includes("graph")) return "graph";
+  if (/grid|matrix|island|maze|2d/i.test(t) || tags.includes("matrix")) return "matrix";
+  if (/string|substring|anagram|parentheses|word /i.test(t) || tags.includes("string")) return "string";
+  if (/heap|priority queue|median.*stream|kth largest|top k/i.test(t) || tags.includes("heap")) return "heap";
   for (const key of ["array", "string", "linked-list", "matrix", "tree", "graph", "heap", "math"]) {
-    if (tags.includes(key)) return EXAMPLE_POOLS[key];
+    if (tags.includes(key)) return key;
   }
-  return EXAMPLE_POOLS.array;
+  return "array";
+}
+
+function pickPool(tags = [], title = "") {
+  const topic = inferTopic(title, tags);
+  if (topic === "intervals") {
+    return {
+      given: "Array of intervals where each interval is [start, end].",
+      constraints: "Intervals may need sorting or merging depending on the task.",
+    };
+  }
+  return EXAMPLE_POOLS[topic] || EXAMPLE_POOLS.array;
 }
 
 function verbFromTitle(title) {
@@ -582,18 +701,24 @@ function questionDescription(given, output) {
 }
 
 function finalizeBrief(brief) {
+  const scenario =
+    brief.scenario?.trim() || questionDescription(brief.given, brief.output);
   return {
     ...brief,
-    scenario: questionDescription(brief.given, brief.output),
+    scenario,
   };
 }
 
 function buildProblemBrief({ slug, title, tags = [], difficulty = "Medium", leetcodeLink, practiceLink } = {}) {
   const key = normalizeTitleKey(title);
 
+  if (slug && SLUG_BRIEFS[slug]) {
+    return finalizeBrief({ ...SLUG_BRIEFS[slug] });
+  }
+
   if (slug && STATIC_BRIEFS?.[slug]) {
     const cached = STATIC_BRIEFS[slug];
-    return finalizeBrief({ ...cached });
+    if (!briefNeedsRefresh(cached)) return finalizeBrief({ ...cached });
   }
 
   if (slug && GFG_BRIEFS[slug]) {
@@ -606,7 +731,7 @@ function buildProblemBrief({ slug, title, tags = [], difficulty = "Medium", leet
     if (family.test.test(title)) return finalizeBrief(family.brief(title, difficulty));
   }
 
-  const pool = pickPool(tags);
+  const pool = pickPool(tags, title);
   const verb = verbFromTitle(title);
 
   return finalizeBrief({
@@ -614,6 +739,7 @@ function buildProblemBrief({ slug, title, tags = [], difficulty = "Medium", leet
     output: outputLine(title, verb),
     constraints: pool.constraints,
     examples: concreteExamples(title, tags, verb, difficulty),
+    scenario: `Solve "${title}" — ${outputLine(title, verb).replace(/^Return /i, "return ")}`,
   });
 }
 
@@ -623,9 +749,12 @@ function withBrief(problem) {
 
   if (briefNeedsRefresh(doc.brief)) {
     doc.brief = buildProblemBrief({
+      slug: doc.slug,
       title: doc.title,
       tags: doc.tags || [],
       difficulty: doc.difficulty,
+      leetcodeLink: doc.leetcodeLink,
+      practiceLink: doc.practiceLink,
     });
   }
 

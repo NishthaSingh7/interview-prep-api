@@ -13,6 +13,98 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "palindrome-linked-list-slow-fast-shadi-pakka",
+      title: "🎬 Khulasa: Slow-Fast Ka Dhoka, Ulta Pulta Dhakka, Aur Shadi Pakka!",
+      excerpt:
+        "Palindrome Linked List aaj solve kiya — title hi cheat code hai. Slow-Fast se middle, second half ulta, phir dono taraf se match. Bollywood wali kahani, teen steps, bas.",
+      date: "2026-07-06",
+      readMin: 5,
+      tags: ["Linked List", "Fast & Slow Pointers", "Palindrome"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "🎙️ Reporting live from AfterHours. Aaj raat Palindrome Linked List solve kiya — woh question jahan list aage se aur peeche se same padhni chahiye. Pehle lagta hai reverse karo, stack banao, drama. Spoiler: teen step mein khatam. Aur title khud cheat code hai — zor se bolo: Slow-Fast Ka Dhoka, Ulta Pulta Dhakka, Aur Shadi Pakka!",
+        },
+        {
+          type: "callout",
+          text: "Title = cheat code. Slow-Fast = middle dhoondo. Ulta Pulta = second half reverse. Shadi Pakka = dono taraf se values match karo. Bas.",
+        },
+        {
+          type: "h2",
+          text: "Gaon ki kahani — cast 🎬",
+        },
+        {
+          type: "p",
+          text: "Ek gaon mein ek Linked List rehti thi, jiske do sabse ajeeb dost the — Slow aur Fast. Slow bechara bohot aalsi tha, ek baar mein ek hi step chalta (slow = slow.next). Fast thoda over-enthusiastic tha, Red Bull peekar ek baar mein do step koodta tha (fast = fast.next.next).",
+        },
+        {
+          type: "p",
+          text: "Ek din gaon ke Sarpanch (Head) ne kaha, \"Tum dono bhaago! Jab Fast boundary line pe pahunchega, tab hum rukenge.\" Dono bhaage. Fast jaise hi aakhri node pe pahuncha, usne peeche mudkar dekha. Slow bechara aadhi duri par hi haanp raha tha. Fast chillaya, \"Abbe Oye! Tu toh bilkul MIDDLE mein khada hai!\"",
+        },
+        {
+          type: "h2",
+          text: "Step 1: Slow-Fast Ka Dhoka 🐢🐇",
+        },
+        {
+          type: "ul",
+          items: [
+            "Slow ek step, Fast do step — classic fast & slow pointers.",
+            "Jab fast null ho ya fast.next null ho, ruk jao.",
+            "Slow ab middle node pe khada hai. Step 1 khatam.",
+          ],
+        },
+        {
+          type: "h2",
+          text: "Step 2: Ulta Pulta Dhakka 🔄",
+        },
+        {
+          type: "p",
+          text: "Ab twist aaya! Sarpanch ne bola, \"Humein check karna hai ki yeh list Palindrome hai ya nahi. Iske liye list ke second half ko Ulta Pulta karna padega!\" Slow ke thik aage ek gunda khada tha jiska naam tha Curr (curr = slow.next). Curr ke piche uski poori paltan thi.",
+        },
+        {
+          type: "p",
+          text: "Curr ko sudharne ke liye ek jadugar aaya jiska naam tha Prev. Prev ne magic chala diya! Pehle prev ko None kiya taaki koi cycle na bane. Phir har node ko pakad ke piche ghuma diya (curr.next = prev). Curr chillaya, \"Arre, main toh aage ja raha tha, mujhe piche kyun ghuma diya?!\" Lekin jadugar ne har node ko peeche mod diya — aur yaad rakhna: curr = temp mat bhoolna, warna atak jaoge!",
+        },
+        {
+          type: "ul",
+          items: [
+            "prev = None se shuru karo.",
+            "Loop: temp save karo, curr.next = prev, prev aur curr aage badhao.",
+            "Aakhir mein prev naya head hai reversed second half ka.",
+          ],
+        },
+        {
+          type: "h2",
+          text: "Step 3: Shadi Pakka 💒",
+        },
+        {
+          type: "p",
+          text: "Ab aayi shaadi ki baat! Sarpanch ne do dulhon ko bulaya. Pehla dulha Curr1 shuruat se chala (curr1 = head). Doosra dulha Curr2 reversed side se chala (curr2 = prev). Sarpanch ne bola, \"Tum dono ek-ek step aage badho. Agar tum dono ke sanskar (values) match nahi huye, toh shaadi cancel — return False!\"",
+        },
+        {
+          type: "p",
+          text: "Dono aage badhte gaye, values match hoti gayin. Last mein dono bina kisi jhagde ke end tak pahunch gaye. Sarpanch khush hoke bola, \"Shaadi Pakka! Yeh list ek Palindrome hai!\" — return True.",
+        },
+        {
+          type: "h2",
+          text: "Teen line mein yaad rakh 📰",
+        },
+        {
+          type: "ol",
+          items: [
+            "Slow-Fast Ka Dhoka — slow & fast se middle node tak pahuncho.",
+            "Ulta Pulta Dhakka — prev = None, slow.next se second half reverse karo (curr = temp mat bhoolna!).",
+            "Shadi Pakka — curr1 head se, curr2 prev se; ek-ek step compare karo. Sab match? Palindrome!",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Ab tumhari baari — AfterHours pe jao, Palindrome Linked List kholo, aur khud code likho. Title zor se bolo, teen step yaad aa jayenge. Story sun li, ab solve karo. 💪",
+        },
+      ],
+    },
+    {
       slug: "three-sum-two-sum-discipline-bhai",
       title: "🚨 Khulasa: Three Sum Sirf Two Sum Hai — Discipline Bhai Ke Saath",
       excerpt:
@@ -20,7 +112,7 @@ const NewsletterContent = (() => {
       date: "2026-07-05",
       readMin: 4,
       tags: ["Two Pointers", "Arrays", "Three Sum"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",

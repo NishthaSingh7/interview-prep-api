@@ -26,7 +26,7 @@ const extraRows = [
   ["fast-slow-pointers", "Find Length of Loop", "Medium", GFG("find-length-of-loop"), "GeeksforGeeks", ["fast-slow-pointers", "variant"]],
   ["fast-slow-pointers", "Start of Loop in Linked List", "Medium", "https://leetcode.com/problems/linked-list-cycle-ii/", "LeetCode", ["fast-slow-pointers"]],
   ["fast-slow-pointers", "Floyd Cycle Detection (Array)", "Medium", GFG("find-the-duplicate-number"), "GeeksforGeeks", ["fast-slow-pointers", "variant"]],
-  ["fast-slow-pointers", "Middle Element of Linked List", "Easy", GFG("middle-of-circular-doubly-linked-list"), "GeeksforGeeks", ["fast-slow-pointers"]],
+  ["fast-slow-pointers", "Middle Element of Linked List", "Easy", GFG("finding-middle-element-in-a-linked-list"), "GeeksforGeeks", ["fast-slow-pointers", "linked-list"]],
   // Merge Intervals
   ["merge-intervals", "Overlapping Intervals", "Medium", GFG("overlapping-intervals"), "GeeksforGeeks", ["intervals"]],
   ["merge-intervals", "Insert Interval in Sorted List", "Medium", "https://leetcode.com/problems/insert-interval/", "LeetCode", ["intervals", "variant"]],

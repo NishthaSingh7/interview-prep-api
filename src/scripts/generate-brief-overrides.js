@@ -1,0 +1,1024 @@
+/**
+ * Generate slug-keyed brief overrides for problems whose briefs don't match the title.
+ * Run: node src/scripts/generate-brief-overrides.js
+ */
+const fs = require("fs");
+const path = require("path");
+const { problems } = require("../data/seedData");
+
+function ex(input, output, explanation = "") {
+  return { input, output, explanation };
+}
+
+/** @type {Record<string, object>} */
+const SLUG_BRIEFS = {
+  "fast-slow-pointers-split-a-circular-linked-list": {
+    scenario: "Split a circular singly linked list into two halves. Each half should remain a valid list.",
+    given: "Head of a circular singly linked list with at least two nodes.",
+    output: "Two heads — first half and second half of the split.",
+    constraints: "The list is circular; split as evenly as possible.",
+    examples: [
+      ex("head = 1→2→3→4→5→1 (circular)", "first = 1→2→3, second = 4→5", "Odd length: first half gets the extra node."),
+      ex("head = 1→2→3→4→1 (circular)", "first = 1→2, second = 3→4", "Even length: equal halves."),
+    ],
+  },
+  "merge-intervals-meeting-rooms": {
+    scenario: "Can one person attend all meetings without time conflicts?",
+    given: "Array `intervals` where each interval is [start, end].",
+    output: "true if all meetings can be attended, else false.",
+    constraints: "Meetings overlap if one starts before another ends.",
+    examples: [
+      ex("intervals = [[0,30],[5,10],[15,20]]", "false", "Overlaps with [0,30]."),
+      ex("intervals = [[7,10],[2,4]]", "true", "No overlap."),
+    ],
+  },
+  "merge-intervals-meeting-rooms-ii": {
+    scenario: "Find the minimum number of conference rooms needed so every meeting can be held.",
+    given: "Array `intervals` of meeting [start, end] times.",
+    output: "Minimum room count.",
+    constraints: "A room can host back-to-back non-overlapping meetings.",
+    examples: [
+      ex("intervals = [[0,30],[5,10],[15,20]]", "2", "Two rooms needed at peak."),
+      ex("intervals = [[7,10],[2,4]]", "1", "Meetings do not overlap."),
+    ],
+  },
+  "merge-intervals-employee-free-time": {
+    scenario: "Find common free time slots when every employee is available.",
+    given: "List of per-employee sorted interval lists (each employee's busy times).",
+    output: "Sorted list of common free intervals.",
+    constraints: "Intervals are sorted and non-overlapping within each employee.",
+    examples: [
+      ex("schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]", "[[3,4]]", "Only 3–4 is free for all."),
+      ex("schedule = [[[1,3]],[[6,9]]]", "[]", "No common gap."),
+    ],
+  },
+  "merge-intervals-add-interval": {
+    scenario: "Insert a new interval into a sorted non-overlapping interval list and merge overlaps.",
+    given: "Sorted intervals and a new interval `newInterval`.",
+    output: "Updated merged interval list.",
+    constraints: "Original intervals are sorted by start time.",
+    examples: [
+      ex("intervals = [[1,3],[6,9]], newInterval = [2,5]", "[[1,5],[6,9]]", "New interval merges with [1,3]."),
+      ex("intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]", "[[1,2],[3,10],[12,16]]", "Merges multiple intervals."),
+    ],
+  },
+  "cyclic-sort-find-the-corrupt-pair": {
+    scenario: "An array of size n contains numbers 1..n with exactly one duplicate and one missing number. Find both.",
+    given: "Array `nums` of length n with values from 1 to n (one duplicate, one missing).",
+    output: "The duplicate and missing values.",
+    constraints: "Exactly one number appears twice and one number from 1..n is absent.",
+    examples: [
+      ex("nums = [4,3,4,2,1]", "[4, 3]", "4 is duplicated, 3 is missing."),
+      ex("nums = [1,1]", "[1, 2]", "1 duplicated, 2 missing."),
+    ],
+  },
+  "cyclic-sort-smallest-missing-positive-integer": {
+    scenario: "Find the smallest positive integer (≥ 1) that does not appear in the array.",
+    given: "Unsorted integer array `nums`.",
+    output: "Smallest missing positive integer.",
+    constraints: "Answer is in range 1..n+1.",
+    examples: [
+      ex("nums = [3,4,-1,1]", "2", "1 is present; 2 is missing."),
+      ex("nums = [1,2,0]", "3", "1 and 2 present; 3 missing."),
+    ],
+  },
+  "island-matrix-traversal-walls-and-gates": {
+    scenario: "Fill each empty room with its distance to the nearest gate. Walls block movement.",
+    given: "Grid with INF (empty), 0 (gate), or -1 (wall).",
+    output: "Same grid with distances filled in for empty cells.",
+    constraints: "Move in 4 directions; cannot pass through walls.",
+    examples: [
+      ex('rooms = [[INF,-1,0,INF],[INF,INF,INF,-1],[INF,-1,INF,-1],[0,-1,INF,INF]]', "distances to nearest gate", "Multi-source BFS from all gates."),
+      ex("rooms = [[0]]", "[[0]]", "Single gate cell."),
+    ],
+  },
+  "in-place-reversal-linked-list-reverse-linked-list-recursive": {
+    scenario: "Reverse a singly linked list using recursion (not iteration).",
+    given: "Head of a singly linked list.",
+    output: "Head of the reversed list.",
+    constraints: "Solve recursively; O(n) stack depth.",
+    examples: [
+      ex("head = 1→2→3→4→5", "5→4→3→2→1", "Full reversal."),
+      ex("head = 1→2", "2→1", "Two nodes."),
+    ],
+  },
+  "in-place-reversal-linked-list-reverse-alternate-k-nodes": {
+    scenario: "Reverse every alternate group of k nodes in a linked list.",
+    given: "Head of linked list and integer `k`.",
+    output: "Head of modified list.",
+    constraints: "Reverse groups at positions k, 3k, 5k, … (alternate blocks).",
+    examples: [
+      ex("head = 1→2→3→4→5→6, k = 2", "2→1→3→4→6→5", "Alternate k-blocks reversed."),
+      ex("head = 1→2→3, k = 1", "1→2→3", "k=1 may leave list unchanged."),
+    ],
+  },
+  "breadth-first-search-minimum-knight-moves": {
+    scenario: "Find the minimum number of knight moves to reach a target square on an infinite chessboard.",
+    given: "Target coordinates `(x, y)` on the chessboard.",
+    output: "Minimum moves from (0, 0) to target.",
+    constraints: "Knight moves in L-shape; board is unbounded.",
+    examples: [
+      ex("x = 2, y = 1", "1", "One knight move."),
+      ex("x = 5, y = 5", "4", "Four moves needed."),
+    ],
+  },
+  "depth-first-search-number-of-connected-components-in-an-undirected-graph": {
+    scenario: "Count how many connected components exist in an undirected graph.",
+    given: "Number of nodes `n` and edge list `edges`.",
+    output: "Count of connected components.",
+    constraints: "Graph is undirected; nodes labeled 0..n-1.",
+    examples: [
+      ex("n = 5, edges = [[0,1],[1,2],[3,4]]", "2", "Two components: {0,1,2} and {3,4}."),
+      ex("n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]", "1", "All connected."),
+    ],
+  },
+  "depth-first-search-graph-valid-tree": {
+    scenario: "Determine whether an undirected graph with n nodes is a valid tree.",
+    given: "Number of nodes `n` and edge list `edges`.",
+    output: "true if the graph is a tree, else false.",
+    constraints: "A tree has exactly n-1 edges and no cycles.",
+    examples: [
+      ex("n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]", "true", "Connected acyclic graph."),
+      ex("n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]", "false", "Contains a cycle."),
+    ],
+  },
+  "two-heaps-maximize-capital": {
+    scenario: "Pick at most k projects to maximize total profit, starting with capital w. Each project needs minimum capital and returns profit.",
+    given: "Initial capital `w`, max projects `k`, arrays `profits` and `capital`.",
+    output: "Maximum capital after completing up to k projects.",
+    constraints: "Each project can be done once; profit adds to capital.",
+    examples: [
+      ex("k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]", "4", "Do projects 0 and 1."),
+      ex("k = 3, w = 0, profits = [1,2,3], capital = [0,1,2]", "6", "Do all three in order."),
+    ],
+  },
+  "two-heaps-schedule-tasks-on-minimum-machines": {
+    scenario: "Find the minimum number of machines (or platforms) needed to complete all tasks without overlap.",
+    given: "Task start and end times.",
+    output: "Minimum machines required.",
+    constraints: "A machine handles one task at a time.",
+    examples: [
+      ex("tasks = [[1,4],[2,5],[7,9]]", "2", "First two tasks overlap."),
+      ex("tasks = [[1,2],[3,4]]", "1", "No overlap."),
+    ],
+  },
+  "k-way-merge-kth-smallest-number-in-m-sorted-lists": {
+    scenario: "Find the k-th smallest element across M sorted linked lists.",
+    given: "Array of M sorted linked list heads and integer `k`.",
+    output: "The k-th smallest value overall.",
+    constraints: "Each list is sorted ascending.",
+    examples: [
+      ex("lists = [1→4→5, 1→3→4, 2→6], k = 5", "4", "5th smallest is 4."),
+      ex("lists = [1→2], k = 1", "1", "Only element."),
+    ],
+  },
+  "k-way-merge-merge-sorted-lists-from-n-streams": {
+    scenario: "Merge N sorted streams (arrays or lists) into one sorted output.",
+    given: "N sorted arrays or linked lists.",
+    output: "One merged sorted sequence.",
+    constraints: "Each input stream is individually sorted.",
+    examples: [
+      ex("streams = [[1,4,7],[2,5,8],[3,6,9]]", "[1,2,3,4,5,6,7,8,9]", "Standard k-way merge."),
+      ex("streams = [[1],[2]]", "[1,2]", "Two single elements."),
+    ],
+  },
+  "k-way-merge-find-smallest-range-with-k-lists": {
+    scenario: "Pick one number from each of K sorted lists to form a range [min, max]. Minimize that range.",
+    given: "K sorted arrays/lists.",
+    output: "The smallest possible range [min, max].",
+    constraints: "Range covers one pick from each list.",
+    examples: [
+      ex("lists = [[4,10,15,24],[0,9,12,20],[5,18,22,30]]", "[20,24]", "Smallest covering range."),
+      ex("lists = [[1],[2]]", "[1,2]", "One from each list."),
+    ],
+  },
+  "topological-sort-alien-dictionary": {
+    scenario: "Derive the character ordering of an alien language from a sorted list of words.",
+    given: "Array of words sorted lexicographically in the alien alphabet.",
+    output: "A valid character order string, or empty if impossible.",
+    constraints: "Ordering must be consistent with all word pairs.",
+    examples: [
+      ex('words = ["wrt","wrf","er","ett","rftt"]', '"wertf"', "Valid alien order."),
+      ex('words = ["z","x"]', '"zx"', "z before x."),
+    ],
+  },
+  "topological-sort-sequence-reconstruction": {
+    scenario: "Check whether `org` is the unique topological order of a DAG defined by `seqs`.",
+    given: "Target sequence `org` and list of consecutive pairs `seqs`.",
+    output: "true only if org is the one valid topological order.",
+    constraints: "Graph implied by consecutive pairs in each sequence.",
+    examples: [
+      ex("org = [1,2,3], seqs = [[1,2],[1,3]]", "false", "Multiple valid orders."),
+      ex("org = [1,2,3], seqs = [[1,2],[1,3],[2,3]]", "true", "Unique order."),
+    ],
+  },
+  "topological-sort-parallel-courses": {
+    scenario: "Find the minimum semesters to finish all courses when at most k courses can be taken per semester.",
+    given: "Number of courses `n`, prerequisites, and max per semester `k`.",
+    output: "Minimum semesters needed, or -1 if impossible.",
+    constraints: "Prerequisites must be satisfied before taking a course.",
+    examples: [
+      ex("n = 4, relations = [[2,1],[3,1],[1,4]], k = 2", "3", "Spread across semesters."),
+      ex("n = 5, relations = [[2,1],[3,1],[4,1],[1,5]], k = 2", "4", "Chain with parallel cap."),
+    ],
+  },
+  "longest-common-substring-longest-common-substring": {
+    scenario: "Find the length of the longest contiguous substring common to two strings.",
+    given: "Strings `s1` and `s2`.",
+    output: "Length of longest common substring.",
+    constraints: "Substring must be contiguous.",
+    examples: [
+      ex('s1 = "abcdxyz", s2 = "xyzabcd"', "4", 'Common substring "abcd".'),
+      ex('s1 = "abc", s2 = "def"', "0", "No common substring."),
+    ],
+  },
+  "longest-common-substring-minimum-deletions-to-make-strings-equal": {
+    scenario: "Find the minimum number of deletions needed to make two strings identical.",
+    given: "Strings `s` and `t`.",
+    output: "Minimum total deletions from both strings.",
+    constraints: "Only deletions allowed (no insertions).",
+    examples: [
+      ex('s = "sea", t = "eat"', "2", "Delete s and t."),
+      ex('s = "leetcode", t = "coats"', "9", "Delete most characters."),
+    ],
+  },
+  "two-pointers-ext-remove-duplicates-from-sorted-array-ii": {
+    scenario: "Remove duplicates from a sorted array so each value appears at most twice. Return new length.",
+    given: "Sorted integer array `nums`.",
+    output: "New length; first k elements hold the result.",
+    constraints: "In-place; sorted input.",
+    examples: [
+      ex("nums = [1,1,1,2,2,3]", "5", "Result: [1,1,2,2,3]."),
+      ex("nums = [0,0,1,1,1,1,2,3,3]", "7", "At most two of each value."),
+    ],
+  },
+  "two-pointers-ext-partition-array-according-to-pivot": {
+    scenario: "Rearrange array so elements less than pivot come first, then equal, then greater.",
+    given: "Array `nums` and integer `pivot`.",
+    output: "Rearranged array (relative order within groups preserved).",
+    constraints: "Three-way partition around pivot.",
+    examples: [
+      ex("nums = [9,12,5,10,14,3,10], pivot = 10", "[9,5,3,10,10,12,14]", "Less | equal | greater."),
+      ex("nums = [-3,4,3,2], pivot = 2", "[-3,2,4,3]", "Partitioned around 2."),
+    ],
+  },
+  "fast-slow-pointers-ext-detect-loop-in-linked-list": {
+    scenario: "Detect whether a singly linked list contains a cycle.",
+    given: "Head of a singly linked list.",
+    output: "true if a cycle exists, else false.",
+    constraints: "Use O(1) extra space if possible.",
+    examples: [
+      ex("head = 3→2→0→-4, tail points to node 2", "true", "Cycle detected."),
+      ex("head = 1→2→null", "false", "No cycle."),
+    ],
+  },
+  "fast-slow-pointers-ext-find-length-of-loop": {
+    scenario: "Find the length of the cycle in a linked list (if a loop exists).",
+    given: "Head of a linked list that may contain a cycle.",
+    output: "Length of the loop, or 0 if no loop.",
+    constraints: "Return 0 when list is acyclic.",
+    examples: [
+      ex("cycle of length 4", "4", "Four nodes in the loop."),
+      ex("head = 1→2→null", "0", "No loop."),
+    ],
+  },
+  "fast-slow-pointers-ext-floyd-cycle-detection-array": {
+    scenario: "Treat array indices as next pointers (nums[i] → i + nums[i]). Detect if this leads to a cycle.",
+    given: "Array `nums` where each value is a jump length.",
+    output: "true if entering a cycle, else false.",
+    constraints: "Implicit linked list via index jumps.",
+    examples: [
+      ex("nums = [1,3,4,2,2]", "true", "Cycle exists in index sequence."),
+      ex("nums = [1,2,3,4]", "false", "No cycle."),
+    ],
+  },
+  "fast-slow-pointers-ext-middle-element-of-linked-list": {
+    scenario: "Find the middle node of a singly linked list. If two middles exist (even length), return the second.",
+    given: "Head of a singly linked list.",
+    output: "The middle node (or its value).",
+    constraints: "Use fast/slow pointers; O(n) time, O(1) space.",
+    examples: [
+      ex("head = 1→2→3→4→5", "3", "Odd length: middle is 3."),
+      ex("head = 1→2→3→4→5→6", "4", "Even length: second middle is 4."),
+    ],
+  },
+  "merge-intervals-ext-overlapping-intervals": {
+    scenario: "Check whether any two intervals in the list overlap.",
+    given: "Array of intervals [start, end].",
+    output: "true if at least one pair overlaps.",
+    constraints: "Intervals may be unsorted.",
+    examples: [
+      ex("intervals = [[1,3],[2,4],[5,7]]", "true", "[1,3] and [2,4] overlap."),
+      ex("intervals = [[1,2],[3,4]]", "false", "No overlap."),
+    ],
+  },
+  "merge-intervals-ext-merge-overlapping-subintervals": {
+    scenario: "Merge all overlapping intervals into a non-overlapping set.",
+    given: "Array of intervals [start, end].",
+    output: "Merged non-overlapping intervals.",
+    constraints: "Sort by start time first.",
+    examples: [
+      ex("intervals = [[1,3],[2,6],[8,10],[15,18]]", "[[1,6],[8,10],[15,18]]", "Overlaps merged."),
+      ex("intervals = [[1,4],[4,5]]", "[[1,5]]", "Touching intervals merge."),
+    ],
+  },
+  "merge-intervals-ext-attend-meetings-max-overlap": {
+    scenario: "Find the maximum number of meetings happening at the same time.",
+    given: "Meeting start and end times.",
+    output: "Peak concurrent meeting count.",
+    constraints: "Same as minimum platforms problem.",
+    examples: [
+      ex("meetings = [[1,4],[2,5],[7,9]]", "2", "Two overlap at peak."),
+      ex("meetings = [[1,2],[3,4]]", "1", "No overlap."),
+    ],
+  },
+  "cyclic-sort-ext-find-missing-in-array-1-to-n": {
+    scenario: "An array of size n-1 contains distinct values from 1 to n. Find the missing number.",
+    given: "Array with values from 1..n with exactly one missing.",
+    output: "The missing integer.",
+    constraints: "All values are distinct.",
+    examples: [
+      ex("arr = [1,2,4,5], n = 5", "3", "3 is missing."),
+      ex("arr = [2,3,1,5], n = 5", "4", "4 is missing."),
+    ],
+  },
+  "cyclic-sort-ext-find-all-duplicates-1-to-n": {
+    scenario: "Find all numbers that appear twice in an array where values are from 1 to n.",
+    given: "Array `nums` of length n with values in [1, n].",
+    output: "List of all duplicated values.",
+    constraints: "Each duplicate appears exactly twice.",
+    examples: [
+      ex("nums = [4,3,2,7,8,2,3,1]", "[2, 3]", "2 and 3 appear twice."),
+      ex("nums = [1,1,2]", "[1]", "1 appears twice."),
+    ],
+  },
+  "cyclic-sort-ext-find-duplicate-in-array-index-marking": {
+    scenario: "Find the duplicate number in an array of n+1 integers where each value is between 1 and n.",
+    given: "Array `nums` with one repeated value.",
+    output: "The duplicate integer.",
+    constraints: "Only one duplicate; O(1) extra space preferred.",
+    examples: [
+      ex("nums = [1,3,4,2,2]", "2", "2 is duplicated."),
+      ex("nums = [3,1,3,4,2]", "3", "3 is duplicated."),
+    ],
+  },
+  "cyclic-sort-ext-sort-array-by-cyclic-swaps": {
+    scenario: "Sort an array containing values 1 to n by placing each value at index value-1 using swaps.",
+    given: "Array `nums` with distinct values from 1 to n.",
+    output: "Sorted array in place.",
+    constraints: "Each value belongs at index value - 1.",
+    examples: [
+      ex("nums = [2,3,1,5,4]", "[1,2,3,4,5]", "Cyclic sort to correct positions."),
+      ex("nums = [1]", "[1]", "Already sorted."),
+    ],
+  },
+  "island-matrix-traversal-ext-flood-fill": {
+    scenario: "Change the color of a connected region starting from a given pixel.",
+    given: "2D image grid, starting pixel (sr, sc), and new color.",
+    output: "Image after flood fill.",
+    constraints: "Fill all connected same-color pixels.",
+    examples: [
+      ex("image = [[1,1,1],[1,1,0],[1,0,1]], sr=1, sc=1, color=2", "filled region", "Connected 1s become 2."),
+      ex("image = [[0,0,0]], sr=0, sc=0, color=0", "[[0,0,0]]", "Already target color."),
+    ],
+  },
+  "island-matrix-traversal-ext-count-distinct-islands": {
+    scenario: "Count how many uniquely shaped islands exist in a grid (shape matters, not just size).",
+    given: "2D grid of 1s (land) and 0s (water).",
+    output: "Number of distinct island shapes.",
+    constraints: "Two islands are same shape if one can be translated to match the other.",
+    examples: [
+      ex('grid = [[1,1,0,0,0],[1,1,0,0,0],[0,0,0,1,1],[0,0,0,1,1]]', "1", "Two identical L-shapes count as one shape."),
+      ex('grid = [[1,1,0],[0,1,0],[0,0,0]]', "1", "Single island."),
+    ],
+  },
+  "island-matrix-traversal-ext-number-of-enclaves": {
+    scenario: "Count land cells that cannot reach the grid boundary.",
+    given: "2D grid of 0s and 1s.",
+    output: "Number of enclave land cells.",
+    constraints: "4-directional movement; boundary cells are not enclaves.",
+    examples: [
+      ex("grid = [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]", "3", "Three land cells trapped inside."),
+      ex("grid = [[0,1]]", "0", "Touches boundary."),
+    ],
+  },
+  "island-matrix-traversal-ext-replace-o-s-with-x-s": {
+    scenario: "Replace all 'O' cells surrounded by 'X' with 'X'. Border 'O's stay.",
+    given: "2D board of 'X' and 'O'.",
+    output: "Board after flipping surrounded regions.",
+    constraints: "Only capture regions not connected to border.",
+    examples: [
+      ex('board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]', "inner O becomes X", "Surrounded region captured."),
+      ex('board = [["X"]]', '[["X"]]', "Single cell."),
+    ],
+  },
+  "island-matrix-traversal-ext-rotten-oranges-multi-source-bfs": {
+    scenario: "Every minute, rotten oranges rot their 4-directional neighbors. How long until no fresh orange remains?",
+    given: "Grid with 0=empty, 1=fresh, 2=rotten.",
+    output: "Minutes until all fresh rot, or -1 if impossible.",
+    constraints: "Simultaneous spread each minute.",
+    examples: [
+      ex("grid = [[2,1,1],[1,1,0],[0,1,1]]", "4", "All fresh rot in 4 minutes."),
+      ex("grid = [[0,2]]", "0", "No fresh oranges."),
+    ],
+  },
+  "in-place-reversal-linked-list-ext-reverse-a-linked-list": {
+    scenario: "Reverse a singly linked list in place.",
+    given: "Head of a singly linked list.",
+    output: "Head of the reversed list.",
+    constraints: "O(n) time, O(1) extra space.",
+    examples: [
+      ex("head = 1→2→3→4→null", "4→3→2→1", "Iterative reversal."),
+      ex("head = null", "null", "Empty list."),
+    ],
+  },
+  "in-place-reversal-linked-list-ext-reverse-nodes-in-k-group-gfg": {
+    scenario: "Reverse the linked list in groups of k nodes. Remaining nodes fewer than k stay as-is.",
+    given: "Head of linked list and integer `k`.",
+    output: "Head of modified list.",
+    constraints: "Reverse each full group of k nodes.",
+    examples: [
+      ex("head = 1→2→3→4→5, k = 2", "2→1→4→3→5", "Pairs reversed."),
+      ex("head = 1→2→3→4→5, k = 3", "3→2→1→4→5", "First group of 3 reversed."),
+    ],
+  },
+  "in-place-reversal-linked-list-ext-add-1-to-linked-list-number": {
+    scenario: "A linked list represents a non-negative integer (most significant digit first). Add 1 and return the result list.",
+    given: "Head of linked list representing a number.",
+    output: "Head of list after adding 1.",
+    constraints: "Digits are 0-9; no leading zeros except for 0 itself.",
+    examples: [
+      ex("head = 1→2→3", "1→2→4", "123 + 1 = 124."),
+      ex("head = 9→9→9", "1→0→0→0", "999 + 1 = 1000."),
+    ],
+  },
+  "in-place-reversal-linked-list-ext-reverse-alternate-k-nodes": {
+    scenario: "Reverse every alternate block of k nodes in the linked list.",
+    given: "Head of linked list and integer `k`.",
+    output: "Head of modified list.",
+    constraints: "Reverse at positions 1..k, skip k, reverse next k, etc.",
+    examples: [
+      ex("head = 1→2→3→4→5→6, k = 2", "2→1→3→4→6→5", "Alternate blocks reversed."),
+      ex("head = 1→2→3, k = 1", "1→2→3", "k=1 edge case."),
+    ],
+  },
+  "breadth-first-search-ext-level-order-traversal": {
+    scenario: "Return the level-order (breadth-first) traversal of a binary tree.",
+    given: "Root of a binary tree.",
+    output: "List of levels, each level left-to-right.",
+    constraints: "Process level by level using a queue.",
+    examples: [
+      ex("root = [3,9,20,null,null,15,7]", "[[3],[9,20],[15,7]]", "Three levels."),
+      ex("root = [1]", "[[1]]", "Single node."),
+    ],
+  },
+  "breadth-first-search-ext-knight-minimum-moves": {
+    scenario: "Minimum knight moves on an infinite board to reach (x, y) from (0, 0).",
+    given: "Target coordinates `(x, y)`.",
+    output: "Minimum number of knight moves.",
+    constraints: "Knight L-shaped moves only.",
+    examples: [
+      ex("x = 2, y = 1", "1", "One move."),
+      ex("x = 5, y = 5", "4", "Four moves."),
+    ],
+  },
+  "depth-first-search-ext-path-sum-in-binary-tree": {
+    scenario: "Find all root-to-leaf paths where node values sum to a target.",
+    given: "Binary tree root and integer `target`.",
+    output: "All valid root-to-leaf paths.",
+    constraints: "Path must end at a leaf.",
+    examples: [
+      ex("root = [5,4,8,11,null,13,4,7,2,null,null,null,1], target = 22", "paths summing to 22", "Two valid paths."),
+      ex("root = [1,2], target = 1", "[]", "No path sums to 1."),
+    ],
+  },
+  "depth-first-search-ext-word-search-in-grid": {
+    scenario: "Determine if a word exists in a 2D grid by adjacent cell letters.",
+    given: "2D board of characters and string `word`.",
+    output: "true if word can be formed, else false.",
+    constraints: "Adjacent cells only; each cell used once per path.",
+    examples: [
+      ex('board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"', "true", "Path exists."),
+      ex('board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"', "false", "Cannot reuse B."),
+    ],
+  },
+  "depth-first-search-ext-number-of-islands-dfs": {
+    scenario: "Count the number of islands in a 2D grid (connected '1' regions).",
+    given: "2D grid of '1' (land) and '0' (water).",
+    output: "Number of islands.",
+    constraints: "4-directional connectivity.",
+    examples: [
+      ex('grid = [["1","1","0"],["0","1","0"],["1","0","1"]]', "3", "Three separate islands."),
+      ex('grid = [["1","1","1"],["0","1","0"],["1","1","1"]]', "1", "One connected island."),
+    ],
+  },
+  "two-heaps-ext-kth-largest-in-stream": {
+    scenario: "Maintain the k-th largest element as new numbers arrive in a stream.",
+    given: "Integer `k` and a stream of integers.",
+    output: "After each add, return the current k-th largest.",
+    constraints: "Use a min-heap of size k.",
+    examples: [
+      ex("k = 3, stream = [4,5,8,2]", "[4,5,5]", "Kth largest after each add."),
+      ex("k = 1, stream = [1,2,3]", "[1,2,3]", "Always the max."),
+    ],
+  },
+  "two-heaps-ext-rearrange-string-no-adjacent-same": {
+    scenario: "Rearrange a string so no two adjacent characters are the same. Return any valid arrangement or empty.",
+    given: "String `s`.",
+    output: "Rearranged string, or empty if impossible.",
+    constraints: "Max-heap by frequency.",
+    examples: [
+      ex('s = "aab"', '"aba"', "Valid rearrangement."),
+      ex('s = "aaab"', '""', "Impossible."),
+    ],
+  },
+  "subsets-ext-generate-all-subsets": {
+    scenario: "Generate all subsets (power set) of a given set.",
+    given: "Array `nums` of distinct integers.",
+    output: "All possible subsets.",
+    constraints: "Include empty set.",
+    examples: [
+      ex("nums = [1,2,3]", "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]", "8 subsets."),
+      ex("nums = [0]", "[[],[0]]", "Two subsets."),
+    ],
+  },
+  "subsets-ext-subset-sum-exists": {
+    scenario: "Determine if any subset of numbers sums exactly to a target.",
+    given: "Array `nums` and integer `sum`.",
+    output: "true if a subset sums to target, else false.",
+    constraints: "Each element used at most once.",
+    examples: [
+      ex("nums = [3,34,4,12,5,2], sum = 9", "true", "4+5=9."),
+      ex("nums = [3,34,4,12,5,2], sum = 30", "false", "No subset sums to 30."),
+    ],
+  },
+  "subsets-ext-permutations-of-string": {
+    scenario: "Generate all permutations of a string.",
+    given: "String `s`.",
+    output: "All permutations (order may vary).",
+    constraints: "Each character used once per permutation.",
+    examples: [
+      ex('s = "ABC"', '["ABC","ACB","BAC","BCA","CAB","CBA"]', "Six permutations."),
+      ex('s = "AB"', '["AB","BA"]', "Two permutations."),
+    ],
+  },
+  "subsets-ext-generate-valid-parentheses": {
+    scenario: "Generate all combinations of n pairs of well-formed parentheses.",
+    given: "Integer `n`.",
+    output: "All valid parenthesis strings of n pairs.",
+    constraints: "Only '(' and ')'; must be balanced.",
+    examples: [
+      ex("n = 3", '["((()))","(()())","(())()","()(())","()()()"]', "Five strings for n=3."),
+      ex("n = 1", '["()"]', "Single pair."),
+    ],
+  },
+  "modified-binary-search-ext-search-in-rotated-array": {
+    scenario: "Search for a target in a rotated sorted array with no duplicates.",
+    given: "Rotated sorted array `nums` and integer `target`.",
+    output: "Index of target, or -1 if absent.",
+    constraints: "O(log n) time.",
+    examples: [
+      ex("nums = [4,5,6,7,0,1,2], target = 0", "4", "0 at index 4."),
+      ex("nums = [4,5,6,7,0,1,2], target = 3", "-1", "3 not present."),
+    ],
+  },
+  "modified-binary-search-ext-square-root-binary-search": {
+    scenario: "Find the floor of the square root of a non-negative integer.",
+    given: "Non-negative integer `n`.",
+    output: "Largest integer x such that x*x ≤ n.",
+    constraints: "Binary search on answer.",
+    examples: [
+      ex("n = 8", "2", "sqrt(8) ≈ 2.82, floor is 2."),
+      ex("n = 4", "2", "Exact square root."),
+    ],
+  },
+  "modified-binary-search-ext-aggressive-cows-binary-search-answer": {
+    scenario: "Place C cows in N stalls maximizing the minimum distance between any two cows.",
+    given: "Stall positions array and number of cows `C`.",
+    output: "Maximum possible minimum distance.",
+    constraints: "Binary search on the answer (distance).",
+    examples: [
+      ex("stalls = [1,2,4,8,9], cows = 3", "3", "Min distance 3 is achievable."),
+      ex("stalls = [1,2,4,8,9], cows = 4", "1", "Only distance 1 works."),
+    ],
+  },
+  "bitwise-xor-ext-find-two-unique-numbers": {
+    scenario: "Every number appears twice except two. Find those two unique numbers.",
+    given: "Array `nums` where exactly two elements appear once.",
+    output: "The two unique numbers.",
+    constraints: "O(n) time; use XOR.",
+    examples: [
+      ex("nums = [1,2,1,3,2,5]", "[3, 5]", "3 and 5 appear once."),
+      ex("nums = [1,2]", "[1, 2]", "Both unique."),
+    ],
+  },
+  "bitwise-xor-ext-single-number-xor": {
+    scenario: "Every element appears twice except one. Find the single element.",
+    given: "Array `nums` with one non-repeated value.",
+    output: "The element that appears once.",
+    constraints: "O(n) time, O(1) space using XOR.",
+    examples: [
+      ex("nums = [2,2,1]", "1", "1 appears once."),
+      ex("nums = [4,1,2,1,2]", "4", "4 appears once."),
+    ],
+  },
+  "bitwise-xor-ext-xor-from-l-to-r": {
+    scenario: "Compute XOR of all integers from L to R inclusive.",
+    given: "Integers `L` and `R`.",
+    output: "XOR(L, L+1, …, R).",
+    constraints: "Use prefix XOR pattern.",
+    examples: [
+      ex("L = 4, R = 8", "8", "4^5^6^7^8 = 8."),
+      ex("L = 1, R = 3", "0", "1^2^3 = 0."),
+    ],
+  },
+  "top-k-elements-ext-kth-largest-element": {
+    scenario: "Find the k-th largest element in an unsorted array.",
+    given: "Integer array `nums` and integer `k`.",
+    output: "The k-th largest element.",
+    constraints: "Not the k-th distinct; k-th in sorted-desc order.",
+    examples: [
+      ex("nums = [3,2,1,5,6,4], k = 2", "5", "2nd largest is 5."),
+      ex("nums = [3,2,3,1,2,4,5,5,6], k = 4", "4", "4th largest is 4."),
+    ],
+  },
+  "top-k-elements-ext-k-closest-points": {
+    scenario: "Find the k points closest to the origin (0, 0).",
+    given: "Array of [x, y] points and integer `k`.",
+    output: "k closest points (any order).",
+    constraints: "Distance = Euclidean sqrt(x² + y²).",
+    examples: [
+      ex("points = [[1,3],[-2,2]], k = 1", "[[-2,2]]", "Closer to origin."),
+      ex("points = [[3,3],[5,-1],[-2,4]], k = 2", "two closest", "Return 2 nearest."),
+    ],
+  },
+  "top-k-elements-ext-sort-by-frequency": {
+    scenario: "Return the k most frequent elements in the array.",
+    given: "Integer array `nums` and integer `k`.",
+    output: "k most frequent elements (any order).",
+    constraints: "Frequency counts ties broken arbitrarily.",
+    examples: [
+      ex("nums = [1,1,1,2,2,3], k = 2", "[1, 2]", "1 appears 3 times, 2 appears twice."),
+      ex("nums = [1], k = 1", "[1]", "Single element."),
+    ],
+  },
+  "k-way-merge-ext-merge-k-sorted-arrays": {
+    scenario: "Merge K sorted arrays into one sorted array.",
+    given: "Array of K sorted integer arrays.",
+    output: "Single merged sorted array.",
+    constraints: "Use min-heap for efficiency.",
+    examples: [
+      ex("arrays = [[1,4,7],[2,5,8],[3,6,9]]", "[1,2,3,4,5,6,7,8,9]", "K-way merge."),
+      ex("arrays = [[1],[2]]", "[1,2]", "Two arrays."),
+    ],
+  },
+  "k-way-merge-ext-merge-two-sorted-lists-gfg": {
+    scenario: "Merge two sorted linked lists into one sorted list.",
+    given: "Heads of two sorted singly linked lists.",
+    output: "Head of merged sorted list.",
+    constraints: "O(n+m) time.",
+    examples: [
+      ex("list1 = 1→3→5, list2 = 2→4→6", "1→2→3→4→5→6", "Standard merge."),
+      ex("list1 = null, list2 = 1", "1", "One empty list."),
+    ],
+  },
+  "k-way-merge-ext-merge-sorted-arrays-without-extra-space": {
+    scenario: "Merge two sorted arrays where the first array has extra space at the end for all elements.",
+    given: "nums1 (with padding), m elements; nums2 with n elements.",
+    output: "nums1 filled with merged sorted result.",
+    constraints: "In-place merge into nums1.",
+    examples: [
+      ex("nums1 = [1,2,3,0,0,0], m=3, nums2 = [2,5,6], n=3", "[1,2,2,3,5,6]", "Merged in place."),
+      ex("nums1 = [1], m=1, nums2 = [], n=0", "[1]", "Second array empty."),
+    ],
+  },
+  "topological-sort-ext-topological-sort-of-dag": {
+    scenario: "Return a topological ordering of vertices in a directed acyclic graph.",
+    given: "Number of vertices and directed edges.",
+    output: "Valid topological order, or empty if cycle exists.",
+    constraints: "DAG only; Kahn's or DFS post-order.",
+    examples: [
+      ex("V=4, edges = [[0,1],[0,2],[1,3],[2,3]]", "[0,1,2,3] or [0,2,1,3]", "Valid order."),
+      ex("V=2, edges = [[1,0]]", "[1,0]", "1 before 0."),
+    ],
+  },
+  "topological-sort-ext-alien-dictionary-order": {
+    scenario: "Derive alien character order from sorted words.",
+    given: "List of words in alien lexicographic order.",
+    output: "Valid character ordering string.",
+    constraints: "Same as Alien Dictionary.",
+    examples: [
+      ex('words = ["wrt","wrf","er","ett","rftt"]', '"wertf"', "Derived order."),
+      ex('words = ["z","x","z"]', '""', "Invalid — contradiction."),
+    ],
+  },
+  "topological-sort-ext-sequence-reconstruction-check": {
+    scenario: "Verify whether org is the unique valid topological order implied by seqs.",
+    given: "Sequence `org` and prerequisite pairs `seqs`.",
+    output: "true if org is the only valid order.",
+    constraints: "Build graph from consecutive pairs.",
+    examples: [
+      ex("org = [1,2,3], seqs = [[1,2],[1,3],[2,3]]", "true", "Unique order."),
+      ex("org = [1,2,3], seqs = [[1,2]]", "false", "Not unique."),
+    ],
+  },
+  "topological-sort-ext-longest-path-in-dag": {
+    scenario: "Find the longest path in a directed acyclic graph (by number of edges or weighted sum).",
+    given: "DAG vertices and edges (with weights if applicable).",
+    output: "Length of longest path.",
+    constraints: "No cycles; topological DP.",
+    examples: [
+      ex("n=4, edges = [[0,1,1],[0,2,1],[1,3,1],[2,3,1]]", "2", "Longest path has 2 edges."),
+      ex("n=2, edges = [[0,1,5]]", "5", "Single weighted edge."),
+    ],
+  },
+  "knapsack-01-ext-subset-sum-knapsack": {
+    scenario: "Determine if any subset of numbers sums exactly to a target.",
+    given: "Array `nums` and target sum.",
+    output: "true if subset exists, else false.",
+    constraints: "0/1 knapsack — each element used at most once.",
+    examples: [
+      ex("nums = [3,34,4,12,5,2], sum = 9", "true", "4+5=9."),
+      ex("nums = [3,34,4,12,5,2], sum = 30", "false", "No subset."),
+    ],
+  },
+  "knapsack-01-ext-equal-sum-partition": {
+    scenario: "Can the array be partitioned into two subsets with equal sum?",
+    given: "Array of positive integers.",
+    output: "true if equal partition exists.",
+    constraints: "Total sum must be even.",
+    examples: [
+      ex("nums = [1,5,11,5]", "true", "1+5+5 = 11."),
+      ex("nums = [1,2,3,5]", "false", "Cannot split equally."),
+    ],
+  },
+  "knapsack-01-ext-target-sum-assign": {
+    scenario: "Assign + or - to each number to reach a target sum.",
+    given: "Array `nums` and integer `target`.",
+    output: "Number of ways to assign signs to reach target.",
+    constraints: "Each number used exactly once with + or -.",
+    examples: [
+      ex("nums = [1,1,1,1,1], target = 3", "5", "Five ways to get sum 3."),
+      ex("nums = [1], target = 1", "1", "One way."),
+    ],
+  },
+  "longest-common-substring-ext-lcs-of-two-strings": {
+    scenario: "Find the length of the longest common subsequence of two strings (not necessarily contiguous).",
+    given: "Strings `text1` and `text2`.",
+    output: "Length of LCS.",
+    constraints: "Subsequence — characters need not be adjacent.",
+    examples: [
+      ex('text1 = "abcde", text2 = "ace"', "3", 'LCS is "ace".'),
+      ex('text1 = "abc", text2 = "abc"', "3", "Identical strings."),
+    ],
+  },
+  "longest-common-substring-ext-longest-common-substring-length": {
+    scenario: "Find the length of the longest common contiguous substring between two strings.",
+    given: "Strings `s1` and `s2`.",
+    output: "Length of longest common substring.",
+    constraints: "Substring must be contiguous.",
+    examples: [
+      ex('s1 = "abcdxyz", s2 = "xyzabcd"', "4", '"abcd" is longest.'),
+      ex('s1 = "abc", s2 = "def"', "0", "No match."),
+    ],
+  },
+  "longest-common-substring-ext-distinct-subsequences-count": {
+    scenario: "Count how many distinct subsequences of `s` equal `t`.",
+    given: "Strings `s` and `t`.",
+    output: "Count of distinct subsequences.",
+    constraints: "Subsequence — preserve order, skip chars.",
+    examples: [
+      ex('s = "rabbbit", t = "rabbit"', "3", "Three ways to form rabbit."),
+      ex('s = "babgbag", t = "bag"', "5", "Five distinct subsequences."),
+    ],
+  },
+  "dynamic-programming-ext-fibonacci-dp": {
+    scenario: "Compute the n-th Fibonacci number using dynamic programming.",
+    given: "Integer `n`.",
+    output: "F(n) where F(0)=0, F(1)=1.",
+    constraints: "O(n) time or O(log n) with matrix exponentiation.",
+    examples: [
+      ex("n = 10", "55", "F(10) = 55."),
+      ex("n = 2", "1", "F(2) = 1."),
+    ],
+  },
+  "dynamic-programming-ext-house-robber-linear": {
+    scenario: "Rob houses along a street without robbing two adjacent houses. Maximize total money.",
+    given: "Array `nums` — money in each house.",
+    output: "Maximum loot without adjacent picks.",
+    constraints: "Cannot rob neighbors.",
+    examples: [
+      ex("nums = [1,2,3,1]", "4", "Rob houses 0 and 2."),
+      ex("nums = [2,7,9,3,1]", "12", "2+9+1=12."),
+    ],
+  },
+  "dynamic-programming-ext-word-break-possible": {
+    scenario: "Determine if string `s` can be segmented into space-separated dictionary words.",
+    given: "String `s` and list of words.",
+    output: "true if valid segmentation exists.",
+    constraints: "Words can be reused.",
+    examples: [
+      ex('s = "leetcode", wordDict = ["leet","code"]', "true", "leet + code."),
+      ex('s = "applepenapple", wordDict = ["apple","pen"]', "true", "apple + pen + apple."),
+    ],
+  },
+  "greedy-technique-ext-activity-selection": {
+    scenario: "Select the maximum number of non-overlapping activities by finish time.",
+    given: "Activities with start and end times.",
+    output: "Maximum count of compatible activities.",
+    constraints: "Greedy by earliest finish time.",
+    examples: [
+      ex("activities = [[1,4],[2,3],[3,5]]", "2", "Pick [2,3] and [3,5] or similar."),
+      ex("activities = [[1,2]]", "1", "Single activity."),
+    ],
+  },
+  "greedy-technique-ext-gas-station-circuit": {
+    scenario: "Find a starting gas station to complete a circular route, or return -1 if impossible.",
+    given: "Gas amounts and travel costs between stations.",
+    output: "Starting station index, or -1.",
+    constraints: "Circuit wraps around; total gas must ≥ total cost for solution.",
+    examples: [
+      ex("gas = [1,2,3,4,5], cost = [3,4,5,1,2]", "3", "Start at index 3."),
+      ex("gas = [2,3,4], cost = [3,4,5]", "-1", "Cannot complete circuit."),
+    ],
+  },
+  "greedy-technique-ext-minimum-coins-greedy": {
+    scenario: "Find the minimum number of coins needed to make a given amount (greedy works when denominations allow).",
+    given: "Coin denominations and target `amount`.",
+    output: "Minimum coin count, or -1 if impossible.",
+    constraints: "Greedy valid for canonical coin systems.",
+    examples: [
+      ex("coins = [1,2,5], amount = 11", "3", "5+5+1=11."),
+      ex("coins = [2], amount = 3", "-1", "Cannot make 3."),
+    ],
+  },
+};
+
+// Variant titles that share a LeetCode slug but need their own brief
+const VARIANT_SLUGS = [
+  "in-place-reversal-linked-list-ext-palindrome-linked-list-reverse-half",
+  "fast-slow-pointers-ext-start-of-loop-in-linked-list",
+  "cyclic-sort-find-the-duplicate-number",
+  "merge-intervals-ext-insert-interval-in-sorted-list",
+  "greedy-technique-non-overlapping-intervals",
+  "greedy-technique-minimum-number-of-arrows-to-burst-balloons",
+  "bitwise-xor-missing-number",
+  "cyclic-sort-ext-first-missing-positive-cyclic",
+  "breadth-first-search-ext-shortest-path-in-maze",
+  "breadth-first-search-ext-word-ladder-length",
+  "depth-first-search-ext-course-schedule-cycle-detection",
+  "topological-sort-ext-course-schedule-possible",
+  "two-heaps-ext-median-in-a-stream",
+  "two-heaps-ext-sliding-window-median-ib",
+  "two-heaps-ext-schedule-tasks-with-cooling",
+  "subsets-ext-combination-sum-distinct-use",
+  "knapsack-01-ext-coin-change-ways",
+  "longest-common-substring-ext-edit-distance-levenshtein",
+  "longest-common-substring-ext-shortest-common-supersequence",
+  "dynamic-programming-ext-climb-stairs-ways",
+  "dynamic-programming-ext-decode-ways-count",
+  "greedy-technique-ext-jump-game-reachable",
+  "greedy-technique-ext-partition-labels-greedy",
+  "k-way-merge-ext-merge-k-sorted-lists-ib",
+  "k-way-merge-ext-smallest-range-from-k-lists",
+  "top-k-elements-ext-top-k-frequent-numbers",
+  "top-k-elements-ext-kth-smallest-in-row-wise-sorted-matrix",
+  "bitwise-xor-ext-maximum-xor-pair",
+  "bitwise-xor-ext-count-set-bits",
+  "modified-binary-search-ext-first-and-last-position",
+  "modified-binary-search-ext-minimum-days-to-make-bouquets",
+  "sliding-window-ext-longest-substring-with-k-unique-characters",
+  "two-pointers-ext-triplets-with-sum-in-given-range",
+  "two-pointers-ext-3sum-closest",
+  "two-pointers-ext-remove-duplicates-from-sorted-array-ii",
+  "cyclic-sort-ext-sort-array-by-cyclic-swaps",
+  "in-place-reversal-linked-list-ext-add-1-to-linked-list-number",
+  "top-k-elements-ext-sort-by-frequency",
+  "topological-sort-ext-longest-path-in-dag",
+  "greedy-technique-ext-minimum-coins-greedy",
+  "greedy-technique-merge-triplets-to-form-target-triplet",
+  "knapsack-01-split-array-largest-sum",
+];
+
+const VARIANT_BRIEFS = {
+  "fast-slow-pointers-ext-start-of-loop-in-linked-list": {
+    scenario: "Find the node where a cycle begins in a linked list (the start of the loop).",
+    given: "Head of a linked list that may contain a cycle.",
+    output: "The node where the cycle starts, or null if no cycle.",
+    constraints: "Floyd's algorithm — find entrance to cycle.",
+    examples: [
+      ex("3→2→0→-4, tail points to node 2", "node 2", "Cycle starts at 2."),
+      ex("head = 1→2→null", "null", "No cycle."),
+    ],
+  },
+  "in-place-reversal-linked-list-ext-palindrome-linked-list-reverse-half": {
+    scenario: "Check if a linked list is a palindrome (often by reversing the second half).",
+    given: "Head of a singly linked list.",
+    output: "true if values read the same forward and backward.",
+    constraints: "O(n) time; may reverse second half in place.",
+    examples: [
+      ex("head = 1→2→2→1", "true", "Palindrome list."),
+      ex("head = 1→2", "false", "Not a palindrome."),
+    ],
+  },
+  "merge-intervals-ext-insert-interval-in-sorted-list": {
+    scenario: "Insert a new interval into a sorted list of non-overlapping intervals and merge if needed.",
+    given: "Sorted intervals and new interval to insert.",
+    output: "Updated merged interval list.",
+    constraints: "Same as Insert Interval.",
+    examples: [
+      ex("intervals = [[1,3],[6,9]], newInterval = [2,5]", "[[1,5],[6,9]]", "Merged with [1,3]."),
+      ex("intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]", "[[1,2],[3,10],[12,16]]", "Spans multiple."),
+    ],
+  },
+  "cyclic-sort-ext-sort-array-by-cyclic-swaps": {
+    scenario: "Sort an array of values 1..n into correct positions using cyclic swaps (not the disappeared-numbers problem).",
+    given: "Array with distinct integers from 1 to n.",
+    output: "Array sorted in place.",
+    constraints: "Each value i belongs at index i-1.",
+    examples: [
+      ex("nums = [2,3,1,5,4]", "[1,2,3,4,5]", "Cyclic sort result."),
+      ex("nums = [1]", "[1]", "Already sorted."),
+    ],
+  },
+  "breadth-first-search-ext-shortest-path-in-maze": {
+    scenario: "Find the shortest path through a binary maze from top-left to bottom-right (0=open, 1=wall).",
+    given: "2D grid maze with 0s and 1s.",
+    output: "Length of shortest path, or -1 if none.",
+    constraints: "8-directional or 4-directional moves depending on problem.",
+    examples: [
+      ex("grid = [[0,1],[1,0]]", "2", "Short path through maze."),
+      ex("grid = [[0,0,0],[1,1,0],[1,1,0]]", "4", "Navigate around walls."),
+    ],
+  },
+  "breadth-first-search-ext-word-ladder-length": {
+    scenario: "Find the length of the shortest transformation sequence from beginWord to endWord using the word list.",
+    given: "beginWord, endWord, and wordList.",
+    output: "Minimum number of steps, or 0 if impossible.",
+    constraints: "Each step changes exactly one letter.",
+    examples: [
+      ex('begin = "hit", end = "cog", list = ["hot","dot","dog","lot","log","cog"]', "5", "hit→hot→dot→dog→cog."),
+      ex('begin = "hit", end = "cog", list = ["hot","dot","dog","lot","log"]', "0", "cog not in list."),
+    ],
+  },
+  "two-heaps-ext-median-in-a-stream": {
+    scenario: "Maintain the median of a growing stream of integers.",
+    given: "Stream of integers added one at a time.",
+    output: "Current median after each addition.",
+    constraints: "Use two heaps (max-heap + min-heap).",
+    examples: [
+      ex("stream = [1,2,3,4,5]", "medians: 1, 1.5, 2, 2.5, 3", "Running median."),
+      ex("stream = [2,3]", "medians: 2, 2.5", "Even count averages."),
+    ],
+  },
+  "k-way-merge-ext-smallest-range-from-k-lists": {
+    scenario: "Among K sorted lists, pick one element from each to form the smallest possible range [min, max].",
+    given: "K sorted arrays or lists.",
+    output: "The smallest range covering one pick from each list.",
+    constraints: "Minimize max - min across the K picks.",
+    examples: [
+      ex("lists = [[4,10,15,24],[0,9,12,20],[5,18,22,30]]", "[20,24]", "Smallest covering range."),
+      ex("lists = [[1],[2]]", "[1,2]", "One from each."),
+    ],
+  },
+  "sliding-window-ext-longest-substring-with-k-unique-characters": {
+    scenario: "Find the longest substring containing at most K distinct characters.",
+    given: "String `s` and integer `K`.",
+    output: "Maximum length of a valid substring.",
+    constraints: "Substring must be contiguous.",
+    examples: [
+      ex('s = "araaci", K = 2', "4", '"araa" has 2 distinct chars.'),
+      ex('s = "araaci", K = 1', "2", '"aa" is longest with 1 char.'),
+    ],
+  },
+  "two-pointers-ext-triplets-with-sum-in-given-range": {
+    scenario: "Count triplets whose sum lies in the inclusive range [a, b].",
+    given: "Array `arr` and integers `a`, `b`.",
+    output: "Count of valid triplets.",
+    constraints: "Three distinct indices i < j < k.",
+    examples: [
+      ex("arr = [2,3,4,5], a=6, b=10", "1", "Only (2,3,4) sums to 9."),
+      ex("arr = [1,2,3,4], a=5, b=7", "2", "Two qualifying triplets."),
+    ],
+  },
+};
+
+Object.assign(SLUG_BRIEFS, VARIANT_BRIEFS);
+
+// Verify coverage
+const missing = problems.filter((p) => !SLUG_BRIEFS[p.slug] && VARIANT_SLUGS.includes(p.slug));
+if (missing.length) {
+  console.warn("Missing variant briefs:", missing.map((p) => p.slug));
+}
+
+const outPath = path.join(__dirname, "../data/problemBriefBySlug.js");
+const body = `/**
+ * Title-aligned problem briefs keyed by slug.
+ * Auto-generated by src/scripts/generate-brief-overrides.js — do not hand-edit.
+ */
+const PROBLEM_BRIEF_BY_SLUG = ${JSON.stringify(SLUG_BRIEFS, null, 2)};
+
+module.exports = { PROBLEM_BRIEF_BY_SLUG };
+`;
+fs.writeFileSync(outPath, body, "utf8");
+console.log(`Wrote ${Object.keys(SLUG_BRIEFS).length} slug briefs → ${outPath}`);
