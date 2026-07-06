@@ -16,19 +16,19 @@ const NewsletterContent = (() => {
       slug: "palindrome-linked-list-slow-fast-shadi-pakka",
       title: "🎬 Khulasa: Slow-Fast Ka Dhoka, Ulta Pulta Dhakka, Aur Shadi Pakka!",
       excerpt:
-        "Title hi cheat code hai: Slow-Fast = middle, Ulta Pulta = reverse second half, Shadi Pakka = match. Teen step, bas.",
+        "Sarpanch ki gaon wali kahani — Slow-Fast middle dhoondhte hain, Prev second half ulta karta hai, phir Shadi Pakka. Title hi cheat code.",
       date: "2026-07-06",
-      readMin: 3,
+      readMin: 4,
       tags: ["Linked List", "Fast & Slow Pointers", "Palindrome"],
       featured: true,
       body: [
         {
           type: "p",
-          text: "🎙️ Aaj raat Palindrome Linked List. List aage-peeche same padhni chahiye — teen step mein ho jaata hai. Title zor se bolo, yaad reh jayega: Slow-Fast Ka Dhoka, Ulta Pulta Dhakka, Shadi Pakka!",
+          text: "🎙️ Palindrome Linked List — list aage se aur peeche se same padhni chahiye. Title zor se bolo, teen step yaad reh jayenge: Slow-Fast Ka Dhoka, Ulta Pulta Dhakka, Shadi Pakka!",
         },
         {
           type: "callout",
-          text: "Slow-Fast = middle. Ulta Pulta = second half reverse. Shadi Pakka = dono taraf values match. Itna hi.",
+          text: "Slow-Fast = middle. Ulta Pulta = second half reverse. Shadi Pakka = dono taraf values match.",
         },
         {
           type: "h2",
@@ -36,7 +36,7 @@ const NewsletterContent = (() => {
         },
         {
           type: "p",
-          text: "Slow ek step (slow.next), Fast do step (fast.next.next). Jab fast end pe — slow middle pe hai. Bas.",
+          text: "Gaon ki Linked List mein do dost: Slow (ek step) aur Fast (do step, Red Bull wala). Sarpanch (Head) bola — \"Jab Fast boundary pe pahunche, ruk jao.\" Fast end pe pahuncha, peeche dekha — Slow bilkul middle mein haanp raha tha. \"Abbe Oye, tu MIDDLE pe hai!\" Step 1 khatam: slow = slow.next, fast = fast.next.next.",
         },
         {
           type: "h2",
@@ -44,7 +44,7 @@ const NewsletterContent = (() => {
         },
         {
           type: "p",
-          text: "slow.next se second half reverse karo. prev = None, loop mein curr.next = prev. curr = temp mat bhoolna. prev = naya head.",
+          text: "Sarpanch bola — \"Palindrome check karna hai, second half Ulta Pulta karo.\" Slow ke aage Curr (curr = slow.next) khada tha. Jadugar Prev ne magic chalaaya: prev = None, phir har node peeche ghuma (curr.next = prev). Yaad rakhna — curr = temp mat bhoolna! Aakhir mein prev = reversed half ka naya head.",
         },
         {
           type: "h2",
@@ -52,11 +52,11 @@ const NewsletterContent = (() => {
         },
         {
           type: "p",
-          text: "curr1 = head, curr2 = prev. Dono ek-ek step aage, values compare. Match nahi? return False. Sab match? Shaadi pakka — return True.",
+          text: "Ab shaadi! Dulha Curr1 head se (curr1 = head), dulha Curr2 reversed side se (curr2 = prev). Sarpanch: \"Ek-ek step aage badho, values match karo. Nahi mili? Shaadi cancel — return False. Sab match? Shaadi Pakka — return True!\"",
         },
         {
           type: "callout",
-          text: "Ab solve karo — Palindrome Linked List kholo, teen step follow karo. 💪",
+          text: "Story sun li — ab Palindrome Linked List kholo aur code likho. 💪",
         },
       ],
     },
