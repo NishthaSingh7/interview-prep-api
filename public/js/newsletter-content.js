@@ -13,6 +13,54 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "linked-list-cycle-ii-pehli-mulaqat-mandap",
+      title: "🎬 Khulasa: Pehli Mulaqat Gol Mein, Doosri Mulaqat Mandap Pe!",
+      excerpt:
+        "Linked List Cycle II — cycle start dhoondhna hai. Dulha 2x, Dulhan 1x: pehli mulaqat gol mein, doosri mulaqat Mandap pe. Title hi cheat code.",
+      date: "2026-07-08",
+      readMin: 4,
+      tags: ["Linked List", "Fast & Slow Pointers", "Cycle"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "🎙️ Linked List I mein sirf yeh pata chalta hai — chakkar hai ya nahi. Linked List II advance hai: woh jagah dhoondhni hai jahan se ghol-maal shuru hua — Mandap (cycle start). Title zor se bolo: Pehli Mulaqat Gol Mein, Doosri Mulaqat Mandap Pe!",
+        },
+        {
+          type: "callout",
+          text: "Pehli mulaqat = cycle confirm (slow == fast). Doosri mulaqat = Mandap mil gaya (return slow).",
+        },
+        {
+          type: "h2",
+          text: "Cast 💍",
+        },
+        {
+          type: "p",
+          text: "Red carpet = head. Mandap = cycle start node (yahi milna hai). Dulha = Fast (2 kadam). Dulhan = Slow (1 kadam, graceful).",
+        },
+        {
+          type: "h2",
+          text: "1. Pehli Mulaqat Gol Mein",
+        },
+        {
+          type: "p",
+          text: "Dono head se Mandap ki taraf. Agar Dulha end (None) pe pahunch gaya — chakkar nahi, shaadi cancel, return null. Agar gol-ghumao hai, dono cycle mein ghoomte hain. Dulha 2x speed se peeche se aata hai aur Dulhan se takrata hai (slow == fast). Yeh pehli mulaqat raste ke beech mein hoti hai — chakkar confirmed, lekin Mandap abhi nahi mila.",
+        },
+        {
+          type: "h2",
+          text: "2. Doosri Mulaqat Mandap Pe",
+        },
+        {
+          type: "p",
+          text: "Twist: Dulhan magically wapas head pe (slow = head). Dulha usi mulaqat point pe rukta hai, par ab speed 1x — dono ek-ek kadam. Maths ke rule se dono Mandap se barabar doori par hain. Jab dobara milenge, woh jagah Mandap hai. return slow — shaadi sampann!",
+        },
+        {
+          type: "callout",
+          text: "Cheat sheet: fast.next.next → Dulha 2x. slow == fast → pehli mulaqat. slow = head → Dulhan teleport. slow.next & fast.next → 1-1. return slow → Mandap. Ab Linked List Cycle II solve karo. 💪",
+        },
+      ],
+    },
+    {
       slug: "palindrome-linked-list-slow-fast-shadi-pakka",
       title: "🎬 Khulasa: Slow-Fast Ka Dhoka, Ulta Pulta Dhakka, Aur Shadi Pakka!",
       excerpt:
@@ -20,7 +68,7 @@ const NewsletterContent = (() => {
       date: "2026-07-06",
       readMin: 4,
       tags: ["Linked List", "Fast & Slow Pointers", "Palindrome"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",
