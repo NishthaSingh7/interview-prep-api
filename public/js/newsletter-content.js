@@ -16,7 +16,7 @@ const NewsletterContent = (() => {
       slug: "linked-list-cycle-ii-pehli-mulaqat-mandap",
       title: "🎬 Khulasa: Pehli Mulaqat Gol Mein, Doosri Mulaqat Mandap Pe!",
       excerpt:
-        "Linked List Cycle II — cycle start dhoondhna hai. Dulha 2x, Dulhan 1x: pehli mulaqat gol mein, doosri mulaqat Mandap pe. Title hi cheat code.",
+        "Linked List Cycle II — Mandap (cycle start) dhoondhna hai. Dulha 2x, Dulhan 1x: pehli mulaqat gol mein, doosri mulaqat Mandap pe. Title hi cheat code.",
       date: "2026-07-08",
       readMin: 4,
       tags: ["Linked List", "Fast & Slow Pointers", "Cycle"],
@@ -24,39 +24,66 @@ const NewsletterContent = (() => {
       body: [
         {
           type: "p",
-          text: "🎙️ Linked List I mein sirf yeh pata chalta hai — chakkar hai ya nahi. Linked List II advance hai: woh jagah dhoondhni hai jahan se ghol-maal shuru hua — Mandap (cycle start). Title zor se bolo: Pehli Mulaqat Gol Mein, Doosri Mulaqat Mandap Pe!",
+          text: "Linked List I mein sirf yeh pata lagaya tha — list mein chakkar (cycle) chal raha hai ya nahi. Linked List II thoda advance hai: us chakkar ka main point dhoondhna hai — woh jagah jahan se ghol-maal shuru hua. Is complex problem ko samajhte hain ekdum desi shaadi ki kahani se. Title zor se bolo: Pehli Mulaqat Gol Mein, Doosri Mulaqat Mandap Pe!",
         },
         {
           type: "callout",
-          text: "Pehli mulaqat = cycle confirm (slow == fast). Doosri mulaqat = Mandap mil gaya (return slow).",
+          text: "Pehli mulaqat = chakkar confirmed (slow == fast). Doosri mulaqat = Mandap mil gaya (return slow).",
         },
         {
           type: "h2",
-          text: "Cast 💍",
+          text: "Kahani ke kirdar",
         },
         {
-          type: "p",
-          text: "Red carpet = head. Mandap = cycle start node (yahi milna hai). Dulha = Fast (2 kadam). Dulhan = Slow (1 kadam, graceful).",
-        },
-        {
-          type: "h2",
-          text: "1. Pehli Mulaqat Gol Mein",
-        },
-        {
-          type: "p",
-          text: "Dono head se Mandap ki taraf. Agar Dulha end (None) pe pahunch gaya — chakkar nahi, shaadi cancel, return null. Agar gol-ghumao hai, dono cycle mein ghoomte hain. Dulha 2x speed se peeche se aata hai aur Dulhan se takrata hai (slow == fast). Yeh pehli mulaqat raste ke beech mein hoti hai — chakkar confirmed, lekin Mandap abhi nahi mila.",
+          type: "ul",
+          items: [
+            "The Red Carpet (head) — shaadi ka lamba entrance carpet.",
+            "Mandap (cycle start node) — story ka main point. Agar aage jaakar gol-ghumao (loop) hai, toh Mandap woh entry gate hai jahan se rasta gol ghumna shuru hota hai. Hume isi Mandap ka pata lagana hai!",
+            "Dulha (Fast pointer) — thoda excited, ek baar mein 2 kadam bhaagta hai.",
+            "Dulhan (Slow pointer) — graceful, aaram se ek baar mein 1 kadam chalti hai.",
+          ],
         },
         {
           type: "h2",
-          text: "2. Doosri Mulaqat Mandap Pe",
+          text: "Phase 1: Pehli mulaqat gol mein",
         },
         {
           type: "p",
-          text: "Twist: Dulhan magically wapas head pe (slow = head). Dulha usi mulaqat point pe rukta hai, par ab speed 1x — dono ek-ek kadam. Maths ke rule se dono Mandap se barabar doori par hain. Jab dobara milenge, woh jagah Mandap hai. return slow — shaadi sampann!",
+          text: "Kahani entrance (head) se shuru. Dono Mandap ki taraf badhte hain. Agar rasta seedha nikal gaya aur Dulha end tak pahunch gaya (None) — samajho koi chakkar nahi, shaadi cancel, return null.",
+        },
+        {
+          type: "p",
+          text: "Lekin agar raste mein ghol-maal (cycle) hua, toh dono us gol raste mein ghumne lagenge. Kyunki Dulha 2x speed se bhaag raha hai, woh peeche se ghoom kar aayega aur ek point par Dulhan se takra jayega (slow == fast). Is takraane se yeh toh pakka ho gaya ki raste mein gol-ghumao hai. Par boss, abhi tak Mandap nahi mila! Yeh mulaqat toh raste mein kahin beech gol-ghumao mein hui hai.",
+        },
+        {
+          type: "h2",
+          text: "Phase 2: Doosri mulaqat Mandap pe",
+        },
+        {
+          type: "p",
+          text: "Ab asli twist. Dono ko sahi Mandap par pahunchana hai. Rule: (1) Dulhan ka teleportation — Slow magically wapas start point (head) par chali jaati hai. (2) Dulhe ka compromise — Fast usi beech wale point par ruka rehta hai jahan pehli mulaqat hui thi, lekin ab speed kam karke Dulhan jitni — dono 1-1 kadam.",
+        },
+        {
+          type: "p",
+          text: "Ab Dulhan start se aage badhti hai aur Dulha us beech raste se aage badhta hai. Maths ke ek kamaal ke rule ke mutabik dono ka distance Mandap se barabar hota hai. Jab dobara aamne-saamne aayenge, toh woh jagah koi aur nahi — humara asli Mandap! Wahi par shaadi sampann, aur code usi Mandap ka address return kar deta hai (return slow).",
+        },
+        {
+          type: "h2",
+          text: "Cheat sheet",
+        },
+        {
+          type: "ul",
+          items: [
+            "fast.next.next — Dulhe ki 2-kadam waali speed.",
+            "slow == fast — gol raste mein pehli mulaqat (chakkar confirmed).",
+            "slow = head — Dulhan wapas entrance par.",
+            "slow.next & fast.next — dono ka 1-1 kadam chalna.",
+            "return slow — Mandap mil gaya!",
+          ],
         },
         {
           type: "callout",
-          text: "Cheat sheet: fast.next.next → Dulha 2x. slow == fast → pehli mulaqat. slow = head → Dulhan teleport. slow.next & fast.next → 1-1. return slow → Mandap. Ab Linked List Cycle II solve karo. 💪",
+          text: "Story sun li — ab Linked List Cycle II kholo aur code likho. 💪",
         },
       ],
     },
