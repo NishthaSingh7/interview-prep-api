@@ -13,6 +13,9 @@ const SiteNav = (() => {
   ];
 
   function link(item) {
+    if (item.page === "ide") {
+      return `<a href="${item.href}" class="nav-link nav-link-ide" data-nav="${item.page}"><span class="nav-link-text">IDE</span><span class="nav-ide-hint">Write here before LeetCode</span></a>`;
+    }
     return `<a href="${item.href}" class="nav-link" data-nav="${item.page}">${item.label}</a>`;
   }
 

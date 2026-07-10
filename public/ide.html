@@ -16,7 +16,7 @@
       rel="stylesheet"
     />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260711e" />
+    <link rel="stylesheet" href="/css/style.css?v=20260711f" />
   </head>
   <body data-page="ide">
     <header class="site-header">
@@ -74,10 +74,32 @@
     <main class="page-main ide-main">
       <div class="page-head ide-head">
         <h2>Practice IDE</h2>
-        <p class="page-subtitle">Run Python, Java, C, and C++ — tweak logic and see output before you open LeetCode.</p>
-        <p class="ide-note">Sandboxed runs · no network or file access · Ctrl+Enter to run</p>
+        <p class="page-subtitle">Python, Java, C, and C++ — your sandbox before LeetCode.</p>
+        <p class="ide-note">Ctrl+Enter to run · bring your own test inputs</p>
       </div>
 
+      <div class="ide-page-layout">
+        <aside class="ide-purpose panel" aria-label="Why use this IDE">
+          <p class="ide-purpose-kicker">Why this IDE?</p>
+          <h3 class="ide-purpose-title">Think in your own test cases first.</h3>
+          <p class="ide-purpose-lead">
+            On LeetCode, the editor and test cases are already set up for you. You mostly slot in an answer and hit submit.
+          </p>
+          <p class="ide-purpose-body">
+            This IDE is for the step <strong>before</strong> that — sketch your approach, type your own inputs in stdin, run, tweak, and break things on purpose until the logic actually holds.
+          </p>
+          <p class="ide-purpose-body">
+            That back-and-forth builds stronger cognitive thinking and execution. You are not guessing against hidden cases; you are proving the idea on cases you chose.
+          </p>
+          <ol class="ide-purpose-steps">
+            <li>Pick a problem from Solve.</li>
+            <li>Draft code here with inputs you care about.</li>
+            <li>Run, adjust, rerun until it feels solid.</li>
+            <li>Then open LeetCode for the final attempt.</li>
+          </ol>
+        </aside>
+
+        <div class="ide-workspace-column">
       <section class="ide-workspace panel" aria-label="Code editor workspace">
         <div class="ide-toolbar">
           <div class="ide-toolbar-left">
@@ -117,6 +139,8 @@
           </div>
         </div>
       </section>
+        </div>
+      </div>
     </main>
 
     <footer class="site-footer">
@@ -127,7 +151,7 @@
     </footer>
 
     <script src="/js/footer.js"></script>
-    <script src="/js/site-nav.js?v=20260711e"></script>
+    <script src="/js/site-nav.js?v=20260711f"></script>
     <script src="/js/auth.js?v=20260704y"></script>
     <script src="/js/milestones.js"></script>
     <script src="/js/nav.js"></script>

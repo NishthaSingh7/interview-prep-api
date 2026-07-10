@@ -1923,6 +1923,35 @@ body[data-page="solve"] .site-footer .footer-inner {
   font-weight: 600;
 }
 
+.nav-link-ide {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08rem;
+  padding-top: 0.28rem;
+  padding-bottom: 0.28rem;
+  white-space: normal;
+}
+
+.nav-link-text {
+  line-height: 1.2;
+}
+
+.nav-ide-hint {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.nav-link-ide.active .nav-ide-hint,
+.nav-link-ide:hover .nav-ide-hint {
+  color: var(--accent);
+}
+
 [data-theme="dark"] .nav-link.active {
   color: var(--header-text);
   background: var(--header-active-bg);
@@ -2011,6 +2040,15 @@ body[data-page="solve"] .site-footer .footer-inner {
   .nav-link {
     padding: 0.65rem 0.75rem;
     font-size: 0.88rem;
+  }
+
+  .nav-link-ide {
+    gap: 0.15rem;
+  }
+
+  .nav-ide-hint {
+    font-size: 0.68rem;
+    white-space: normal;
   }
 
   body.nav-drawer-open {
@@ -9948,7 +9986,64 @@ body.khulasa-reading .khulasa-wrap {
 
 /* Practice IDE */
 body[data-page="ide"] .page-main.ide-main {
-  max-width: 1180px;
+  max-width: 1320px;
+}
+
+.ide-page-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.ide-purpose {
+  padding: 1.1rem 1.15rem;
+  position: sticky;
+  top: calc(var(--header-offset, 4.5rem) + 0.75rem);
+}
+
+.ide-purpose-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ide-purpose-title {
+  margin: 0 0 0.65rem;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.ide-purpose-lead,
+.ide-purpose-body {
+  margin: 0 0 0.75rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.ide-purpose-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ide-purpose-steps {
+  margin: 0.25rem 0 0;
+  padding-left: 1.15rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.ide-purpose-steps li + li {
+  margin-top: 0.35rem;
+}
+
+.ide-workspace-column {
+  min-width: 0;
 }
 
 .ide-head {
@@ -10105,6 +10200,14 @@ body[data-page="ide"] .page-main.ide-main {
 }
 
 @media (max-width: 900px) {
+  .ide-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ide-purpose {
+    position: static;
+  }
+
   .ide-split {
     grid-template-columns: 1fr;
     min-height: auto;
