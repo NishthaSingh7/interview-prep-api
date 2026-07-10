@@ -476,22 +476,10 @@ function renderOverview(container, data) {
   if (typeof ProgressCharts !== "undefined") ProgressCharts.disposeAll();
 
   container.innerHTML = `
+    ${badgeJourneySection(data.totalDone)}
+
     ${weeklyRecapCard(data.stats)}
     ${streakFreezeBanner(data.stats)}
-
-    ${vizPanel(
-      "Consistency calendar",
-      '<div id="echart-calendar" class="echart-host echart-host-calendar"></div>',
-      "viz-cal-hero",
-      "Green squares = nights you showed up · hover any day for details",
-    )}
-
-    ${vizPanel(
-      "This month vs last",
-      '<div id="echart-month-compare" class="echart-host echart-host-sm"></div>',
-      "viz-month",
-      "Active nights — consistency over volume",
-    )}
 
     <div class="viz-grid viz-grid-duo">
       ${vizPanel(
@@ -508,7 +496,19 @@ function renderOverview(container, data) {
       )}
     </div>
 
-    ${badgeJourneySection(data.totalDone)}`;
+    ${vizPanel(
+      "Consistency calendar",
+      '<div id="echart-calendar" class="echart-host echart-host-calendar"></div>',
+      "viz-cal-hero",
+      "Green squares = nights you showed up · hover any day for details",
+    )}
+
+    ${vizPanel(
+      "This month vs last",
+      '<div id="echart-month-compare" class="echart-host echart-host-sm"></div>',
+      "viz-month",
+      "Active nights — consistency over volume",
+    )}`;
 
   if (typeof ProgressCharts !== "undefined") {
     ProgressCharts.renderJourneyMap(data);

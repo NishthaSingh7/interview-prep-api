@@ -13,10 +13,10 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
-      slug: "pacific-atlantic-water-flow-ulta-jaasoos",
-      title: "🎬 Khulasa: Ulta Jaasoos, Do Samundar, Dono Flag Pe Catch!",
+      slug: "pacific-atlantic-samundar-se-chadhai-beech-ka-raaz",
+      title: "🎬 Khulasa: Samundar Se Chadhai, Beech Ka Raaz!",
       excerpt:
-        "Pacific Atlantic Water Flow — samundar se pahad par chadhne wale Blue aur Red jaasoos. Jahan dono flag lage, wahi cell result mein. Title hi cheat code.",
+        "Pacific Atlantic Water Flow — Pirate Leader do crew bhejta hai kinare se pahad par. Jahan Blue aur Red dono pahunche, wahi beech ka raaz. Title hi cheat code.",
       date: "2026-07-11",
       readMin: 4,
       tags: ["Matrix", "DFS", "Pacific Atlantic"],
@@ -24,11 +24,11 @@ const NewsletterContent = (() => {
       body: [
         {
           type: "p",
-          text: "Aaj dopahar Pacific Atlantic Water Flow solve kiya. Ek pahadi ilaaka (grid) hai — Top aur Left pe Pacific Ocean, Bottom aur Right pe Atlantic. Mission: woh cells dhoondhne hain jahan se pani dono samundaron mein bahe sake. Har cell se pani bahane ki koshish? Thak jaoge. Isliye Reverse Spy Strategy — samundar se pahad par chadho, ulta dimaag! Title zor se bolo: Ulta Jaasoos, Do Samundar, Dono Flag Pe Catch!",
+          text: "Aaj dopahar Pacific Atlantic Water Flow solve kiya. Ek pahadi ilaaka (grid) — Top aur Left pe Pacific, Bottom aur Right pe Atlantic. Mission: woh cells jahan se pani dono samundaron mein bahe sake. Har cell se neeche se pani test karna? Time waste. Pirate Leader ka plan: samundar se seedha pahad par chadho. Title zor se bolo: Samundar Se Chadhai, Beech Ka Raaz!",
         },
         {
           type: "callout",
-          text: "Ulta jaasoos = ocean se andar DFS. Do samundar = Blue (Pacific) + Red (Atlantic). Dono flag = jahan intersection, wahi answer.",
+          text: "Samundar se chadhai = kinare se andar DFS. Beech ka raaz = jahan Blue Crew aur Red Crew dono pahunche — wahi answer cell.",
         },
         {
           type: "h2",
@@ -37,42 +37,43 @@ const NewsletterContent = (() => {
         {
           type: "ul",
           items: [
-            "Pacific Team (pacific_reachable) — Blue kapde wale jaasoos. Top aur Left border se pahad ke andar ghusenge.",
-            "Atlantic Team (atlantic_reachable) — Red kapde wale jaasoos. Bottom aur Right border se andar chadhenge.",
-            "DFS Commander (dfs function) — dono teams ka boss. Walkie-talkie par rules batata hai.",
+            "Pirate Leader — dono crew control karta hai. Border par bhejta hai, aakhir mein beech ka raaz khud dhoondhta hai.",
+            "Blue Crew (pacific_reachable) — Pacific kinare ke jaasoos. Top row aur Left column se andar chadhenge.",
+            "Red Crew (atlantic_reachable) — Atlantic kinare ke jaasoos. Bottom row aur Right column se andar chadhenge.",
+            "dfs() — Pirate Leader ka order: har jaasoos ko chalne ke niyam walkie-talkie par.",
           ],
         },
         {
           type: "h2",
-          text: "DFS Commander ke 3 rules",
+          text: "Pirate Leader ke 3 niyam",
         },
         {
           type: "ul",
           items: [
-            "Rule 1 — Border check: grid se bahar nikal gaye? return. (r < 0, c < 0, etc.)",
-            "Rule 2 — Visited check: tumhari team ka jhanda pehle se laga hai? dubara mat jao. (r,c) in reachable_set → return.",
-            "Rule 3 — Climbing rule: samundar se upar chadh rahe ho, toh agla cell tabhi jab height ≥ current. Niche wala? ruk jao. (heights[r][c] < prev_height → return)",
+            "Niyam 1 — Seema: grid se bahar? wapas jao. (r < 0, c < 0, etc.)",
+            "Niyam 2 — Pehle se aaye ho? dubara mat jao. (r,c) in reachable_set → return.",
+            "Niyam 3 — Oonchai: samundar se upar chadh rahe ho — agla cell tabhi jab height ≥ current. Niche? ruk jao. (heights[r][c] < prev_height → return)",
           ],
         },
         {
           type: "p",
-          text: "Teeno rules pass? Jaasoos flag gaad deta hai (reachable_set.add) aur charo directions mein dosto ko bhej deta hai.",
+          text: "Teeno niyam pass? Jaasoos apna jhanda gaad deta hai (reachable_set.add) aur charo directions mein aage bhej deta hai.",
         },
         {
           type: "h2",
-          text: "Act 1: Border se attack",
+          text: "Act 1: Kinare se chadhai",
         },
         {
           type: "p",
-          text: "Pacific ki baari: row 0 (Top) aur col 0 (Left) par Blue jaasoos khade — Commander bolta hai \"Chadh jao!\" Blue team andar bhagti hai, jahan tak upar chadh paaye, Blue flag gaad deti hai. Atlantic ki baari: last row (Bottom) aur last col (Right) par Red jaasoos — \"Tum bhi shuru ho jao!\" Red team andar chadhti hai, Red flag lagati hui upar tak.",
+          text: "Pirate Leader pehle Blue Crew bhejta hai — row 0 (Top) aur col 0 (Left) par khade ho, andar chadho! Blue jhande jahan-jahan pahunche, mark kar lo. Phir Red Crew — last row (Bottom) aur last col (Right) se shuru, andar chadho, Red jhande laga do.",
         },
         {
           type: "h2",
-          text: "Act 2: Final meeting",
+          text: "Act 2: Beech ka raaz",
         },
         {
           type: "p",
-          text: "Dono teams thak kar ruk jaati hain. Raja (final nested loops) poore matrix ka round lagata hai. Har cell check: \"Blue flag bhi hai AUR Red flag bhi?\" — if (r,c) in pacific_reachable and (r,c) in atlantic_reachable. Dono flags jahan milte hain, wahi lucky spot — pani Pacific aur Atlantic dono mein jaa sakta hai. Result list mein likh, return. Kahani khatam!",
+          text: "Dono crew thak kar ruk jaati hain. Ab Pirate Leader khud poore pahad ka round lagata hai — har cell par sawaal: \"Blue jhanda bhi hai AUR Red jhanda bhi?\" if (r,c) in pacific_reachable and (r,c) in atlantic_reachable. Jahan dono mile, wahi beech ka raaz — pani Pacific aur Atlantic dono mein jaa sakta hai. Result list mein likho, return. Raaz khul gaya!",
         },
         {
           type: "h2",
@@ -81,10 +82,10 @@ const NewsletterContent = (() => {
         {
           type: "ul",
           items: [
-            "Top + Left borders → Pacific DFS → pacific_reachable.",
-            "Bottom + Right borders → Atlantic DFS → atlantic_reachable.",
-            "Climbing rule → height >= prev_height hi aage badho.",
-            "Intersection → dono sets mein (r,c) → result mein add.",
+            "Top + Left → Blue Crew DFS → pacific_reachable.",
+            "Bottom + Right → Red Crew DFS → atlantic_reachable.",
+            "Oonchai rule → sirf height >= prev_height par aage badho.",
+            "Beech ka raaz → dono sets mein (r,c) → result mein add.",
           ],
         },
         {
