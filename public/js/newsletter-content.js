@@ -13,6 +13,87 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "pacific-atlantic-water-flow-ulta-jaasoos",
+      title: "🎬 Khulasa: Ulta Jaasoos, Do Samundar, Dono Flag Pe Catch!",
+      excerpt:
+        "Pacific Atlantic Water Flow — samundar se pahad par chadhne wale Blue aur Red jaasoos. Jahan dono flag lage, wahi cell result mein. Title hi cheat code.",
+      date: "2026-07-11",
+      readMin: 4,
+      tags: ["Matrix", "DFS", "Pacific Atlantic"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "Aaj dopahar Pacific Atlantic Water Flow solve kiya. Ek pahadi ilaaka (grid) hai — Top aur Left pe Pacific Ocean, Bottom aur Right pe Atlantic. Mission: woh cells dhoondhne hain jahan se pani dono samundaron mein bahe sake. Har cell se pani bahane ki koshish? Thak jaoge. Isliye Reverse Spy Strategy — samundar se pahad par chadho, ulta dimaag! Title zor se bolo: Ulta Jaasoos, Do Samundar, Dono Flag Pe Catch!",
+        },
+        {
+          type: "callout",
+          text: "Ulta jaasoos = ocean se andar DFS. Do samundar = Blue (Pacific) + Red (Atlantic). Dono flag = jahan intersection, wahi answer.",
+        },
+        {
+          type: "h2",
+          text: "Kahani ke kirdar",
+        },
+        {
+          type: "ul",
+          items: [
+            "Pacific Team (pacific_reachable) — Blue kapde wale jaasoos. Top aur Left border se pahad ke andar ghusenge.",
+            "Atlantic Team (atlantic_reachable) — Red kapde wale jaasoos. Bottom aur Right border se andar chadhenge.",
+            "DFS Commander (dfs function) — dono teams ka boss. Walkie-talkie par rules batata hai.",
+          ],
+        },
+        {
+          type: "h2",
+          text: "DFS Commander ke 3 rules",
+        },
+        {
+          type: "ul",
+          items: [
+            "Rule 1 — Border check: grid se bahar nikal gaye? return. (r < 0, c < 0, etc.)",
+            "Rule 2 — Visited check: tumhari team ka jhanda pehle se laga hai? dubara mat jao. (r,c) in reachable_set → return.",
+            "Rule 3 — Climbing rule: samundar se upar chadh rahe ho, toh agla cell tabhi jab height ≥ current. Niche wala? ruk jao. (heights[r][c] < prev_height → return)",
+          ],
+        },
+        {
+          type: "p",
+          text: "Teeno rules pass? Jaasoos flag gaad deta hai (reachable_set.add) aur charo directions mein dosto ko bhej deta hai.",
+        },
+        {
+          type: "h2",
+          text: "Act 1: Border se attack",
+        },
+        {
+          type: "p",
+          text: "Pacific ki baari: row 0 (Top) aur col 0 (Left) par Blue jaasoos khade — Commander bolta hai \"Chadh jao!\" Blue team andar bhagti hai, jahan tak upar chadh paaye, Blue flag gaad deti hai. Atlantic ki baari: last row (Bottom) aur last col (Right) par Red jaasoos — \"Tum bhi shuru ho jao!\" Red team andar chadhti hai, Red flag lagati hui upar tak.",
+        },
+        {
+          type: "h2",
+          text: "Act 2: Final meeting",
+        },
+        {
+          type: "p",
+          text: "Dono teams thak kar ruk jaati hain. Raja (final nested loops) poore matrix ka round lagata hai. Har cell check: \"Blue flag bhi hai AUR Red flag bhi?\" — if (r,c) in pacific_reachable and (r,c) in atlantic_reachable. Dono flags jahan milte hain, wahi lucky spot — pani Pacific aur Atlantic dono mein jaa sakta hai. Result list mein likh, return. Kahani khatam!",
+        },
+        {
+          type: "h2",
+          text: "Cheat sheet",
+        },
+        {
+          type: "ul",
+          items: [
+            "Top + Left borders → Pacific DFS → pacific_reachable.",
+            "Bottom + Right borders → Atlantic DFS → atlantic_reachable.",
+            "Climbing rule → height >= prev_height hi aage badho.",
+            "Intersection → dono sets mein (r,c) → result mein add.",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Story sun li — ab Pacific Atlantic Water Flow kholo aur code likho. 💪",
+        },
+      ],
+    },
+    {
       slug: "linked-list-cycle-ii-pehli-mulaqat-mandap",
       title: "🎬 Khulasa: Pehli Mulaqat Gol Mein, Doosri Mulaqat Mandap Pe!",
       excerpt:
@@ -20,7 +101,7 @@ const NewsletterContent = (() => {
       date: "2026-07-08",
       readMin: 4,
       tags: ["Linked List", "Fast & Slow Pointers", "Cycle"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",
