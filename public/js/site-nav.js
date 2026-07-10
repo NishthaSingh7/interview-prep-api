@@ -12,11 +12,14 @@ const SiteNav = (() => {
     { href: "/about", label: "About", page: "about" },
   ];
 
+  const secondaryPages = new Set(SECONDARY.map((item) => item.page));
+
   function link(item) {
-    if (item.page === "ide") {
-      return `<a href="${item.href}" class="nav-link nav-link-ide" data-nav="${item.page}"><span class="nav-link-text">IDE</span><span class="nav-ide-hint">Write here before LeetCode</span></a>`;
-    }
     return `<a href="${item.href}" class="nav-link" data-nav="${item.page}">${item.label}</a>`;
+  }
+
+  function dropdownLink(item) {
+    return `<a href="${item.href}" class="nav-dropdown-link" role="menuitem" data-nav="${item.page}">${item.label}</a>`;
   }
 
   function render() {
@@ -28,8 +31,26 @@ const SiteNav = (() => {
       <div class="nav-group nav-group-core">
         ${CORE.map(link).join("")}
       </div>
-      <span class="nav-divider" aria-hidden="true"></span>
-      <div class="nav-group nav-group-secondary">
+      <div class="nav-more" data-nav-more>
+        <button
+          type="button"
+          class="nav-link nav-more-trigger"
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-controls="navMoreMenu"
+          id="navMoreTrigger"
+        >
+          More
+          <svg class="nav-more-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="nav-dropdown" id="navMoreMenu" role="menu" aria-labelledby="navMoreTrigger" hidden>
+          ${SECONDARY.map(dropdownLink).join("")}
+        </div>
+      </div>
+      <div class="nav-group nav-group-more-mobile" aria-label="More pages">
+        <span class="nav-drawer-label">More</span>
         ${SECONDARY.map(link).join("")}
       </div>`;
 
@@ -68,7 +89,7 @@ const SiteNav = (() => {
     }
   }
 
-  function setOpen(open) {
+  function setDrawerOpen(open) {
     const nav = document.querySelector(".site-nav");
     const btn = document.getElementById("navDrawerToggle");
     const backdrop = document.getElementById("navDrawerBackdrop");
@@ -79,33 +100,78 @@ const SiteNav = (() => {
     btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     if (backdrop) backdrop.hidden = !open;
     document.body.classList.toggle("nav-drawer-open", open);
+
+    if (!open) setDropdownOpen(false);
+  }
+
+  function setDropdownOpen(open) {
+    const trigger = document.getElementById("navMoreTrigger");
+    const menu = document.getElementById("navMoreMenu");
+    if (!trigger || !menu) return;
+
+    trigger.setAttribute("aria-expanded", String(open));
+    menu.hidden = !open;
+    trigger.closest(".nav-more")?.classList.toggle("is-open", open);
   }
 
   function bind() {
     const btn = document.getElementById("navDrawerToggle");
     const nav = document.querySelector(".site-nav");
     const backdrop = document.getElementById("navDrawerBackdrop");
+    const moreTrigger = document.getElementById("navMoreTrigger");
+    const moreMenu = document.getElementById("navMoreMenu");
 
     btn?.addEventListener("click", () => {
-      setOpen(!nav?.classList.contains("is-open"));
+      setDrawerOpen(!nav?.classList.contains("is-open"));
     });
 
-    backdrop?.addEventListener("click", () => setOpen(false));
+    backdrop?.addEventListener("click", () => setDrawerOpen(false));
 
-    nav?.querySelectorAll(".nav-link").forEach((link) => {
-      link.addEventListener("click", () => setOpen(false));
+    nav?.querySelectorAll(".nav-link[data-nav], .nav-dropdown-link").forEach((link) => {
+      link.addEventListener("click", () => setDrawerOpen(false));
+    });
+
+    moreTrigger?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = moreTrigger.getAttribute("aria-expanded") === "true";
+      setDropdownOpen(!open);
+    });
+
+    moreMenu?.addEventListener("click", () => setDropdownOpen(false));
+
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest("[data-nav-more]")) {
+        setDropdownOpen(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setDropdownOpen(false);
+        setDrawerOpen(false);
+      }
     });
 
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 900) setOpen(false);
+      if (window.innerWidth > 900) {
+        setDrawerOpen(false);
+      } else {
+        setDropdownOpen(false);
+      }
     });
   }
 
   function setActive(page) {
     if (!page) return;
-    document.querySelectorAll(".nav-link[data-nav]").forEach((link) => {
+
+    document.querySelectorAll(".nav-link[data-nav], .nav-dropdown-link[data-nav]").forEach((link) => {
       link.classList.toggle("active", link.dataset.nav === page);
     });
+
+    const moreTrigger = document.getElementById("navMoreTrigger");
+    if (moreTrigger) {
+      moreTrigger.classList.toggle("active", secondaryPages.has(page));
+    }
   }
 
   function init() {
