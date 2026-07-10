@@ -118,8 +118,6 @@ const Focus = (() => {
       for (const pid of patternOrderForTonight(patterns, patternDone, patternTotals, tonightShuffle)) {
         const pattern = patterns.find((p) => p._id === pid);
         if (!pattern) continue;
-        if (Unlocks.isAdvancedPattern(pattern) && !unlock.advancedPatternsUnlocked) continue;
-
         const { data } = await api(`/api/v1/problems?patternId=${pid}&limit=50`);
         const open = data.filter(
           (p) => !progressMap.has(p._id) && !Unlocks.isProblemLocked(p, unlock),
@@ -270,34 +268,11 @@ const Focus = (() => {
     }
   }
 
-  function renderUnlockBanners(unlockState, wrapId = "unlockBanners") {
+  function renderUnlockBanners(_unlockState, wrapId = "unlockBanners") {
     const wrap = document.getElementById(wrapId);
-    if (!wrap || !unlockState) return;
-
-    if (!Auth.isLoggedIn()) {
-      wrap.hidden = true;
-      wrap.innerHTML = "";
-      return;
-    }
-
-    const u = unlockState;
-    const parts = [];
-
-    if (!u.hardUnlocked) {
-      const left = u.hardUnlockRequired - u.totalDone;
-      parts.push(
-        `<div class="unlock-banner"><span class="lock-icon" aria-hidden="true">🔒</span> Hard problems unlock after ${u.hardUnlockRequired} solves — <strong>${left} to go</strong></div>`,
-      );
-    }
-    if (!u.advancedPatternsUnlocked) {
-      const left = u.advancedPatternsRequired - u.firstTierDone;
-      parts.push(
-        `<div class="unlock-banner"><span class="lock-icon" aria-hidden="true">🔒</span> Patterns 11–20 unlock after ${u.advancedPatternsRequired} in tier 1 — <strong>${left} more in patterns 1–10</strong></div>`,
-      );
-    }
-
-    wrap.innerHTML = parts.join("");
-    wrap.hidden = parts.length === 0;
+    if (!wrap) return;
+    wrap.hidden = true;
+    wrap.innerHTML = "";
   }
 
   return {

@@ -4,20 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
-    <title>Khulasa — AfterHours</title>
+    <title>Practice IDE — AfterHours</title>
     <meta
       name="description"
-      content="Reporter-style khulasa from tonight's DSA solve — tricks, analogies, and the moment sab click hua."
+      content="Run Python, Java, C, and C++ in the AfterHours sandbox IDE — tweak logic and see output instantly."
     />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="AfterHours" />
-    <meta property="og:title" content="Khulasa — AfterHours" />
-    <meta
-      property="og:description"
-      content="Raat ko solve kiya, khulasa suno — kya samajh aayi, kaise samajh aayi."
-    />
-    <meta property="og:url" content="https://afterhours-interview-prep.netlify.app/newsletter" />
-    <meta property="og:image" content="https://afterhours-interview-prep.netlify.app/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -25,9 +16,9 @@
       rel="stylesheet"
     />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260706h" />
+    <link rel="stylesheet" href="/css/style.css?v=20260711e" />
   </head>
-  <body data-page="newsletter">
+  <body data-page="ide">
     <header class="site-header">
       <a href="/" class="logo" aria-label="AfterHours — Progress Never Clocks Out.">
         <div class="logo-mark" aria-hidden="true">
@@ -80,8 +71,52 @@
       </div>
     </header>
 
-    <main class="khulasa-main">
-      <div class="khulasa-wrap" id="newsletterRoot" aria-live="polite"></div>
+    <main class="page-main ide-main">
+      <div class="page-head ide-head">
+        <h2>Practice IDE</h2>
+        <p class="page-subtitle">Run Python, Java, C, and C++ — tweak logic and see output before you open LeetCode.</p>
+        <p class="ide-note">Sandboxed runs · no network or file access · Ctrl+Enter to run</p>
+      </div>
+
+      <section class="ide-workspace panel" aria-label="Code editor workspace">
+        <div class="ide-toolbar">
+          <div class="ide-toolbar-left">
+            <label class="ide-lang-label" for="ideLanguage">Language</label>
+            <select id="ideLanguage" class="ide-select" aria-label="Programming language">
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="c">C</option>
+            </select>
+          </div>
+          <div class="ide-toolbar-actions">
+            <button type="button" id="ideResetBtn" class="btn btn-ghost btn-sm">Reset template</button>
+            <button type="button" id="ideClearOutputBtn" class="btn btn-ghost btn-sm">Clear output</button>
+            <button type="button" id="ideRunBtn" class="btn btn-primary btn-sm">Run code</button>
+          </div>
+        </div>
+
+        <div class="ide-split">
+          <div class="ide-editor-panel">
+            <div class="ide-panel-label">Editor</div>
+            <div id="ideEditor" class="ide-editor-host" aria-label="Code editor"></div>
+          </div>
+
+          <div class="ide-io-panel">
+            <div class="ide-io-block">
+              <label class="ide-panel-label" for="ideStdin">Input (stdin)</label>
+              <textarea id="ideStdin" class="ide-stdin" rows="5" spellcheck="false" placeholder="1 2"></textarea>
+            </div>
+            <div class="ide-io-block ide-output-block">
+              <div class="ide-output-head">
+                <span class="ide-panel-label">Output</span>
+                <span id="ideRunMeta" class="ide-run-meta"></span>
+              </div>
+              <pre id="ideOutput" class="ide-output" aria-live="polite">Output will appear here after you run.</pre>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -93,15 +128,21 @@
 
     <script src="/js/footer.js"></script>
     <script src="/js/site-nav.js?v=20260711e"></script>
-    <script src="/js/auth.js"></script>
+    <script src="/js/auth.js?v=20260704y"></script>
     <script src="/js/milestones.js"></script>
     <script src="/js/nav.js"></script>
-    <script src="/js/newsletter-content.js?v=20260711b"></script>
-    <script src="/js/newsletter-page.js?v=20260706h"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/ace.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/mode-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/mode-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/mode-c_cpp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/theme-tomorrow_night.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/theme-github.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.7/src-noconflict/ext-language_tools.min.js"></script>
+    <script src="/js/ide-page.js?v=20260711e"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         await Nav.init();
-        NewsletterPage.init();
+        IdePage.init();
       });
     </script>
   </body>

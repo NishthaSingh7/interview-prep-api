@@ -50,18 +50,7 @@ const Unlocks = {
     return (pattern?.order ?? 99) > this.FIRST_TIER_PATTERN_COUNT;
   },
 
-  isProblemLocked(problem, unlockState) {
-    if (!Auth.isLoggedIn()) {
-      if (problem.difficulty === "Hard") return true;
-      const pattern = problem.patternId;
-      if (pattern && this.isAdvancedPattern(pattern)) return true;
-      return false;
-    }
-    if (problem.difficulty === "Hard" && !unlockState.hardUnlocked) return true;
-    const pattern = problem.patternId;
-    if (pattern && this.isAdvancedPattern(pattern) && !unlockState.advancedPatternsUnlocked) {
-      return true;
-    }
+  isProblemLocked() {
     return false;
   },
 

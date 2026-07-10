@@ -31,10 +31,7 @@ function isAdvancedPattern(pattern) {
   return getPatternOrder(pattern) > FIRST_TIER_PATTERN_COUNT;
 }
 
-function isProblemLocked(problem, unlockState) {
-  const pattern = problem.patternId;
-  if (problem.difficulty === "Hard" && !unlockState.hardUnlocked) return true;
-  if (isAdvancedPattern(pattern) && !unlockState.advancedPatternsUnlocked) return true;
+function isProblemLocked() {
   return false;
 }
 

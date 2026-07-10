@@ -2,6 +2,7 @@ const SiteNav = (() => {
   const CORE = [
     { href: "/study", label: "Study", page: "study" },
     { href: "/", label: "Solve", page: "solve" },
+    { href: "/ide", label: "IDE", page: "ide" },
     { href: "/progress", label: "Progress", page: "progress" },
   ];
 

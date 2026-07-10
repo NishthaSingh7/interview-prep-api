@@ -22,7 +22,8 @@ const pageRoutes = [
   "/progress   /progress.html  200",
   "/companion  /companion.html 200",
   "/newsletter /newsletter.html 200",
-  "/login      /login.html     200",
+  "/ide        /ide.html         200",
+  "/login      /login.html       200",
   "/signup     /signup.html    200",
   "/study.html      /study      301",
   "/learn.html      /study      301",
@@ -33,6 +34,7 @@ const pageRoutes = [
   "/signup.html     /signup     301",
   "/companion.html  /companion  301",
   "/newsletter.html /newsletter 301",
+  "/ide.html        /ide        301",
 ].join("\n");
 
 // Clean URLs + proxy /api/* to Railway so the static site can use relative API paths.

@@ -616,19 +616,16 @@ function updateUnlockState() {
 }
 
 function refreshPatternLocks() {
-  if (!state.unlockState) return;
   $$(".pattern-btn").forEach((btn) => {
     if (!btn.dataset.id) return;
-    const pattern = state.patterns.find((p) => p._id === btn.dataset.id);
-    const locked = pattern && Unlocks.isAdvancedPattern(pattern) && !state.unlockState.advancedPatternsUnlocked;
-    btn.classList.toggle("pattern-locked", locked);
-    btn.disabled = locked;
+    btn.classList.remove("pattern-locked");
+    btn.disabled = false;
     const nameEl = btn.querySelector(".pattern-name");
     if (nameEl && !nameEl.dataset.baseName) {
       nameEl.dataset.baseName = nameEl.textContent.replace(/^🔒\s*/, "");
     }
-    if (nameEl) {
-      nameEl.textContent = locked ? `🔒 ${nameEl.dataset.baseName}` : nameEl.dataset.baseName;
+    if (nameEl && nameEl.dataset.baseName) {
+      nameEl.textContent = nameEl.dataset.baseName;
     }
   });
 }

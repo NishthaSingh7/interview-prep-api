@@ -869,7 +869,6 @@ async function loadFocusPanels(data) {
       : null,
   );
 
-  Focus.renderUnlockBanners(unlockState, "unlockBanners");
   renderReviewQueue(progressEntries);
 
   if (typeof Focus === "undefined") return;
