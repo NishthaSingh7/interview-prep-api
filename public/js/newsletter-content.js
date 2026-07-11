@@ -16,7 +16,7 @@ const NewsletterContent = (() => {
       slug: "add-two-numbers-suitcase-kholo-jodo-carry-rakh-lo",
       title: "🎬 Khulasa: Suitcase Kholo, Jodo, Carry Rakh Lo!",
       excerpt:
-        "Add Two Numbers — Mr. L1 aur Mr. L2 ke suitcase chain, Dummy guard, Curr collector, Carry jeb mein. Title hi loop: kholo → jodo → carry rakh lo → dummy.next.",
+        "Add Two Numbers — pehle sirf kahani: do businessmen, suitcase chain, Curr, Carry. Code alag section mein. Title yaad rakhna: kholo, jodo, carry rakh lo.",
       date: "2026-07-11",
       readMin: 5,
       tags: ["Linked List", "Math", "Add Two Numbers"],
@@ -24,98 +24,156 @@ const NewsletterContent = (() => {
       body: [
         {
           type: "p",
-          text: "Aaj raat Add Two Numbers. Do linked lists — har node ek digit — aur numbers reverse order mein likhe hain (pehle Units, phir Tens, Hundreds). Seedha padhoge toh lagta hai accounting ka paper. Hum ise Bollywood heist ki tarah sunte hain. Title zor se bolo: Suitcase Kholo, Jodo, Carry Rakh Lo!",
+          text: "Aaj ki problem: Add Two Numbers. Do lists hain. Har dabbe mein ek number (0 se 9). Numbers ulta likhe hain — pehle chhoti jagah (units), phir badi. Seedha padhoge toh dimaag ghoomega. Isliye pehle sirf kahani suno. Code baad mein, alag se. Title zor se bolo: Suitcase Kholo, Jodo, Carry Rakh Lo!",
         },
         {
           type: "callout",
-          text: "Suitcase Kholo = digit lo (nahi toh 0). Jodo = val1 + val2 + carry. Carry Rakh Lo = % 10 naya suitcase, // 10 jeb mein. Climax = return dummy.next.",
+          text: "Pehle kahani. Phir neeche alag box mein code. Dono mix mat karna — tabhi clear rahega.",
         },
         {
           type: "h2",
-          text: "The Setup: Do alag shehar, ek mission",
+          text: "Kahani: do shehar, ek mission",
         },
         {
           type: "p",
-          text: "Do bade businessmen — Mr. L1 aur Mr. L2. Dono ke paas bahut saara cash (digits) hai, alag-alag suitcase (nodes) mein band. Twist: yeh saare suitcase ek-dusre se chain ki tarah jude hue hain (linked list). Aur dono apni tijori ka hisab ulta rakhte hain — pehle suitcase mein Units place, phir Tens, phir Hundreds. Mission: in dono ka paisa jodkar ek naye accountant Mr. Curr ko saunpna hai.",
+          text: "Do bade businessmen hain — Mr. L1 aur Mr. L2. Dono ke paas bahut cash hai. Cash alag-alag suitcase mein band hai. Suitcase ek chain mein jude hue hain — ek ke peeche dusra, dusre ke peeche teesra. Aur dono apna hisab ulta rakhte hain: pehla suitcase chhoti value, aakhri suitcase badi value.",
+        },
+        {
+          type: "p",
+          text: "Mission simple hai: dono ka paisa jodo, aur ek nayi chain banao. Yeh naya hisab Mr. Curr sambhalega.",
         },
         {
           type: "h2",
-          text: "Kahani ke kirdar",
+          text: "Kaun kaun hai is film mein?",
         },
         {
           type: "ul",
           items: [
-            "Dummy (The Base Guard) — ek nakli security guard. Sirf line ki shuruat pe khada rehta hai, taaki asli paison ki chain uske peeche se shuru ho sake.",
-            "Curr (The Collector) — woh worker jo nayi chain (result list) bana raha hai. Har round mein naya suitcase jodta hai.",
-            "Carry (The Transporter) — woh extra cash jo jodne ke baad 10 se upar nikalta hai aur agli line mein transfer hona hota hai. Hero of the pocket.",
-            "Mr. L1 & Mr. L2 — do suitcase-wale businessmen. Jiska suitcase khatam, us round mein uska amount 0.",
+            "Dummy — nakli guard. Line ke bilkul shuru mein khada. Asli paisa uske peeche se shuru hota hai.",
+            "Curr — collector. Nayi suitcase-chain banata hai, ek-ek karke.",
+            "Carry — jeb ka extra paisa. Jab jod 10 ya usse zyada ho, jo bacha woh agli baar ke liye jeb mein.",
+            "Mr. L1 aur Mr. L2 — do suitcase-wale. Jiska suitcase khatam, us round mein uska paisa zero.",
           ],
         },
         {
           type: "h2",
-          text: "The Loop: Tijori ka safar",
+          text: "Golden rule (yaad rakhna)",
         },
         {
           type: "p",
-          text: "Golden Rule: jab tak kisi bhi businessman ke paas suitcase bacha hai, YA haath mein koi carry (udhaar) bacha hai — tab tak kaam rukna nahi. while l1 or l2 or carry. Ab har round teen shabdon mein — title yaad rakhna.",
+          text: "Kaam tab tak chalta rahe jab tak: kisi ke paas suitcase bacha ho, YA Curr ki jeb mein Carry bacha ho. Dono khatam? Tab rukna.",
         },
         {
           type: "h2",
-          text: "Act 1 — Suitcase Kholo",
+          text: "Har round mein teen kaam — title hi plan hai",
+        },
+        {
+          type: "h3",
+          text: "1. Suitcase Kholo",
         },
         {
           type: "p",
-          text: "Curr dono businessmen ke samne jata hai. Agar L1 ke paas suitcase hai, toh uska amount leta hai — val1 = l1.val. Agar L1 ke suitcase khatam ho gaye, toh use 0 maan leta hai. Bilkul same kaam L2 ke saath — val2. Empty side ignore mat karo; zero se treat karo. Pehla shabd: Kholo.",
+          text: "Curr pehle L1 ke paas jata hai. Suitcase hai? Usme jo number hai, woh le lo. Suitcase nahi? Zero maan lo. Phir L2 ke paas — same baat. Dono taraf se aaj ki rakam mil gayi.",
         },
         {
-          type: "h2",
-          text: "Act 2 — Jodo",
-        },
-        {
-          type: "p",
-          text: "Ab hisab: addition = val1 + val2 + carry. Purana carry bhi milta hai — warna peechle round ka udhaar kho jayega. Yeh jodna hi poori kahani ka dil hai. Doosra shabd: Jodo.",
-        },
-        {
-          type: "h2",
-          text: "Act 3 — Carry Rakh Lo",
+          type: "h3",
+          text: "2. Jodo",
         },
         {
           type: "p",
-          text: "Maan lo total 14 aaya. Curr chalaki se 4 ko naye suitcase ke liye rakh leta hai (num = addition % 10) aur 1 ko apni jeb mein daal leta hai (carry = addition // 10) — agli line ke liye. Phir turant naya suitcase banata hai: curr.next = ListNode(num), aur khud ek kadam aage — curr = curr.next. Teesra shabd: Carry Rakh Lo.",
+          text: "Ab teen cheezein jodo: L1 ka number + L2 ka number + jeb mein jo Carry pehle se pada tha. Yeh total aaj ka poora hisab hai.",
         },
         {
-          type: "h2",
-          text: "Act 4 — Aage badho",
-        },
-        {
-          type: "p",
-          text: "Dono businessmen apne-apne agle suitcase ki taraf: if l1: l1 = l1.next, if l2: l2 = l2.next. Jiska suitcase khatam, woh wahin ruk jata hai. Loop wapas Act 1 pe — jab tak Golden Rule true hai.",
-        },
-        {
-          type: "h2",
-          text: "The Climax: Dummy hatao",
+          type: "h3",
+          text: "3. Carry Rakh Lo",
         },
         {
           type: "p",
-          text: "Saara kaam khatam. Kahani ki shuruat mein khade nakli guard (Dummy) ko hata diya jata hai. Uske theek peeche se jo asli chamakti tijori ki chain shuru hoti hai — return dummy.next — wohi hamara final answer. Dummy sirf scaffolding tha; asli film uske next se shuru hoti hai.",
+          text: "Maan lo total 14 aaya. Curr chalaki karta hai: 4 ko naye suitcase mein daal deta hai (yeh aaj ki chain mein jodta hai), aur 1 ko jeb mein rakh leta hai — agli baar ke liye. Kyunki 14 mein 10 wali jagah agli line mein jaati hai. Phir Curr khud ek kadam aage badh jata hai, nayi chain pe.",
+        },
+        {
+          type: "p",
+          text: "Uske baad L1 aur L2 bhi apne agle suitcase pe chale jaate hain. Jiska suitcase khatam, woh ruk jata hai. Phir wapas shuru: Kholo → Jodo → Carry Rakh Lo.",
         },
         {
           type: "h2",
-          text: "Cheat sheet",
+          text: "Climax: Dummy ko hatao",
         },
         {
-          type: "ul",
+          type: "p",
+          text: "Jab saara kaam khatam, nakli guard Dummy ki zaroorat nahi. Usse hata do. Uske theek peeche se jo asli suitcase-chain shuru hoti hai — wahi final jawab. Dummy sirf shuruat pakadne ke liye tha.",
+        },
+        {
+          type: "h2",
+          text: "Ek baar dimaag mein ghumao",
+        },
+        {
+          type: "ol",
           items: [
-            "Suitcase Kholo → val1/val2 = node.val if node else 0.",
-            "Jodo → addition = val1 + val2 + carry.",
-            "Carry Rakh Lo → carry = // 10, num = % 10, ListNode(num) chain mein jodo.",
-            "Aage badho → l1/l2 = .next jab maujood ho.",
-            "Climax → return dummy.next.",
+            "Suitcase kholo — dono taraf se aaj ka number (nahi toh zero).",
+            "Jodo — dono numbers + jeb ka Carry.",
+            "Carry rakh lo — 10 se kam wala hissa naya suitcase, 10 wali jagah jeb mein.",
+            "Aage badho — agla suitcase, phir loop.",
+            "Aakhir mein — Dummy hatao, peeche wali chain return.",
           ],
         },
         {
           type: "callout",
-          text: "Story sun li — ab Add Two Numbers kholo aur code likho. Suitcase Kholo, Jodo, Carry Rakh Lo! 💪",
+          text: "Yahan tak sirf kahani thi. Neeche alag se code hai — ab mapping clear hogi.",
+        },
+        {
+          type: "h2",
+          text: "Ab code (alag padho)",
+        },
+        {
+          type: "p",
+          text: "Upar wali kahani ka seedha code. Pehle story yaad, phir yeh block.",
+        },
+        {
+          type: "code",
+          lang: "python",
+          text: `def addTwoNumbers(l1, l2):
+    dummy = ListNode(0)   # nakli guard
+    curr = dummy          # collector
+    carry = 0             # jeb ka extra
+
+    while l1 or l2 or carry:
+        # 1. Suitcase Kholo
+        val1 = l1.val if l1 else 0
+        val2 = l2.val if l2 else 0
+
+        # 2. Jodo
+        total = val1 + val2 + carry
+
+        # 3. Carry Rakh Lo
+        carry = total // 10
+        num = total % 10
+        curr.next = ListNode(num)
+        curr = curr.next
+
+        # Aage badho
+        if l1: l1 = l1.next
+        if l2: l2 = l2.next
+
+    return dummy.next     # Dummy hatao`,
+        },
+        {
+          type: "h2",
+          text: "Kahani → code (ek line each)",
+        },
+        {
+          type: "ul",
+          items: [
+            "Suitcase Kholo → val1 / val2 (node nahi toh 0)",
+            "Jodo → total = val1 + val2 + carry",
+            "Carry Rakh Lo → carry = total // 10, suitcase mein total % 10",
+            "Aage badho → l1 / l2 ko next pe le jao",
+            "Dummy hatao → return dummy.next",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Ab Add Two Numbers kholo. Pehle title bolo, phir code likho. 💪",
         },
       ],
     },
