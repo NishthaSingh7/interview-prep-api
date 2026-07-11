@@ -13,6 +13,105 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "add-two-numbers-suitcase-kholo-jodo-carry-rakh-lo",
+      title: "🎬 Khulasa: Suitcase Kholo, Jodo, Carry Rakh Lo!",
+      excerpt:
+        "Add Two Numbers — do businessmen ke suitcase (linked list digits), Curr jodta hai, Carry jeb mein rakh lo. Title hi cheat code: kholo → jodo → carry rakh lo → dummy.next.",
+      date: "2026-07-11",
+      readMin: 4,
+      tags: ["Linked List", "Math", "Add Two Numbers"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "Add Two Numbers — do linked lists, har node ek digit, aur hisab ulta hai (pehle Units, phir Tens, Hundreds). Seedha sochoge toh confuse. Bollywood plot se socho: do businessmen, suitcase chain, ek collector, aur jeb mein carry. Title zor se bolo: Suitcase Kholo, Jodo, Carry Rakh Lo!",
+        },
+        {
+          type: "callout",
+          text: "Kholo = node se digit lo (nahi toh 0). Jodo = val1 + val2 + carry. Carry rakh lo = // 10 jeb mein, % 10 naya suitcase. Aakhir mein dummy.next.",
+        },
+        {
+          type: "h2",
+          text: "Setup: Do alag shehar, ek mission",
+        },
+        {
+          type: "p",
+          text: "Mr. L1 aur Mr. L2 — dono ke paas cash (digits) alag-alag suitcase (nodes) mein band. Suitcase chain se jude hue hain (linked list). Twist: tijori ka hisab ulta — pehle Units, phir Tens. Dono ka paisa jodke naye accountant Curr ko saunpna hai.",
+        },
+        {
+          type: "h2",
+          text: "Kahani ke kirdar",
+        },
+        {
+          type: "ul",
+          items: [
+            "Dummy (Base Guard) — nakli security guard. Line ki shuruat pe khada, taaki asli chain uske peeche se shuru ho.",
+            "Curr (The Collector) — nayi result chain bana raha hai.",
+            "Carry (The Transporter) — jodne ke baad 10 se upar jo nikalta hai, agli line mein transfer.",
+            "L1 / L2 — do businessmen. Suitcase khatam? Us round mein 0 maan lo.",
+          ],
+        },
+        {
+          type: "h2",
+          text: "Golden rule",
+        },
+        {
+          type: "p",
+          text: "Jab tak kisi businessman ke paas suitcase bacha hai, YA haath mein carry bacha hai — kaam rukna nahi. while l1 or l2 or carry.",
+        },
+        {
+          type: "h2",
+          text: "1. Suitcase Kholo",
+        },
+        {
+          type: "p",
+          text: "Curr dono ke samne jata hai. L1 ke paas suitcase? val1 = l1.val. Khatam? val1 = 0. Same L2 ke saath — val2. Empty side ko ignore mat karo; 0 se treat karo.",
+        },
+        {
+          type: "h2",
+          text: "2. Jodo",
+        },
+        {
+          type: "p",
+          text: "addition = val1 + val2 + carry. Total 14 aaya? Chalaki: 4 naya suitcase ke liye (num = addition % 10), 1 jeb mein (carry = addition // 10) — agli line ke liye ready.",
+        },
+        {
+          type: "h2",
+          text: "3. Carry Rakh Lo — naya suitcase",
+        },
+        {
+          type: "p",
+          text: "curr.next = ListNode(num), phir curr = curr.next. Naya suitcase chain mein jod diya, Curr ek kadam aage. Phir dono businessmen aage: if l1: l1 = l1.next, if l2: l2 = l2.next. Khatam wala wahin rukta hai.",
+        },
+        {
+          type: "h2",
+          text: "Climax: Dummy hatao",
+        },
+        {
+          type: "p",
+          text: "Kaam khatam. Nakli guard Dummy ko hata do. Uske theek peeche jo chamakti chain shuru hoti hai — return dummy.next — wahi final answer.",
+        },
+        {
+          type: "h2",
+          text: "Cheat sheet",
+        },
+        {
+          type: "ul",
+          items: [
+            "Suitcase Kholo → val = node.val if node else 0.",
+            "Jodo → addition = val1 + val2 + carry.",
+            "Carry Rakh Lo → carry = // 10, num = % 10, naya ListNode(num).",
+            "Aage badho → l1/l2 = .next jab maujood ho.",
+            "Final → return dummy.next.",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Story sun li — ab Add Two Numbers kholo aur code likho. 💪",
+        },
+      ],
+    },
+    {
       slug: "pacific-atlantic-samundar-se-chadhai-beech-ka-raaz",
       title: "🎬 Khulasa: Samundar Se Chadhai, Beech Ka Raaz!",
       excerpt:
@@ -20,7 +119,7 @@ const NewsletterContent = (() => {
       date: "2026-07-11",
       readMin: 4,
       tags: ["Matrix", "DFS", "Pacific Atlantic"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",
