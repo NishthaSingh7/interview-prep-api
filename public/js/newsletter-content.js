@@ -13,6 +13,145 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "plus-one-linked-list-ulta-ghumao-shagun-baanto-seedha-lao",
+      title: "🎬 Khulasa: Ulta Ghumao, Shagun Baanto, Seedha Lao!",
+      excerpt:
+        "Plus One Linked List — baraat ulti, ₹1 shagun aakhiri bande ko, pocket phati toh carry aage, phir baraat seedhi. Title hi teen step.",
+      date: "2026-07-12",
+      readMin: 4,
+      tags: ["Linked List", "Math", "Plus One"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "Aaj ki problem: linked list ke number mein +1. List aage se padhti hai — pehla banda badi value, aakhiri banda chhoti. Par +1 hamesha aakhiri digit pe lagta hai. Seedha aakhiri tak nahi pahunch sakte. Isliye baraat wali kahani. Title zor se bolo: Ulta Ghumao, Shagun Baanto, Seedha Lao!",
+        },
+        {
+          type: "callout",
+          text: "Pehle sirf kahani. Code neeche alag box mein. Teen step yaad: ulta → shagun → seedha.",
+        },
+        {
+          type: "h2",
+          text: "Kaun kaun hai?",
+        },
+        {
+          type: "ul",
+          items: [
+            "Baraati (nodes) — line mein khade. Har ek ke paas ek pocket (number 0–9), aage wale ka haath pakda (next).",
+            "Dulha (head) — jo sabse aage khada hai.",
+            "Shagun (₹1) — woh extra sikka jo list mein add karna hai. Yeh carry se chalta hai.",
+          ],
+        },
+        {
+          type: "h2",
+          text: "Step 1 — Ulta Ghumao",
+        },
+        {
+          type: "p",
+          text: "Shagun ka ₹1 hamesha sabse aakhiri baraati ko milta hai. Par baraat seedhi khadi hai — aakhiri bande tak seedha nahi jaa sakte. Toh pura juloos ulta ghumaya. Jo pehle aakhiri tha, ab sabse aage aa gaya. Ab usko ₹1 dena easy hai.",
+        },
+        {
+          type: "h2",
+          text: "Step 2 — Shagun Baanto",
+        },
+        {
+          type: "p",
+          text: "Pehle bande ko ₹1 thama diya. Rule: kisi ki pocket mein 9 se zyada nahi aa sakta. 10 hua toh pocket phat jaati hai.",
+        },
+        {
+          type: "p",
+          text: "Normal case — jaise aakhiri digit 3 thi. ₹1 diya, 4 ho gayi. Pocket theek. Carry khatam. Aage jaane ki zaroorat nahi — ruk jao.",
+        },
+        {
+          type: "p",
+          text: "Lalchi case — pocket mein pehle se 9. ₹1 diya, 10. Pocket phati: 0 apni jeb mein rakho, bacha ₹1 aage wale ke haath mein thama do. Yeh tab tak chalta hai jab tak kisi ki pocket phatna band na ho.",
+        },
+        {
+          type: "h2",
+          text: "Step 3 — Sab 9 nikle toh?",
+        },
+        {
+          type: "p",
+          text: "Poori baraat 9-9-9 thi. Har ek ne 0 rakha, ₹1 aage badhaya. Log khatam — lekin hawa mein abhi bhi ₹1 ghoom raha hai. Bhool gaye toh jawab 000 ban jaayega. Blunder!",
+        },
+        {
+          type: "p",
+          text: "Savior: aakhiri bande (tail) ne apne peeche ek naya baraati khada kiya aur use woh ₹1 de diya. Ulti baraat ab 0-0-0-1.",
+        },
+        {
+          type: "h2",
+          text: "Step 4 — Seedha Lao",
+        },
+        {
+          type: "p",
+          text: "Shagun bat chuka. Par dulha ab peeche hai. Shaadi ke liye baraat wapas seedhi. Dobara ulta ghumaya — 0-0-0-1 ban gaya 1-0-0-0. Dulha aage, jawab ready.",
+        },
+        {
+          type: "h2",
+          text: "Interview checklist (kahani language)",
+        },
+        {
+          type: "ol",
+          items: [
+            "Ulta ghumao — aakhiri banda aage aa jaaye.",
+            "Shagun baanto — pocket 9 se badi ho toh 0 rakh ke ₹1 aage bhejo. Aakhiri bande ka haath pakde raho (tail).",
+            "Bacha carry — loop ke baad bhi ₹1 bacha ho toh tail ke peeche naya banda.",
+            "Seedha lao — dulha wapas aage, return.",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Yahan tak sirf kahani. Neeche code alag se.",
+        },
+        {
+          type: "h2",
+          text: "Ab code (alag padho)",
+        },
+        {
+          type: "code",
+          lang: "python",
+          text: `def plusOne(head):
+    # 1. Ulta Ghumao
+    head = reverse(head)
+
+    # 2. Shagun Baanto
+    curr = head
+    carry = 1
+    tail = None
+    while curr and carry:
+        total = curr.val + carry
+        curr.val = total % 10
+        carry = total // 10
+        tail = curr
+        curr = curr.next
+
+    # 3. Bacha carry (sab 9 wala case)
+    if carry and tail:
+        tail.next = ListNode(carry)
+
+    # 4. Seedha Lao
+    return reverse(head)`,
+        },
+        {
+          type: "h2",
+          text: "Kahani → code",
+        },
+        {
+          type: "ul",
+          items: [
+            "Ulta Ghumao → reverse(head)",
+            "Shagun Baanto → carry = 1, loop mein % 10 aur // 10",
+            "Bacha carry → tail ke peeche naya node",
+            "Seedha Lao → reverse(head) wapas, return",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Ab Plus One Linked List kholo. Ulta Ghumao, Shagun Baanto, Seedha Lao! 💪",
+        },
+      ],
+    },
+    {
       slug: "add-two-numbers-suitcase-kholo-jodo-carry-rakh-lo",
       title: "🎬 Khulasa: Suitcase Kholo, Jodo, Carry Rakh Lo!",
       excerpt:
@@ -20,7 +159,7 @@ const NewsletterContent = (() => {
       date: "2026-07-11",
       readMin: 5,
       tags: ["Linked List", "Math", "Add Two Numbers"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",
