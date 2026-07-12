@@ -9186,11 +9186,12 @@ body[data-page="study"] {
 
 
 .khulasa-paper-card {
-  --paper-face: #f4e8d4;
-  --paper-deep: #e9dcc4;
-  --paper-ink: #3d2e1f;
-  --paper-ink-soft: #5c4a36;
-  --paper-accent: #8b4513;
+  /* Light theme: cool paper that sits on --bg (#e8edf4), not muddy tan */
+  --paper-face: #ffffff;
+  --paper-deep: #eef2f7;
+  --paper-ink: #1e293b;
+  --paper-ink-soft: #475569;
+  --paper-accent: #4f46e5;
 
   position: relative;
   border: none;
@@ -9199,21 +9200,21 @@ body[data-page="study"] {
       0deg,
       transparent,
       transparent 27px,
-      rgba(139, 90, 43, 0.04) 27px,
-      rgba(139, 90, 43, 0.04) 28px
+      rgba(79, 70, 229, 0.035) 27px,
+      rgba(79, 70, 229, 0.035) 28px
     ),
-    radial-gradient(ellipse 120% 80% at 50% 0%, #faf3e6 0%, var(--paper-face) 45%, var(--paper-deep) 100%);
+    radial-gradient(ellipse 120% 80% at 50% 0%, #ffffff 0%, var(--paper-face) 48%, var(--paper-deep) 100%);
   color: var(--paper-ink);
   clip-path: polygon(
     0% 1.5%, 2% 0.3%, 4% 1%, 7% 0%, 12% 0.6%, 18% 0.1%, 28% 0.5%, 40% 0%, 55% 0.4%, 70% 0%, 85% 0.5%, 94% 0.1%, 98% 0.8%, 100% 1.5%,
     100% 98.5%, 98% 99.5%, 94% 100%, 85% 99.2%, 70% 100%, 55% 99.5%, 40% 100%, 28% 99.6%, 15% 100%, 8% 99%, 4% 100%, 0% 98.5%
   );
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08)) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.06)) drop-shadow(0 8px 22px rgba(15, 23, 42, 0.1));
   transition: filter 0.15s, transform 0.15s;
 }
 
 .khulasa-paper-card:hover {
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0 12px 28px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.08)) drop-shadow(0 12px 28px rgba(15, 23, 42, 0.14));
   transform: translateY(-1px);
 }
 
@@ -9239,7 +9240,22 @@ body[data-page="study"] {
   background: color-mix(in srgb, var(--paper-accent) 8%, transparent);
 }
 
+/* Dark theme keeps warm torn parchment — high contrast on dark bg */
 [data-theme="dark"] .khulasa-paper-card {
+  --paper-face: #f4e8d4;
+  --paper-deep: #e9dcc4;
+  --paper-ink: #3d2e1f;
+  --paper-ink-soft: #5c4a36;
+  --paper-accent: #8b4513;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(139, 90, 43, 0.04) 27px,
+      rgba(139, 90, 43, 0.04) 28px
+    ),
+    radial-gradient(ellipse 120% 80% at 50% 0%, #faf3e6 0%, var(--paper-face) 45%, var(--paper-deep) 100%);
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35)) drop-shadow(0 12px 28px rgba(0, 0, 0, 0.4));
 }
 
@@ -9594,6 +9610,25 @@ body.khulasa-reading .khulasa-wrap {
 }
 
 .khulasa-parchment {
+  /* Light theme: cool folio sheet */
+  --paper-face: #ffffff;
+  --paper-deep: #eef2f7;
+  --paper-shadow: #d5dde8;
+  --paper-ink: #1e293b;
+  --paper-ink-soft: #475569;
+  --paper-ink-faint: #64748b;
+  --paper-accent: #4f46e5;
+  --paper-accent-deep: #4338ca;
+  --paper-binding: #3730a3;
+  --paper-binding-edge: #312e81;
+
+  position: relative;
+  width: 100%;
+  max-width: 42rem;
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.06)) drop-shadow(0 16px 40px rgba(15, 23, 42, 0.12));
+}
+
+[data-theme="dark"] .khulasa-parchment {
   --paper-face: #f4e8d4;
   --paper-deep: #e9dcc4;
   --paper-shadow: #d4c4a8;
@@ -9604,14 +9639,6 @@ body.khulasa-reading .khulasa-wrap {
   --paper-accent-deep: #6b3410;
   --paper-binding: #5c3d1e;
   --paper-binding-edge: #3d2812;
-
-  position: relative;
-  width: 100%;
-  max-width: 42rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08)) drop-shadow(0 16px 40px rgba(0, 0, 0, 0.22));
-}
-
-[data-theme="dark"] .khulasa-parchment {
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35)) drop-shadow(0 20px 48px rgba(0, 0, 0, 0.45));
 }
 
@@ -9624,10 +9651,10 @@ body.khulasa-reading .khulasa-wrap {
       0deg,
       transparent,
       transparent 27px,
-      rgba(139, 90, 43, 0.04) 27px,
-      rgba(139, 90, 43, 0.04) 28px
+      rgba(79, 70, 229, 0.035) 27px,
+      rgba(79, 70, 229, 0.035) 28px
     ),
-    radial-gradient(ellipse 120% 80% at 50% 0%, #faf3e6 0%, var(--paper-face) 45%, var(--paper-deep) 100%);
+    radial-gradient(ellipse 120% 80% at 50% 0%, #ffffff 0%, var(--paper-face) 48%, var(--paper-deep) 100%);
   color: var(--paper-ink);
   clip-path: polygon(
     0% 1.2%, 1.5% 0.2%, 3% 0.8%, 5% 0%, 8% 0.6%, 12% 0.1%, 18% 0.5%, 25% 0%, 35% 0.4%, 50% 0%,
@@ -9635,6 +9662,18 @@ body.khulasa-reading .khulasa-wrap {
     100% 98.5%, 99% 99.5%, 97% 98.8%, 94% 100%, 88% 99.2%, 80% 100%, 70% 99.5%, 55% 100%,
     40% 99.3%, 25% 100%, 15% 99.6%, 8% 100%, 4% 99%, 2% 100%, 0% 98.8%
   );
+}
+
+[data-theme="dark"] .khulasa-parchment-sheet {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(139, 90, 43, 0.04) 27px,
+      rgba(139, 90, 43, 0.04) 28px
+    ),
+    radial-gradient(ellipse 120% 80% at 50% 0%, #faf3e6 0%, var(--paper-face) 45%, var(--paper-deep) 100%);
 }
 
 .khulasa-parchment-tear {
@@ -9648,7 +9687,7 @@ body.khulasa-reading .khulasa-wrap {
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(180deg, rgba(61, 40, 18, 0.12), transparent);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08), transparent);
   opacity: 0.6;
 }
 
@@ -9657,7 +9696,7 @@ body.khulasa-reading .khulasa-wrap {
   left: 0;
   right: 0;
   height: 8px;
-  background: linear-gradient(0deg, rgba(61, 40, 18, 0.15), transparent);
+  background: linear-gradient(0deg, rgba(15, 23, 42, 0.1), transparent);
   opacity: 0.5;
 }
 
@@ -9669,7 +9708,7 @@ body.khulasa-reading .khulasa-wrap {
   background: repeating-linear-gradient(
     180deg,
     transparent 0 6px,
-    rgba(139, 90, 43, 0.08) 6px 8px,
+    rgba(79, 70, 229, 0.07) 6px 8px,
     transparent 8px 14px
   );
   opacity: 0.85;
@@ -9683,10 +9722,28 @@ body.khulasa-reading .khulasa-wrap {
   background: repeating-linear-gradient(
     180deg,
     transparent 0 6px,
-    rgba(139, 90, 43, 0.08) 6px 8px,
+    rgba(79, 70, 229, 0.07) 6px 8px,
     transparent 8px 14px
   );
   opacity: 0.85;
+}
+
+[data-theme="dark"] .khulasa-parchment-tear-left,
+[data-theme="dark"] .khulasa-parchment-tear-right {
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 6px,
+    rgba(139, 90, 43, 0.08) 6px 8px,
+    transparent 8px 14px
+  );
+}
+
+[data-theme="dark"] .khulasa-parchment-tear-top {
+  background: linear-gradient(180deg, rgba(61, 40, 18, 0.12), transparent);
+}
+
+[data-theme="dark"] .khulasa-parchment-tear-bottom {
+  background: linear-gradient(0deg, rgba(61, 40, 18, 0.15), transparent);
 }
 
 .khulasa-parchment-stamp {
@@ -9712,7 +9769,7 @@ body.khulasa-reading .khulasa-wrap {
   right: 2rem;
   font-size: 0.55rem;
   letter-spacing: 0.14em;
-  color: color-mix(in srgb, #8b2500 50%, transparent);
+  color: color-mix(in srgb, var(--paper-accent-deep) 50%, transparent);
   border-color: color-mix(in srgb, #8b2500 40%, transparent);
   transform: rotate(14deg);
   opacity: 0.35;
