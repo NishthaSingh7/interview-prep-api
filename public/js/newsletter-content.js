@@ -13,6 +13,149 @@
 const NewsletterContent = (() => {
   const POSTS = [
     {
+      slug: "reverse-nodes-k-group-spy-counts-sniper-cuts-new-don",
+      title: "🎬 Khulasa: Spy Counts, Sniper Cuts, New Don Rises!",
+      excerpt:
+        "Reverse Nodes in k-Group — mafia coup: Spy territory check karta hai, Sniper wire kaat'ta hai, Brainwasher gang ulta deta hai, Old Boss handshake. Title hi plan.",
+      date: "2026-07-14",
+      readMin: 4,
+      tags: ["Linked List", "Recursion", "Reverse K-Group"],
+      featured: true,
+      body: [
+        {
+          type: "p",
+          text: "Aaj ki problem: Reverse Nodes in k-Group. Linked list ko k-k blocks mein todna hai, har block ulta karna hai, phir jodna hai. Variables mat ratto — yeh Bollywood mafia film hai. Underworld ka naam: The K-Gangs. Title zor se bolo: Spy Counts, Sniper Cuts, New Don Rises!",
+        },
+        {
+          type: "callout",
+          text: "Pehle sirf kahani. Har variable = ek character. Code neeche alag box mein.",
+        },
+        {
+          type: "h2",
+          text: "The Cast",
+        },
+        {
+          type: "ul",
+          items: [
+            "Gang Leader (head) — current territory ka boss.",
+            "Spy (curr) — aage jaake count karta hai: territory safe hai ya nahi?",
+            "Sniper (group_end) — k-th block pe wire kaat'ta hai, gang ko isolate karta hai.",
+            "New Don (reversed_head) — brainwash ke baad jo aage aata hai, wahi naya boss.",
+            "Brainwasher (reverseList) — andar gaya toh power flip — arrows ulti.",
+          ],
+        },
+        {
+          type: "h2",
+          text: "Scene 1 — Spy Counts",
+        },
+        {
+          type: "p",
+          text: "Boss chahta hai exactly k blocks ka territory. Pehle Spy bhejta hai. Spy chalta hai: ek, do, teen… k tak. Agar beech mein dead-end mil gaya — territory chhota hai. Spy chillata hai: \"Boss, abort!\" Gang Leader bolta hai: kuch mat chhedo, jaise tha waise chhod do. Mission cancel.",
+        },
+        {
+          type: "p",
+          text: "Agar Spy k blocks mil gaye — woh border pe khada, next territory ke gate pe. Green light.",
+        },
+        {
+          type: "h2",
+          text: "Scene 2 — Sniper Cuts",
+        },
+        {
+          type: "p",
+          text: "Territory verified. Ab isolation. Sniper k-th block ke edge pe jaata hai aur power line kaat deta hai — connection todd do. Yeh k blocks ab dark room mein qaid. Spy bahar next world guard karta hai. Backup nahi aayega.",
+        },
+        {
+          type: "h2",
+          text: "Scene 3 — Brainwash / The Coup",
+        },
+        {
+          type: "p",
+          text: "Isolated gang Brainwasher mein daal di. Rebellion. Arrows ulti. Jo peeche tha, ab aage — New Don. Jo pehle Gang Leader tha, ab peeche — tail. Power flip complete.",
+        },
+        {
+          type: "h2",
+          text: "Scene 4 — The Handshake",
+        },
+        {
+          type: "p",
+          text: "Old Boss, ab peeche baitha, Spy ko next border pe dekhta hai. Phone uthaata hai: \"Next territory pe bhi wahi coup chalao. Jo New Don nikal ke aaye, usse seedha meri peeth se jod dena.\" Yeh deal: peeche baitha old Boss, aage aaya next section ka New Don — chain continue.",
+        },
+        {
+          type: "h2",
+          text: "Scene 5 — New Era",
+        },
+        {
+          type: "p",
+          text: "Poori chain link ho gayi. Old Boss side hota hai, New Don ki taraf ishara: \"Is section ka boss ab yeh hai.\" Underworld ko wahi dikhao — return the New Don.",
+        },
+        {
+          type: "h2",
+          text: "Mind-trick (yaad rakhna)",
+        },
+        {
+          type: "ol",
+          items: [
+            "Spy k steps count kare. Short pade toh abort — list waise ki waise.",
+            "Sniper border pe wire kaate — k-block trap.",
+            "Brainwasher flip — old Boss tail, New Don front.",
+            "Old Boss next territory call kare — chain jode, New Don return.",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Yahan tak sirf kahani. Neeche code alag se.",
+        },
+        {
+          type: "h2",
+          text: "Ab code (alag padho)",
+        },
+        {
+          type: "code",
+          lang: "python",
+          text: `def reverseKGroup(head, k):
+    # Scene 1 — Spy Counts
+    curr = head
+    for _ in range(k):
+        if not curr:
+            return head  # abort
+        curr = curr.next
+
+    # Scene 2 — Sniper Cuts
+    group_end = head
+    for _ in range(k - 1):
+        group_end = group_end.next
+    group_end.next = None
+
+    # Scene 3 — Brainwash
+    reversed_head = reverseList(head)  # old head is now the tail
+
+    # Scene 4 — Handshake with next territory
+    head.next = reverseKGroup(curr, k)
+
+    # Scene 5 — New Don
+    return reversed_head`,
+        },
+        {
+          type: "h2",
+          text: "Kahani → code",
+        },
+        {
+          type: "ul",
+          items: [
+            "Spy Counts → curr se k steps; None mila toh return head",
+            "Sniper Cuts → group_end.next = None",
+            "Brainwash → reverseList(head) → reversed_head",
+            "Handshake → head.next = reverseKGroup(curr, k)",
+            "New Era → return reversed_head",
+          ],
+        },
+        {
+          type: "callout",
+          text: "Ab Reverse Nodes in k-Group kholo. Spy Counts, Sniper Cuts, New Don Rises! 💪",
+        },
+      ],
+    },
+    {
       slug: "plus-one-linked-list-ulta-ghumao-shagun-baanto-seedha-lao",
       title: "🎬 Khulasa: Ulta Ghumao, Shagun Baanto, Seedha Lao!",
       excerpt:
@@ -20,7 +163,7 @@ const NewsletterContent = (() => {
       date: "2026-07-12",
       readMin: 4,
       tags: ["Linked List", "Math", "Plus One"],
-      featured: true,
+      featured: false,
       body: [
         {
           type: "p",
