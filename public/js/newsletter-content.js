@@ -9,6 +9,7 @@
  *   { type: "ol", items: ["...", "..."] }
  *   { type: "code", lang: "javascript", text: "..." }
  *   { type: "callout", text: "..." }
+ *   { type: "diagram", html: "<svg>...</svg>", caption: "optional" }
  */
 const NewsletterContent = (() => {
   const POSTS = [
@@ -16,142 +17,239 @@ const NewsletterContent = (() => {
       slug: "reverse-nodes-k-group-spy-counts-sniper-cuts-new-don",
       title: "🎬 Khulasa: Spy Counts, Sniper Cuts, New Don Rises!",
       excerpt:
-        "Reverse Nodes in k-Group — mafia coup: Spy territory check karta hai, Sniper wire kaat'ta hai, Brainwasher gang ulta deta hai, Old Boss handshake. Title hi plan.",
+        "Reverse K-Group — pehle picture: k nodes pack → cut → ulta → agla pack. Spy, Sniper, New Don. Flowchart + example ke saath.",
       date: "2026-07-14",
-      readMin: 4,
+      readMin: 5,
       tags: ["Linked List", "Recursion", "Reverse K-Group"],
       featured: true,
       body: [
         {
           type: "p",
-          text: "Aaj ki problem: Reverse Nodes in k-Group. Linked list ko k-k blocks mein todna hai, har block ulta karna hai, phir jodna hai. Variables mat ratto — yeh Bollywood mafia film hai. Underworld ka naam: The K-Gangs. Title zor se bolo: Spy Counts, Sniper Cuts, New Don Rises!",
+          text: "Simple problem, weird naam mat socho. Ek line hai: 1 → 2 → 3 → 4 → 5. Tumhe har k nodes ka group ulta karna hai. Agar k = 3, jawab: 3 → 2 → 1 → 4 → 5. Last group adhoora ho toh use mat chhedo. Title yaad rakho: Spy Counts, Sniper Cuts, New Don Rises!",
         },
         {
           type: "callout",
-          text: "Pehle sirf kahani. Har variable = ek character. Code neeche alag box mein.",
+          text: "Neeche pehle picture, phir chhoti kahani, phir code. Picture se logic chipakega.",
         },
         {
           type: "h2",
-          text: "The Cast",
+          text: "Example — pehle dikhao",
+        },
+        {
+          type: "diagram",
+          caption: "k = 3: pehla group ulta, last 2 chhod diye",
+          html: `<svg class="khulasa-flow-svg" viewBox="0 0 420 175" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Before and after reverse k-group">
+  <text x="12" y="22" class="khulasa-flow-label">PEHLE</text>
+  <rect x="12" y="34" width="40" height="34" rx="8" class="khulasa-node-box"/><text x="32" y="56" text-anchor="middle" class="khulasa-node-text">1</text>
+  <path d="M54 51 H72" class="khulasa-arrow"/>
+  <rect x="72" y="34" width="40" height="34" rx="8" class="khulasa-node-box"/><text x="92" y="56" text-anchor="middle" class="khulasa-node-text">2</text>
+  <path d="M114 51 H132" class="khulasa-arrow"/>
+  <rect x="132" y="34" width="40" height="34" rx="8" class="khulasa-node-box"/><text x="152" y="56" text-anchor="middle" class="khulasa-node-text">3</text>
+  <path d="M174 51 H192" class="khulasa-arrow"/>
+  <rect x="192" y="34" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-muted"/><text x="212" y="56" text-anchor="middle" class="khulasa-node-text">4</text>
+  <path d="M234 51 H252" class="khulasa-arrow"/>
+  <rect x="252" y="34" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-muted"/><text x="272" y="56" text-anchor="middle" class="khulasa-node-text">5</text>
+  <rect x="8" y="30" width="168" height="42" rx="10" fill="none" stroke="currentColor" stroke-dasharray="4 3" opacity="0.4"/>
+  <text x="92" y="88" text-anchor="middle" class="khulasa-flow-caption">group of k = 3</text>
+
+  <text x="12" y="120" class="khulasa-flow-label">BAAD MEIN</text>
+  <rect x="12" y="132" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-hot"/><text x="32" y="154" text-anchor="middle" class="khulasa-node-text">3</text>
+  <path d="M54 149 H72" class="khulasa-arrow"/>
+  <rect x="72" y="132" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-hot"/><text x="92" y="154" text-anchor="middle" class="khulasa-node-text">2</text>
+  <path d="M114 149 H132" class="khulasa-arrow"/>
+  <rect x="132" y="132" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-hot"/><text x="152" y="154" text-anchor="middle" class="khulasa-node-text">1</text>
+  <path d="M174 149 H192" class="khulasa-arrow"/>
+  <rect x="192" y="132" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-muted"/><text x="212" y="154" text-anchor="middle" class="khulasa-node-text">4</text>
+  <path d="M234 149 H252" class="khulasa-arrow"/>
+  <rect x="252" y="132" width="40" height="34" rx="8" class="khulasa-node-box khulasa-node-muted"/><text x="272" y="154" text-anchor="middle" class="khulasa-node-text">5</text>
+  <text x="310" y="154" class="khulasa-flow-caption">New Don = 3</text>
+</svg>`,
+        },
+        {
+          type: "h2",
+          text: "Poora plan — flowchart",
+        },
+        {
+          type: "diagram",
+          caption: "Har pack pe yeh 4 steps. Last incomplete pack pe abort.",
+          html: `<svg class="khulasa-flow-svg khulasa-flow-svg-tall" viewBox="0 0 360 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Reverse k-group flowchart">
+  <defs>
+    <marker id="khArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <rect x="70" y="8" width="220" height="48" rx="12" class="khulasa-flow-box"/>
+  <text x="180" y="30" text-anchor="middle" class="khulasa-flow-box-title">1. SPY COUNTS</text>
+  <text x="180" y="46" text-anchor="middle" class="khulasa-flow-box-sub">k nodes aage chalo</text>
+
+  <path d="M180 56 V78" class="khulasa-flow-line" marker-end="url(#khArrow)"/>
+
+  <rect x="70" y="80" width="220" height="56" rx="12" class="khulasa-flow-box khulasa-flow-decision"/>
+  <text x="180" y="104" text-anchor="middle" class="khulasa-flow-box-title">k nodes mile?</text>
+  <text x="180" y="122" text-anchor="middle" class="khulasa-flow-box-sub">Nahi → abort, list mat chhedo</text>
+
+  <path d="M180 136 V158" class="khulasa-flow-line" marker-end="url(#khArrow)"/>
+  <text x="196" y="152" class="khulasa-flow-edge">Haan</text>
+
+  <rect x="70" y="160" width="220" height="48" rx="12" class="khulasa-flow-box"/>
+  <text x="180" y="182" text-anchor="middle" class="khulasa-flow-box-title">2. SNIPER CUTS</text>
+  <text x="180" y="198" text-anchor="middle" class="khulasa-flow-box-sub">k-th node ke baad wire kaato</text>
+
+  <path d="M180 208 V230" class="khulasa-flow-line" marker-end="url(#khArrow)"/>
+
+  <rect x="70" y="232" width="220" height="48" rx="12" class="khulasa-flow-box"/>
+  <text x="180" y="254" text-anchor="middle" class="khulasa-flow-box-title">3. NEW DON RISES</text>
+  <text x="180" y="270" text-anchor="middle" class="khulasa-flow-box-sub">Is pack ko reverse karo</text>
+
+  <path d="M180 280 V302" class="khulasa-flow-line" marker-end="url(#khArrow)"/>
+
+  <rect x="70" y="304" width="220" height="48" rx="12" class="khulasa-flow-box"/>
+  <text x="180" y="326" text-anchor="middle" class="khulasa-flow-box-title">4. HANDSHAKE</text>
+  <text x="180" y="342" text-anchor="middle" class="khulasa-flow-box-sub">Purane head ko next pack se jodo</text>
+
+  <path d="M180 352 V374" class="khulasa-flow-line" marker-end="url(#khArrow)"/>
+
+  <rect x="70" y="376" width="220" height="36" rx="12" class="khulasa-flow-box khulasa-flow-end"/>
+  <text x="180" y="398" text-anchor="middle" class="khulasa-flow-box-title">Return New Don</text>
+</svg>`,
+        },
+        {
+          type: "h2",
+          text: "Characters = jobs (yaad rakhne ke liye)",
         },
         {
           type: "ul",
           items: [
-            "Gang Leader (head) — current territory ka boss.",
-            "Spy (curr) — aage jaake count karta hai: territory safe hai ya nahi?",
-            "Sniper (group_end) — k-th block pe wire kaat'ta hai, gang ko isolate karta hai.",
-            "New Don (reversed_head) — brainwash ke baad jo aage aata hai, wahi naya boss.",
-            "Brainwasher (reverseList) — andar gaya toh power flip — arrows ulti.",
+            "Spy (curr) — aage jaake count: k pure nodes hain ya nahi?",
+            "Sniper (group_end) — k-th node pe jaake .next todd deta hai taaki pack alag ho jaaye.",
+            "Brainwasher — pack reverse. Peeche wala aage aa jaata hai = New Don (reversed_head).",
+            "Purana head — reverse ke baad pack ka last node. Usse next pack jodte hain.",
           ],
         },
         {
           type: "h2",
-          text: "Scene 1 — Spy Counts",
+          text: "Step by step — ek baar picture ke saath",
+        },
+        {
+          type: "h3",
+          text: "1. Spy Counts",
         },
         {
           type: "p",
-          text: "Boss chahta hai exactly k blocks ka territory. Pehle Spy bhejta hai. Spy chalta hai: ek, do, teen… k tak. Agar beech mein dead-end mil gaya — territory chhota hai. Spy chillata hai: \"Boss, abort!\" Gang Leader bolta hai: kuch mat chhedo, jaise tha waise chhod do. Mission cancel.",
+          text: "curr ko head se chalao, k baar .next. Beech mein list khatam? Mission cancel — jo list thi wahi return. Poora pack mila? Spy ab next pack ke shuru pe khada (curr). Green light.",
+        },
+        {
+          type: "diagram",
+          caption: "Spy 3 steps chalta hai → next pack pe rukta hai",
+          html: `<svg class="khulasa-flow-svg" viewBox="0 0 480 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spy counts three nodes">
+  <rect x="20" y="28" width="40" height="32" rx="7" class="khulasa-node-box"/><text x="40" y="49" text-anchor="middle" class="khulasa-node-text">1</text>
+  <path d="M62 44 H82" class="khulasa-arrow"/>
+  <rect x="82" y="28" width="40" height="32" rx="7" class="khulasa-node-box"/><text x="102" y="49" text-anchor="middle" class="khulasa-node-text">2</text>
+  <path d="M124 44 H144" class="khulasa-arrow"/>
+  <rect x="144" y="28" width="40" height="32" rx="7" class="khulasa-node-box"/><text x="164" y="49" text-anchor="middle" class="khulasa-node-text">3</text>
+  <path d="M186 44 H210" class="khulasa-arrow"/>
+  <rect x="210" y="28" width="40" height="32" rx="7" class="khulasa-node-box khulasa-node-muted"/><text x="230" y="49" text-anchor="middle" class="khulasa-node-text">4</text>
+  <path d="M252 44 H272" class="khulasa-arrow"/>
+  <rect x="272" y="28" width="40" height="32" rx="7" class="khulasa-node-box khulasa-node-muted"/><text x="292" y="49" text-anchor="middle" class="khulasa-node-text">5</text>
+  <path d="M40 72 Q40 88 164 88 Q164 88 164 62" fill="none" class="khulasa-flow-line" marker-end="url(#khArrow2)"/>
+  <defs><marker id="khArrow2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 Z" fill="currentColor"/></marker></defs>
+  <text x="100" y="20" class="khulasa-flow-caption">Spy: 1→2→3 counted</text>
+  <text x="230" y="20" class="khulasa-flow-caption">Spy ab yahan (next)</text>
+  <circle cx="230" cy="20" r="0"/>
+  <rect x="214" y="22" width="32" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+</svg>`,
+        },
+        {
+          type: "h3",
+          text: "2. Sniper Cuts",
         },
         {
           type: "p",
-          text: "Agar Spy k blocks mil gaye — woh border pe khada, next territory ke gate pe. Green light.",
+          text: "Ab pehle pack ko duniya se alag karo. group_end = 3rd node. Uske next ko toot do. Ab 1→2→3 akela dark room mein. 4→5 bahar safe.",
+        },
+        {
+          type: "diagram",
+          caption: "Cut ke baad: pack alag, rest waiting",
+          html: `<svg class="khulasa-flow-svg" viewBox="0 0 480 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sniper cuts after third node">
+  <rect x="20" y="28" width="40" height="32" rx="7" class="khulasa-node-box"/><text x="40" y="49" text-anchor="middle" class="khulasa-node-text">1</text>
+  <path d="M62 44 H82" class="khulasa-arrow"/>
+  <rect x="82" y="28" width="40" height="32" rx="7" class="khulasa-node-box"/><text x="102" y="49" text-anchor="middle" class="khulasa-node-text">2</text>
+  <path d="M124 44 H144" class="khulasa-arrow"/>
+  <rect x="144" y="28" width="40" height="32" rx="7" class="khulasa-node-box"/><text x="164" y="49" text-anchor="middle" class="khulasa-node-text">3</text>
+  <text x="196" y="36" text-anchor="middle" class="khulasa-flow-caption">CUT</text>
+  <line x1="186" y1="30" x2="206" y2="58" class="khulasa-cut"/>
+  <line x1="186" y1="58" x2="206" y2="30" class="khulasa-cut"/>
+  <rect x="230" y="28" width="40" height="32" rx="7" class="khulasa-node-box khulasa-node-muted"/><text x="250" y="49" text-anchor="middle" class="khulasa-node-text">4</text>
+  <path d="M272 44 H292" class="khulasa-arrow"/>
+  <rect x="292" y="28" width="40" height="32" rx="7" class="khulasa-node-box khulasa-node-muted"/><text x="312" y="49" text-anchor="middle" class="khulasa-node-text">5</text>
+  <text x="102" y="80" text-anchor="middle" class="khulasa-flow-caption">trapped pack</text>
+  <text x="280" y="80" text-anchor="middle" class="khulasa-flow-caption">rest of list</text>
+</svg>`,
+        },
+        {
+          type: "h3",
+          text: "3. New Don Rises (reverse)",
+        },
+        {
+          type: "p",
+          text: "Trapped pack reverse: 1→2→3 ban gaya 3→2→1. Ab New Don = 3. Purana head = 1, jo ab pack ke end pe hai.",
+        },
+        {
+          type: "h3",
+          text: "4. Handshake",
+        },
+        {
+          type: "p",
+          text: "Purane head (1) se bolo: next pack pe bhi yahi kaam chalao, aur jo New Don wahan se aaye usse mere peeche jod dena. Isliye recursion. Aakhir mein return New Don (3).",
         },
         {
           type: "h2",
-          text: "Scene 2 — Sniper Cuts",
-        },
-        {
-          type: "p",
-          text: "Territory verified. Ab isolation. Sniper k-th block ke edge pe jaata hai aur power line kaat deta hai — connection todd do. Yeh k blocks ab dark room mein qaid. Spy bahar next world guard karta hai. Backup nahi aayega.",
-        },
-        {
-          type: "h2",
-          text: "Scene 3 — Brainwash / The Coup",
-        },
-        {
-          type: "p",
-          text: "Isolated gang Brainwasher mein daal di. Rebellion. Arrows ulti. Jo peeche tha, ab aage — New Don. Jo pehle Gang Leader tha, ab peeche — tail. Power flip complete.",
-        },
-        {
-          type: "h2",
-          text: "Scene 4 — The Handshake",
-        },
-        {
-          type: "p",
-          text: "Old Boss, ab peeche baitha, Spy ko next border pe dekhta hai. Phone uthaata hai: \"Next territory pe bhi wahi coup chalao. Jo New Don nikal ke aaye, usse seedha meri peeth se jod dena.\" Yeh deal: peeche baitha old Boss, aage aaya next section ka New Don — chain continue.",
-        },
-        {
-          type: "h2",
-          text: "Scene 5 — New Era",
-        },
-        {
-          type: "p",
-          text: "Poori chain link ho gayi. Old Boss side hota hai, New Don ki taraf ishara: \"Is section ka boss ab yeh hai.\" Underworld ko wahi dikhao — return the New Don.",
-        },
-        {
-          type: "h2",
-          text: "Mind-trick (yaad rakhna)",
+          text: "4 lines mein rat lo",
         },
         {
           type: "ol",
           items: [
-            "Spy k steps count kare. Short pade toh abort — list waise ki waise.",
-            "Sniper border pe wire kaate — k-block trap.",
-            "Brainwasher flip — old Boss tail, New Don front.",
-            "Old Boss next territory call kare — chain jode, New Don return.",
+            "Spy Counts — k mile toh aage, nahi toh abort.",
+            "Sniper Cuts — pack alag karo.",
+            "New Don Rises — pack reverse.",
+            "Handshake — purane head.next = next pack ka result; New Don return.",
           ],
         },
         {
           type: "callout",
-          text: "Yahan tak sirf kahani. Neeche code alag se.",
+          text: "Picture clear? Ab neeche code — same 4 steps.",
         },
         {
           type: "h2",
-          text: "Ab code (alag padho)",
+          text: "Ab code",
         },
         {
           type: "code",
           lang: "python",
           text: `def reverseKGroup(head, k):
-    # Scene 1 — Spy Counts
+    # 1. Spy Counts
     curr = head
     for _ in range(k):
         if not curr:
-            return head  # abort
+            return head
         curr = curr.next
 
-    # Scene 2 — Sniper Cuts
+    # 2. Sniper Cuts
     group_end = head
     for _ in range(k - 1):
         group_end = group_end.next
     group_end.next = None
 
-    # Scene 3 — Brainwash
-    reversed_head = reverseList(head)  # old head is now the tail
+    # 3. New Don Rises
+    reversed_head = reverseList(head)
 
-    # Scene 4 — Handshake with next territory
+    # 4. Handshake
     head.next = reverseKGroup(curr, k)
-
-    # Scene 5 — New Don
     return reversed_head`,
         },
         {
-          type: "h2",
-          text: "Kahani → code",
-        },
-        {
-          type: "ul",
-          items: [
-            "Spy Counts → curr se k steps; None mila toh return head",
-            "Sniper Cuts → group_end.next = None",
-            "Brainwash → reverseList(head) → reversed_head",
-            "Handshake → head.next = reverseKGroup(curr, k)",
-            "New Era → return reversed_head",
-          ],
-        },
-        {
           type: "callout",
-          text: "Ab Reverse Nodes in k-Group kholo. Spy Counts, Sniper Cuts, New Don Rises! 💪",
+          text: "Ab Reverse Nodes in k-Group kholo. Spy Counts → Sniper Cuts → New Don Rises → Handshake. 💪",
         },
       ],
     },

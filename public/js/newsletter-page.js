@@ -49,6 +49,12 @@ const NewsletterPage = (() => {
             <p>${escapeHtml(block.text)}</p>
             <cite>Desk note · filed tonight</cite>
           </blockquote>`;
+      case "diagram":
+        return `
+          <figure class="khulasa-diagram">
+            ${block.html || ""}
+            ${block.caption ? `<figcaption>${escapeHtml(block.caption)}</figcaption>` : ""}
+          </figure>`;
       default:
         return "";
     }
