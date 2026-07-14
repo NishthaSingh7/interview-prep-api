@@ -515,6 +515,7 @@ const Motivation = (() => {
         <button type="button" class="motivation-close" data-motivation-close aria-label="Close">&times;</button>
         <span class="motivation-badge" id="motivationBadge"></span>
         <p class="motivation-problem" id="motivationProblem"></p>
+        <div class="motivation-session" id="motivationSession" hidden></div>
         <h3 class="motivation-headline" id="motivationHeadline"></h3>
         <p class="motivation-message" id="motivationMessage"></p>
         <p class="motivation-footer" id="motivationFooter"></p>
@@ -539,7 +540,15 @@ const Motivation = (() => {
     return modalEl;
   }
 
-  function show({ difficulty, problemTitle, type = "done", contextQuote = null }) {
+  function show({
+    difficulty,
+    problemTitle,
+    type = "done",
+    contextQuote = null,
+    doneToday = null,
+    streak = null,
+    streakGrew = false,
+  }) {
     const quote = pickQuote(difficulty, type);
     const modal = ensureModal();
     const diffClass = difficulty.toLowerCase();
@@ -552,6 +561,30 @@ const Motivation = (() => {
         ? `↻ ${problemTitle}`
         : `✓ ${problemTitle}`
       : "";
+
+    const sessionEl = modal.querySelector("#motivationSession");
+    if (sessionEl) {
+      if (type === "done" && doneToday != null) {
+        const n = Math.max(1, Number(doneToday) || 1);
+        const parts = [
+          `<span class="motivation-session-count">${n} done today</span>`,
+          `<span class="motivation-session-label">Logged for tonight</span>`,
+        ];
+        if (streakGrew && streak) {
+          parts.push(
+            `<span class="motivation-session-streak">Streak up · ${streak}</span>`,
+          );
+        } else if (streak) {
+          parts.push(`<span class="motivation-session-streak">Streak · ${streak}</span>`);
+        }
+        sessionEl.innerHTML = parts.join("");
+        sessionEl.hidden = false;
+      } else {
+        sessionEl.innerHTML = "";
+        sessionEl.hidden = true;
+      }
+    }
+
     modal.querySelector("#motivationHeadline").textContent = quote.headline;
     modal.querySelector("#motivationMessage").textContent = quote.message;
     modal.querySelector("#motivationFooter").textContent = contextQuote
@@ -559,7 +592,10 @@ const Motivation = (() => {
       : type === "done"
         ? pickDoneFooter()
         : quote.footer;
-    modal.querySelector("#motivationCta").textContent = CTA_LABELS[type] || CTA_LABELS.done;
+    modal.querySelector("#motivationCta").textContent =
+      type === "done" && Number(doneToday) > 1
+        ? "Keep going →"
+        : CTA_LABELS[type] || CTA_LABELS.done;
 
     const reflectBtn = modal.querySelector("#motivationReflect");
     if (reflectBtn) {
@@ -567,13 +603,13 @@ const Motivation = (() => {
       reflectBtn.hidden = !showReflect;
     }
 
+    if (typeof Celebrate !== "undefined") Celebrate.hideToast();
+
     modal.hidden = false;
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("motivation-open");
 
-    if (type === "done" && typeof Confetti !== "undefined") {
-      Confetti.burst({ container: modal });
-    }
+    modal.classList.remove("motivation-fire");
 
     modal.querySelector("#motivationCta").focus();
   }
@@ -581,6 +617,7 @@ const Motivation = (() => {
   function hide() {
     if (!modalEl || modalEl.hidden) return;
     if (typeof Confetti !== "undefined") Confetti.stop();
+    modalEl.classList.remove("motivation-fire");
     modalEl.hidden = true;
     modalEl.setAttribute("aria-hidden", "true");
     document.body.classList.remove("motivation-open");

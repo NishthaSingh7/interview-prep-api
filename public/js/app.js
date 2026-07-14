@@ -62,12 +62,14 @@ function updateMilestones(prevCount) {
 function updateAuthUI() {
   const loggedIn = Auth.isLoggedIn();
   const loginPrompt = $("#loginPrompt");
-  const progressLink = $("#homeProgressLink");
   const progressSnippet = $("#homeProgressSnippet");
 
   if (loginPrompt) loginPrompt.hidden = loggedIn;
-  if (progressLink) progressLink.hidden = !loggedIn;
   if (progressSnippet) progressSnippet.hidden = !loggedIn;
+
+  if (loggedIn && typeof ProgressNudge !== "undefined") {
+    ProgressNudge.show();
+  }
 
   if (!loggedIn && typeof Milestones !== "undefined") {
     Milestones.renderHeaderBadges(0);
@@ -305,6 +307,22 @@ function applySessionUI() {
 
 function getCompletedDates() {
   return state.progressEntries.map((e) => e.completedAt || e.updatedAt).filter(Boolean);
+}
+
+/** How many problems marked done with today's date (local calendar day). */
+function countCompletedToday() {
+  const dates = getCompletedDates();
+  if (typeof Insights !== "undefined") {
+    const today = Insights.dayKey(new Date());
+    return dates.filter((d) => Insights.dayKey(d) === today).length;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = today.getTime() + 86400000;
+  return dates.filter((d) => {
+    const t = new Date(d).getTime();
+    return t >= today.getTime() && t < tomorrow;
+  }).length;
 }
 
 function updateHomeProgressSnippet() {
@@ -902,9 +920,14 @@ async function toggleProgress(checkbox) {
   const problemId = checkbox.dataset.id;
   const isChecked = checkbox.checked;
   const prevDone = getTotalDone();
+  const prevStreak = state.consistencyStats?.streak ?? 0;
 
   try {
     if (isChecked) {
+      if (typeof Celebrate !== "undefined") {
+        Celebrate.checkboxBurst(checkbox);
+      }
+
       const { data } = await api("/api/v1/progress", {
         method: "POST",
         body: JSON.stringify({ problemId, status: "done" }),
@@ -946,11 +969,15 @@ async function toggleProgress(checkbox) {
 
       if (problem?.difficulty && !crossed) {
         await refreshConsistencyStats();
+        const newStreak = state.consistencyStats?.streak ?? prevStreak;
+        const doneToday = countCompletedToday();
+        const streakGrew = newStreak > prevStreak;
+
         const ctxQuote =
           typeof DailyQuote !== "undefined"
             ? DailyQuote.getQuoteForContext({
                 event: "checkin",
-                streak: state.consistencyStats?.streak,
+                streak: newStreak,
               })
             : null;
         Motivation.show({
@@ -958,16 +985,27 @@ async function toggleProgress(checkbox) {
           problemTitle: problem.title,
           type: "done",
           contextQuote: ctxQuote,
+          doneToday,
+          streak: newStreak,
+          streakGrew,
         });
         if (typeof DailyQuote !== "undefined") {
           DailyQuote.render(document.getElementById("dailyQuote"), {
             event: "checkin",
-            streak: state.consistencyStats?.streak,
+            streak: newStreak,
           });
         }
         if (typeof Analytics !== "undefined") {
           Analytics.track("check_in", { difficulty: problem.difficulty });
         }
+      } else if (!crossed && typeof Celebrate !== "undefined") {
+        await refreshConsistencyStats();
+        const newStreak = state.consistencyStats?.streak ?? prevStreak;
+        Celebrate.sessionToast({
+          doneToday: countCompletedToday(),
+          streakGrew: newStreak > prevStreak,
+          streak: newStreak,
+        });
       }
     } else {
       const progress = state.progressMap.get(problemId);
@@ -1422,6 +1460,8 @@ async function init() {
     initPwaInstall();
   } catch (err) {
     $("#problemsContainer").innerHTML = `<div class="empty-state">Failed to load: ${escapeHtml(err.message)}</div>`;
+  } finally {
+    if (typeof ProgressNudge !== "undefined") ProgressNudge.init();
   }
 }
 

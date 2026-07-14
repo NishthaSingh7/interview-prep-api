@@ -33,7 +33,7 @@
     />
     <link rel="manifest" href="/manifest.json" />
     <script src="/js/theme.js"></script>
-    <link rel="stylesheet" href="/css/style.css?v=20260711g" />
+    <link rel="stylesheet" href="/css/style.css?v=20260714l" />
   </head>
   <body data-page="solve">
     <header class="site-header">
@@ -129,8 +129,18 @@
               <h2 id="viewTitle">All Problems</h2>
               <p id="homeProgressSnippet" class="home-progress-snippet" hidden></p>
             </div>
-            <a href="/progress" id="homeProgressLink" class="home-progress-link" hidden>Your progress →</a>
           </div>
+
+          <aside id="progressNudgeBanner" class="progress-nudge-banner" hidden>
+            <div class="progress-nudge-banner-copy">
+              <p class="progress-nudge-banner-kicker">Daily nudge</p>
+              <p class="progress-nudge-banner-text">Check your progress first — then come back and solve.</p>
+            </div>
+            <div class="progress-nudge-banner-actions">
+              <a href="/progress" class="btn btn-primary btn-sm" id="progressNudgeBannerGo">See progress →</a>
+              <button type="button" class="btn btn-ghost btn-sm" id="progressNudgeBannerDismiss">Not now</button>
+            </div>
+          </aside>
 
           <div class="home-pulse-grid" id="homePulseGrid">
             <aside id="dailyQuote" class="daily-quote panel home-pulse-card" hidden aria-label="Daily motivation"></aside>
@@ -213,10 +223,11 @@
     <script src="/js/push.js"></script>
     <script src="/js/unlocks.js?v=20260711d"></script>
     <script src="/js/insights.js?v=20260706a"></script>
-    <script src="/js/motivation.js"></script>
+    <script src="/js/motivation.js?v=20260714k"></script>
     <script src="/js/daily-quote.js"></script>
     <script src="/js/share-cards.js"></script>
     <script src="/js/confetti.js"></script>
+    <script src="/js/celebrate.js?v=20260714d"></script>
     <script src="/js/focus.js?v=20260711d"></script>
     <script src="/js/pattern-guides.js"></script>
     <script src="/js/pattern-diagrams.js"></script>
@@ -224,6 +235,7 @@
     <script src="/js/problem-desc-diagram.js?v=20260704o"></script>
     <script src="/js/problem-description.js?v=20260704o"></script>
     <script src="/js/onboarding.js"></script>
-    <script src="/js/app.js?v=20260711d"></script>
+    <script src="/js/progress-nudge.js?v=20260714f"></script>
+    <script src="/js/app.js?v=20260714k"></script>
   </body>
 </html>
