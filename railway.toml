@@ -2,6 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "node --max-old-space-size=128 server.js"
 healthcheckPath = "/health"
 restartPolicyType = "on_failure"
+numReplicas = 1

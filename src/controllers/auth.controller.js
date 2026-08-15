@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/user.model");
 
 const generateToken = (id) => {
@@ -163,6 +162,7 @@ const googleLogin = async (req, res) => {
       });
     }
 
+    const { OAuth2Client } = require("google-auth-library");
     const client = new OAuth2Client(clientId);
     const ticket = await client.verifyIdToken({
       idToken: credential,

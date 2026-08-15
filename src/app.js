@@ -27,8 +27,16 @@ app.use("/api/v1/reminders", reminderRoutes);
 app.use("/api/v1/journal", journalRoutes);
 app.use("/api/v1/ide", ideRoutes);
 
-// Static UI is served on Netlify in production; keep local/Railway fallback.
-if (process.env.SERVE_STATIC !== "false") {
+// Netlify serves the UI in production. Skip static files on Railway unless
+// SERVE_STATIC=true (saves RAM/egress). Local `npm start` still serves public/.
+const onRailway = Boolean(
+  process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID,
+);
+const serveStatic =
+  process.env.SERVE_STATIC === "true" ||
+  (process.env.SERVE_STATIC !== "false" && !onRailway);
+
+if (serveStatic) {
   const publicDir = path.join(__dirname, "../public");
   app.use(express.static(publicDir));
 
@@ -50,6 +58,8 @@ if (process.env.SERVE_STATIC !== "false") {
       res.sendFile(path.join(publicDir, file));
     });
   }
+} else {
+  console.log("Static UI disabled — API-only (Netlify serves the site)");
 }
 
 app.use(errorHandler);
