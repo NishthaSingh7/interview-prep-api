@@ -11,7 +11,7 @@
     "study-guides:generate": "node src/scripts/generate-study-guides.js",
     "reminder:test": "node src/scripts/send-test-push.js",
     "vapid:generate": "node src/scripts/generate-vapid-keys.js",
-    "build:netlify": "node src/scripts/generate-study-guides.js && node scripts/generate-netlify-redirects.js",
+    "build:netlify": "node src/scripts/generate-study-guides.js && node scripts/generate-netlify-redirects.js && rm -f public/study.html",
     "open": "open http://localhost:3000",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
