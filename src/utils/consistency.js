@@ -194,6 +194,44 @@ function interviewPaceInfo(interviewDate, completedDates, timezone = "Asia/Kolka
   };
 }
 
+function weekDayBreakdown(completedDates, timezone = "Asia/Kolkata") {
+  const keys = uniqueDateKeys(completedDates, timezone);
+  const todayKey = getDateParts(new Date(), timezone).dateKey;
+  const monday = mondayOfWeekKey(todayKey, timezone);
+  const names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  return names.map((label, i) => {
+    const dateKey = addDaysKey(monday, i);
+    return {
+      label,
+      dateKey,
+      done: keys.has(dateKey),
+      isFuture: dateKey > todayKey,
+    };
+  });
+}
+
+function solvesInCalendarWeek(completedDates, timezone = "Asia/Kolkata") {
+  const todayKey = getDateParts(new Date(), timezone).dateKey;
+  const monday = mondayOfWeekKey(todayKey, timezone);
+  const sunday = addDaysKey(monday, 6);
+  return completedDates.filter((raw) => {
+    if (!raw) return false;
+    const key = getDateParts(new Date(raw), timezone).dateKey;
+    return key >= monday && key <= sunday;
+  }).length;
+}
+
+function weekRangeLabel(timezone = "Asia/Kolkata") {
+  const todayKey = getDateParts(new Date(), timezone).dateKey;
+  const monday = mondayOfWeekKey(todayKey, timezone);
+  const sunday = addDaysKey(monday, 6);
+  const fmt = (key) => {
+    const [y, m, d] = key.split("-").map(Number);
+    return `${d} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m - 1]}`;
+  };
+  return `${fmt(monday)} – ${fmt(sunday)}`;
+}
+
 module.exports = {
   computeStreak,
   computeLongestStreak,
@@ -205,4 +243,9 @@ module.exports = {
   uniqueDateKeys,
   daysSinceLastActive,
   interviewPaceInfo,
+  mondayOfWeekKey,
+  addDaysKey,
+  weekDayBreakdown,
+  solvesInCalendarWeek,
+  weekRangeLabel,
 };

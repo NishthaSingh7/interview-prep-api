@@ -68,6 +68,9 @@ const userSchema = new mongoose.Schema(
     lastReminderSentAt: {
       type: Date,
     },
+    lastWeeklyRecapSentAt: {
+      type: Date,
+    },
     bestStreak: {
       type: Number,
       default: 0,

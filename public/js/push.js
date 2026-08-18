@@ -189,9 +189,9 @@ const Push = {
       return "⚠ Reminders ON but not connected — click Save and Allow.";
     }
     if (prefs?.reminderEnabled) {
-      return `✓ Active — daily email at ${this.formatTime(prefs.reminderHour, prefs.reminderMinute)} (${prefs.timezone})`;
+      return `✓ Sunday week-in-review email on (${prefs.timezone})`;
     }
-    if (prefs?.pushSubscribed) return "Subscribed — turn on daily reminders below.";
+    if (prefs?.pushSubscribed) return "Subscribed — turn on the weekend recap below.";
     return "Click Save reminder, then Allow when prompted.";
   },
 
@@ -313,7 +313,7 @@ const Push = {
           try {
             await this.subscribe();
           } catch {
-            // Email reminders still work without browser push
+            // Weekend email still works without browser push
           }
         }
 

@@ -46,8 +46,8 @@ const Onboarding = (() => {
         body: "That's the whole strategy. No race to 300 — show up at your chosen time and build pattern intuition night by night.",
       },
       {
-        title: "Set your reminder",
-        body: "Pick a daily time on Progress → Game Plan. We'll nudge you when your after-hours slot opens.",
+        title: "Sunday week in review",
+        body: "Turn on the weekend email from Progress. You'll get one recap of the whole week — not a daily mail.",
       },
       {
         title: "Log tonight's win",

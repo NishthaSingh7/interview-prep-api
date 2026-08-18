@@ -1,0 +1,24 @@
+name: Sunday week in review
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+jobs:
+  recap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send weekly recap emails
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          API_URL: https://afterhours-api-production.up.railway.app
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "Set repository secret CRON_SECRET"
+            exit 1
+          fi
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            "${API_URL}/api/v1/reminders/weekly-run"

@@ -139,8 +139,10 @@ const sendTestPush = async (req, res) => {
     const results = { email: null, push: null };
 
     try {
-      const { sendReminderEmail } = require("../services/email.service");
-      results.email = await sendReminderEmail(req.user);
+      const { sendWeeklyRecapEmail } = require("../services/email.service");
+      const { buildUserWeekStats } = require("../services/reminder.service");
+      const stats = await buildUserWeekStats(req.user);
+      results.email = await sendWeeklyRecapEmail(req.user, stats);
     } catch (error) {
       results.email = { ok: false, error: error.message };
     }
@@ -158,13 +160,36 @@ const sendTestPush = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Test reminder sent. Check your email inbox (and Mac notifications if push is set up).",
+      message: "Test week-in-review sent. Check your email inbox.",
       data: results,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+const runWeeklyRecap = async (req, res) => {
+  try {
+    const { processWeeklyRecaps } = require("../services/reminder.service");
+    const result = await processWeeklyRecaps();
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+function requireCronSecret(req, res, next) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    return res.status(503).json({ success: false, message: "CRON_SECRET is not configured." });
+  }
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  if (token !== secret) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+  next();
+}
 
 module.exports = {
   getVapidPublicKey,
@@ -173,4 +198,6 @@ module.exports = {
   getPreferences,
   updatePreferences,
   sendTestPush,
+  runWeeklyRecap,
+  requireCronSecret,
 };

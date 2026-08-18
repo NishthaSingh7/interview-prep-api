@@ -1,109 +1,85 @@
 const cron = require("node-cron");
 const User = require("../models/user.model");
-const { sendPushReminder } = require("./push.service");
-const { sendReminderEmail } = require("./email.service");
-const { isReminderDueNow, wasReminderSentToday } = require("../utils/timezone");
+const Progress = require("../models/progress.model");
+const { sendWeeklyRecapEmail } = require("./email.service");
+const { getDateParts } = require("../utils/timezone");
+const {
+  computeStreak,
+  mondayOfWeekKey,
+  weekDayBreakdown,
+  solvesInCalendarWeek,
+  weekRangeLabel,
+} = require("../utils/consistency");
 
 let isRunning = false;
 
-async function processDueReminders() {
-  if (isRunning) return;
+function wasWeeklyRecapSentThisWeek(user, now = new Date()) {
+  if (!user.lastWeeklyRecapSentAt) return false;
+  const timezone = user.timezone || "Asia/Kolkata";
+  const sentKey = getDateParts(user.lastWeeklyRecapSentAt, timezone).dateKey;
+  const todayKey = getDateParts(now, timezone).dateKey;
+  return mondayOfWeekKey(sentKey, timezone) === mondayOfWeekKey(todayKey, timezone);
+}
+
+async function buildUserWeekStats(user) {
+  const progress = await Progress.find({ userId: user._id, status: "done" }).select(
+    "completedAt updatedAt",
+  );
+  const completedDates = progress.map((p) => p.completedAt || p.updatedAt).filter(Boolean);
+  const timezone = user.timezone || "Asia/Kolkata";
+  const days = weekDayBreakdown(completedDates, timezone);
+  const activeDays = days.filter((d) => d.done).length;
+
+  return {
+    streak: computeStreak(completedDates, timezone, user.streakFreezeDays || []),
+    activeDays,
+    solvesThisWeek: solvesInCalendarWeek(completedDates, timezone),
+    totalDone: progress.length,
+    weekLabel: weekRangeLabel(timezone),
+    days,
+  };
+}
+
+async function processWeeklyRecaps() {
+  if (isRunning) return { sent: 0, skipped: 0, failed: 0 };
   isRunning = true;
 
-  try {
-    const users = await User.find({
-      reminderEnabled: true,
-    }).select(
-      "name email pushSubscription reminderHour reminderMinute timezone lastReminderSentAt",
-    );
+  let sent = 0;
+  let skipped = 0;
+  let failed = 0;
 
+  try {
+    const users = await User.find({ reminderEnabled: true }).select(
+      "name email timezone streakFreezeDays lastWeeklyRecapSentAt",
+    );
     const now = new Date();
-    let emailSent = 0;
-    let pushSent = 0;
-    let skipped = 0;
 
     for (const user of users) {
-      if (!isReminderDueNow(user, now)) continue;
-
-      if (wasReminderSentToday(user, now)) {
+      if (wasWeeklyRecapSentThisWeek(user, now)) {
         skipped += 1;
         continue;
       }
 
-      let delivered = false;
-
       try {
-        await sendReminderEmail(user);
-        emailSent += 1;
-        delivered = true;
-      } catch (error) {
-        console.error(`[reminder] Email failed for ${user.email}:`, error.message);
-      }
-
-      if (user.pushSubscription?.endpoint) {
-        try {
-          await sendPushReminder(user);
-          pushSent += 1;
-          delivered = true;
-        } catch (error) {
-          if (error.subscriptionExpired) {
-            user.pushSubscription = undefined;
-          }
-          console.error(`[reminder] Push failed for ${user._id}:`, error.message);
-        }
-      }
-
-      if (delivered) {
-        user.lastReminderSentAt = now;
+        const stats = await buildUserWeekStats(user);
+        await sendWeeklyRecapEmail(user, stats);
+        user.lastWeeklyRecapSentAt = now;
         await user.save();
-      }
-    }
-
-    if (emailSent > 0 || pushSent > 0 || skipped > 0) {
-      console.log(
-        `[reminder] Email: ${emailSent}, push: ${pushSent}, skipped today: ${skipped}`,
-      );
-    }
-  } catch (error) {
-    console.error("[reminder] Job error:", error.message);
-  } finally {
-    isRunning = false;
-  }
-}
-
-async function processWeeklyRecaps() {
-  const Progress = require("../models/progress.model");
-  const { sendWeeklyRecapEmail } = require("./email.service");
-  const {
-    computeStreak,
-    activeDaysThisWeek,
-  } = require("../utils/consistency");
-
-  try {
-    const users = await User.find({ reminderEnabled: true }).select(
-      "name email timezone streakFreezeDays",
-    );
-
-    for (const user of users) {
-      try {
-        const progress = await Progress.find({ userId: user._id, status: "done" }).select(
-          "completedAt updatedAt",
-        );
-        const completedDates = progress.map((p) => p.completedAt || p.updatedAt).filter(Boolean);
-        const timezone = user.timezone || "Asia/Kolkata";
-
-        await sendWeeklyRecapEmail(user, {
-          streak: computeStreak(completedDates, timezone, user.streakFreezeDays || []),
-          activeDays: activeDaysThisWeek(completedDates, timezone),
-          totalDone: progress.length,
-        });
+        sent += 1;
       } catch (error) {
+        failed += 1;
         console.error(`[weekly] Failed for ${user.email}:`, error.message);
       }
     }
+
+    console.log(`[weekly] Recap email sent: ${sent}, skipped: ${skipped}, failed: ${failed}`);
   } catch (error) {
     console.error("[weekly] Job error:", error.message);
+  } finally {
+    isRunning = false;
   }
+
+  return { sent, skipped, failed };
 }
 
 function startReminderCron() {
@@ -112,9 +88,15 @@ function startReminderCron() {
     return;
   }
 
-  cron.schedule("* * * * *", processDueReminders);
-  cron.schedule("0 9 * * 0", processWeeklyRecaps);
-  console.log("[reminder] Daily + weekly (Sunday 09:00 UTC) cron started");
+  // Sunday 03:00 UTC = 8:30 AM IST. Unreliable if Serverless is asleep — HTTP trigger is the backup.
+  cron.schedule("0 3 * * 0", () => {
+    processWeeklyRecaps().catch((err) => console.error("[weekly] Cron error:", err.message));
+  });
+  console.log("[reminder] Sunday week-in-review cron started (03:00 UTC)");
 }
 
-module.exports = { startReminderCron, processDueReminders, processWeeklyRecaps };
+module.exports = {
+  startReminderCron,
+  processWeeklyRecaps,
+  buildUserWeekStats,
+};

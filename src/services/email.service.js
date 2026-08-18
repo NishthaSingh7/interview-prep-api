@@ -189,28 +189,146 @@ async function sendReminderEmail(user) {
   return sendViaConsole(to, user.name);
 }
 
-function buildWeeklyRecapEmail(name, { streak = 0, activeDays = 0, totalDone = 0 } = {}) {
+function buildWeeklyRecapEmail(name, stats = {}) {
   const firstName = escapeHtml(String(name || "there").split(" ")[0]);
   const url = APP_URL;
-  const subject = `${firstName}, your week on AfterHours`;
+  const streak = Number(stats.streak) || 0;
+  const activeDays = Number(stats.activeDays) || 0;
+  const solvesThisWeek = Number(stats.solvesThisWeek) || 0;
+  const totalDone = Number(stats.totalDone) || 0;
+  const weekLabel = escapeHtml(stats.weekLabel || "this week");
+  const days = Array.isArray(stats.days) ? stats.days : [];
+
+  const dayLine = days
+    .map((d) => {
+      if (d.isFuture) return `${d.label}: —`;
+      return `${d.label}: ${d.done ? "yes" : "no"}`;
+    })
+    .join(" · ");
+
+  const subject = `${firstName}, your week on AfterHours (${activeDays}/7 nights)`;
 
   const text = `Hey ${firstName}!
 
-This week you showed up ${activeDays} day(s). Current streak: ${streak} day(s). Lifetime solves: ${totalDone}.
+Your week (${weekLabel.replace(/&amp;/g, "&")}):
+
+Nights you showed up: ${activeDays}/7
+Problems logged this week: ${solvesThisWeek}
+Current streak: ${streak} day(s)
+Lifetime solves: ${totalDone}
+
+${dayLine}
 
 Consistency is the win — not how fast you hit 300.
 
 → ${url}/progress
 
-— AfterHours`;
+— AfterHours
+Progress Never Clocks Out.
 
-  const html = `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0d1117;color:#c9d1d9;padding:24px;">
-    <h1 style="color:#f0f6fc;">Your week, ${firstName}</h1>
-    <p>Active days this week: <strong style="color:#f59e0b;">${activeDays}</strong></p>
-    <p>Current streak: <strong style="color:#f59e0b;">${streak}</strong> day(s)</p>
-    <p>Lifetime solves: ${totalDone} <span style="color:#8b949e;">(secondary — habit is primary)</span></p>
-    <p><a href="${url}/progress" style="color:#f59e0b;">View your Journey Map →</a></p>
-  </body></html>`;
+---
+You're getting this because you turned on the Sunday week-in-review email.
+`;
+
+  const dayCells = days
+    .map((d) => {
+      const mark = d.isFuture ? "·" : d.done ? "✓" : "–";
+      const color = d.done ? "#f59e0b" : "#6e7681";
+      return `<td align="center" style="padding:8px 4px;">
+        <p style="margin:0;font-size:16px;font-weight:700;color:${color};">${mark}</p>
+        <p style="margin:4px 0 0;font-size:10px;color:#8b949e;">${escapeHtml(d.label)}</p>
+      </td>`;
+    })
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AfterHours Week in Review</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0d1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#0d1117;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background-color:#161b22;border:1px solid #30363d;border-radius:12px;overflow:hidden;">
+          <tr>
+            <td style="padding:28px 32px 20px;border-bottom:3px solid #f59e0b;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="width:44px;height:44px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:10px;text-align:center;vertical-align:middle;">
+                    <span style="font-family:ui-monospace,Menlo,Monaco,monospace;font-size:14px;font-weight:700;color:#0d1117;line-height:44px;">AH</span>
+                  </td>
+                  <td style="padding-left:14px;vertical-align:middle;">
+                    <p style="margin:0;font-size:18px;font-weight:700;color:#f0f6fc;letter-spacing:-0.02em;">AfterHours</p>
+                    <p style="margin:2px 0 0;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:11px;color:#8b949e;">Progress Never Clocks Out.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <p style="margin:0 0 8px;font-family:ui-monospace,Menlo,Monaco,monospace;font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;letter-spacing:0.08em;">Sunday week in review</p>
+              <h1 style="margin:0 0 8px;font-size:26px;font-weight:700;color:#f0f6fc;line-height:1.25;letter-spacing:-0.03em;">Hey ${firstName}, here's your week.</h1>
+              <p style="margin:0 0 24px;font-size:14px;color:#8b949e;">${weekLabel}</p>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:24px;background-color:#0d1117;border:1px solid #30363d;border-radius:8px;">
+                <tr>${dayCells}</tr>
+              </table>
+
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:32px;">
+                <tr>
+                  <td width="33%" align="center" style="padding:12px 8px;background-color:#0d1117;border:1px solid #30363d;border-radius:8px 0 0 8px;">
+                    <p style="margin:0;font-size:20px;font-weight:700;color:#f59e0b;">${activeDays}/7</p>
+                    <p style="margin:4px 0 0;font-size:11px;color:#8b949e;">nights</p>
+                  </td>
+                  <td width="33%" align="center" style="padding:12px 8px;background-color:#0d1117;border-top:1px solid #30363d;border-bottom:1px solid #30363d;">
+                    <p style="margin:0;font-size:20px;font-weight:700;color:#f59e0b;">${solvesThisWeek}</p>
+                    <p style="margin:4px 0 0;font-size:11px;color:#8b949e;">this week</p>
+                  </td>
+                  <td width="33%" align="center" style="padding:12px 8px;background-color:#0d1117;border:1px solid #30363d;border-radius:0 8px 8px 0;">
+                    <p style="margin:0;font-size:20px;font-weight:700;color:#f59e0b;">${streak}</p>
+                    <p style="margin:4px 0 0;font-size:11px;color:#8b949e;">streak</p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 28px;font-size:16px;line-height:1.6;color:#c9d1d9;">
+                ${
+                  activeDays >= 5
+                    ? "Strong week. Same pace next week is enough."
+                    : activeDays >= 1
+                      ? "You showed up. One quality night at a time still counts."
+                      : "Quiet week — no guilt. Open AfterHours once this week and log one problem."
+                }
+                <span style="color:#8b949e;"> Lifetime solves: ${totalDone}.</span>
+              </p>
+
+              <table role="presentation" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                  <td style="border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);">
+                    <a href="${url}/progress" target="_blank" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#0d1117;text-decoration:none;letter-spacing:-0.01em;">See your week →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px;background-color:#0d1117;border-top:1px solid #30363d;">
+              <p style="margin:0;font-size:12px;color:#6e7681;line-height:1.5;text-align:center;">
+                Sunday week-in-review from AfterHours — not a daily mail.<br />
+                <a href="${url}/progress" style="color:#f59e0b;text-decoration:none;">Manage reminder settings</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 
   return { subject, text, html };
 }
