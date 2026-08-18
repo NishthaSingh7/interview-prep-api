@@ -1,12 +1,12 @@
 const Unlocks = {
-  TOTAL_PROBLEMS: 365,
+  TOTAL_PROBLEMS: 438,
   PROBLEMS_PER_PATTERN: 18,
   FIRST_TIER_PATTERN_COUNT: 10,
-  FIRST_TIER_TOTAL: 183,
+  FIRST_TIER_TOTAL: 219,
   HARD_UNLOCK_RATIO: 0.15,
   ADVANCED_PATTERNS_UNLOCK_RATIO: 0.7,
-  HARD_UNLOCK_REQUIRED: Math.ceil(365 * 0.15),
-  ADVANCED_PATTERNS_REQUIRED: Math.ceil(183 * 0.7),
+  HARD_UNLOCK_REQUIRED: Math.ceil(438 * 0.15),
+  ADVANCED_PATTERNS_REQUIRED: Math.ceil(219 * 0.7),
 
   catalogTotal(patterns = [], patternTotals = {}) {
     if (!patterns.length) return this.TOTAL_PROBLEMS;

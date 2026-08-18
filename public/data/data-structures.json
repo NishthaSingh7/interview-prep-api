@@ -160,6 +160,102 @@
         }
       ]
     },
+    "stacks": {
+      "slug": "stacks",
+      "name": "Stacks",
+      "tagline": "Last in, first out — next greater element, parentheses, and monotonic stacks.",
+      "readMin": 4,
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a stack?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A stack is LIFO: you only add and remove from the top. Interviews use it for matching brackets, evaluating expressions, and the monotonic-stack trick that answers “next greater/smaller” in linear time."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core operations",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Push / pop / peek — O(1)",
+                "Parentheses matching — scan left to right, pop on close",
+                "Monotonic stack — keep indices in increasing or decreasing order",
+                "Min stack — store running minimum beside each value"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Valid parentheses / nested structure — stack of openers",
+                "Next greater element / stock span — monotonic stack",
+                "Evaluate postfix or infix — operator stack",
+                "Histogram largest rectangle — stack of increasing bars"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "queues": {
+      "slug": "queues",
+      "name": "Queues",
+      "tagline": "First in, first out — BFS, sliding windows, and streaming first-unique problems.",
+      "readMin": 3,
+      "sections": [
+        {
+          "id": "what",
+          "title": "What is a queue?",
+          "blocks": [
+            {
+              "type": "p",
+              "text": "A queue is FIFO: enqueue at the back, dequeue from the front. BFS is a queue. Sliding-window maxima and “first non-repeating character in a stream” are the other two interview regulars."
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "title": "Core operations",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Enqueue / dequeue — O(1)",
+                "BFS level order — queue of nodes at the current frontier",
+                "Deque (double-ended) — sliding window maximum",
+                "Queue reversal / reverse first K — stack helper or recursion"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "signals",
+          "title": "Interview signals",
+          "blocks": [
+            {
+              "type": "ul",
+              "items": [
+                "Shortest path in an unweighted graph — BFS queue",
+                "First unique in a stream — queue plus frequency map",
+                "Sliding window extrema — monotonic deque",
+                "Rotten oranges / multi-source BFS — seed the queue with every source"
+              ]
+            }
+          ]
+        }
+      ]
+    },
     "trees": {
       "slug": "trees",
       "name": "Trees",

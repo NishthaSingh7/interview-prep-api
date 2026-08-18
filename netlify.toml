@@ -7,5 +7,30 @@
   publish = "public"
   command = "npm run build:netlify"
 
+# Study is hidden for now — send old bookmarks to Solve.
+[[redirects]]
+  from = "/study"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/study.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn.html"
+  to = "/"
+  status = 301
+  force = true
+
 [build.environment]
   NODE_VERSION = "20"

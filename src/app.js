@@ -38,12 +38,15 @@ const serveStatic =
 
 if (serveStatic) {
   const publicDir = path.join(__dirname, "../public");
+
+  for (const from of ["/study", "/learn", "/study.html", "/learn.html"]) {
+    app.get(from, (_req, res) => res.redirect(301, "/"));
+  }
+
   app.use(express.static(publicDir));
 
   const htmlPages = [
     ["/", "index.html"],
-    ["/learn", "study.html"],
-    ["/study", "study.html"],
     ["/about", "about.html"],
     ["/progress", "progress.html"],
     ["/companion", "companion.html"],

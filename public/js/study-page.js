@@ -221,7 +221,7 @@ const StudyPage = (() => {
     const allTotal = state.patterns.reduce(
       (n, p) => n + (state.patternTotals[p._id] ?? p.problemCount ?? 0),
       0,
-    ) || 365;
+    ) || 438;
 
     const structureItems = state.structures
       .map((s) => {

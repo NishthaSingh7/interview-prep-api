@@ -27,6 +27,7 @@ const makeProblems = (patternSlug, items) =>
 
 const { extraProblems } = require("./extraProblems");
 const { extraProblemsBatch2 } = require("./extraProblemsBatch2");
+const { dsProblems } = require("./dsProblems");
 
 const patterns = [
   {
@@ -134,7 +135,7 @@ const patterns = [
 const problems = [
   ...makeProblems("sliding-window", [
     ["Maximum Average Subarray I", "Easy", "maximum-average-subarray-i", ["array", "sliding-window"]],
-    ["Maximum Sum Subarray of Size K", "Easy", "gfg:subarray-with-given-sum-1587115621", ["array", "sliding-window"]],
+    ["Maximum Sum Subarray of Size K", "Easy", "gfg:max-sum-subarray-of-size-k5313", ["array", "sliding-window"]],
     ["Longest Substring Without Repeating Characters", "Medium", "longest-substring-without-repeating-characters", ["string", "sliding-window"]],
     ["Minimum Size Subarray Sum", "Medium", "minimum-size-subarray-sum", ["array", "sliding-window"]],
     ["Fruit Into Baskets", "Medium", "fruit-into-baskets", ["array", "sliding-window"]],
@@ -166,18 +167,18 @@ const problems = [
     ["Reorder List", "Medium", "reorder-list", ["linked-list", "fast-slow-pointers"]],
     ["Circular Array Loop", "Medium", "circular-array-loop", ["array", "fast-slow-pointers"]],
     ["Sort List", "Medium", "sort-list", ["linked-list", "fast-slow-pointers"]],
-    ["Split a Circular Linked List", "Medium", "gfg:split-a-circular-linked-list", ["linked-list", "fast-slow-pointers"]],
+    ["Split a Circular Linked List", "Medium", "gfg:split-a-circular-linked-list-into-two-halves", ["linked-list", "fast-slow-pointers"]],
   ]),
   ...makeProblems("merge-intervals", [
     ["Merge Intervals", "Medium", "merge-intervals", ["array", "intervals"]],
     ["Insert Interval", "Medium", "insert-interval", ["array", "intervals"]],
-    ["Meeting Rooms", "Easy", "meeting-rooms", ["array", "intervals"]],
-    ["Meeting Rooms II", "Medium", "meeting-rooms-ii", ["array", "intervals"]],
+    ["Meeting Rooms", "Easy", "gfg:n-meetings-in-one-room-1587115620", ["array", "intervals"]],
+    ["Meeting Rooms II", "Medium", "gfg:minimum-platforms-1587115620", ["array", "intervals"]],
     ["Non-overlapping Intervals", "Medium", "non-overlapping-intervals", ["array", "intervals"]],
     ["Interval List Intersections", "Medium", "interval-list-intersections", ["array", "intervals"]],
     ["Minimum Number of Arrows to Burst Balloons", "Medium", "minimum-number-of-arrows-to-burst-balloons", ["array", "intervals"]],
     ["Employee Free Time", "Hard", "employee-free-time", ["array", "intervals"]],
-    ["Add Interval", "Medium", "gfg:insert-interval-in-an-unsorted-array", ["array", "intervals"]],
+    ["Car Pooling", "Medium", "car-pooling", ["array", "intervals"]],
     ["Data Stream as Disjoint Intervals", "Hard", "data-stream-as-disjoint-intervals", ["array", "intervals"]],
   ]),
   ...makeProblems("cyclic-sort", [
@@ -189,8 +190,8 @@ const problems = [
     ["Set Mismatch", "Easy", "set-mismatch", ["array", "cyclic-sort"]],
     ["Couples Holding Hands", "Hard", "couples-holding-hands", ["array", "cyclic-sort"]],
     ["Shortest Unsorted Continuous Subarray", "Medium", "shortest-unsorted-continuous-subarray", ["array", "cyclic-sort"]],
-    ["Find the Corrupt Pair", "Easy", "gfg:find-missing-and-repeated-value2239", ["array", "cyclic-sort"]],
-    ["Smallest Missing Positive Integer", "Medium", "gfg:smallest-missing-positive-number", ["array", "cyclic-sort"]],
+    ["Find the Corrupt Pair", "Easy", "gfg:find-missing-and-repeating2512", ["array", "cyclic-sort"]],
+    ["Smallest Missing Positive Integer", "Medium", "gfg:smallest-positive-missing-number-1587115621", ["array", "cyclic-sort"]],
   ]),
   ...makeProblems("island-matrix-traversal", [
     ["Number of Islands", "Medium", "number-of-islands", ["matrix", "dfs"]],
@@ -214,7 +215,7 @@ const problems = [
     ["Add Two Numbers", "Medium", "add-two-numbers", ["linked-list"]],
     ["Flatten a Multilevel Doubly Linked List", "Medium", "flatten-a-multilevel-doubly-linked-list", ["linked-list"]],
     ["Reverse Linked List (Recursive)", "Easy", "gfg:reverse-a-linked-list", ["linked-list"]],
-    ["Reverse Alternate K Nodes", "Medium", "gfg:reverse-alternate-k-nodes-in-a-singly-linked-list", ["linked-list"]],
+    ["Reverse Alternate K Nodes", "Medium", "gfg:given-a-linked-list-reverse-alternate-nodes-and-append-at-the-end", ["linked-list"]],
   ]),
   ...makeProblems("breadth-first-search", [
     ["Binary Tree Level Order Traversal", "Medium", "binary-tree-level-order-traversal", ["tree", "bfs"]],
@@ -225,7 +226,7 @@ const problems = [
     ["Clone Graph", "Medium", "clone-graph", ["graph", "bfs"]],
     ["Number of Provinces", "Medium", "number-of-provinces", ["graph", "bfs"]],
     ["Snakes and Ladders", "Medium", "snakes-and-ladders", ["graph", "bfs"]],
-    ["Minimum Knight Moves", "Medium", "minimum-knight-moves", ["graph", "bfs"]],
+    ["Minimum Knight Moves", "Medium", "gfg:knight-walk4521", ["graph", "bfs"]],
     ["Cut Off Trees for Golf Event", "Hard", "cut-off-trees-for-golf-event", ["graph", "bfs"]],
   ]),
   ...makeProblems("depth-first-search", [
@@ -234,8 +235,8 @@ const problems = [
     ["Path Sum II", "Medium", "path-sum-ii", ["tree", "dfs"]],
     ["All Paths From Source to Target", "Medium", "all-paths-from-source-to-target", ["graph", "dfs"]],
     ["Word Search", "Medium", "word-search", ["matrix", "dfs"]],
-    ["Number of Connected Components in an Undirected Graph", "Medium", "number-of-connected-components-in-an-undirected-graph", ["graph", "dfs"]],
-    ["Graph Valid Tree", "Medium", "graph-valid-tree", ["graph", "dfs"]],
+    ["Number of Connected Components in an Undirected Graph", "Medium", "gfg:number-of-provinces", ["graph", "dfs"]],
+    ["Graph Valid Tree", "Medium", "gfg:detect-cycle-in-an-undirected-graph", ["graph", "dfs"]],
     ["Course Schedule", "Medium", "course-schedule", ["graph", "dfs"]],
     ["Same Tree", "Easy", "same-tree", ["tree", "dfs"]],
     ["Invert Binary Tree", "Easy", "invert-binary-tree", ["tree", "dfs"]],
@@ -308,15 +309,15 @@ const problems = [
     ["Find K Pairs with Smallest Sums", "Medium", "find-k-pairs-with-smallest-sums", ["heap", "merge"]],
     ["Kth Smallest Element in a Sorted Matrix", "Medium", "kth-smallest-element-in-a-sorted-matrix", ["heap", "merge"]],
     ["Merge Triplets to Form Target Triplet", "Medium", "merge-triplets-to-form-target-triplet", ["array", "merge"]],
-    ["Kth Smallest Number in M Sorted Lists", "Medium", "gfg:k-th-element-of-two-sorted-arrays1315", ["heap", "merge"]],
+    ["Kth Smallest Number in M Sorted Lists", "Medium", "gfg:k-th-element-of-two-sorted-array1317", ["heap", "merge"]],
     ["Merge Sorted Lists from N Streams", "Hard", "gfg:merge-k-sorted-arrays", ["heap", "merge"]],
-    ["Find Smallest Range with K Lists", "Hard", "gfg:find-smallest-range-containing-elements-from-k-sorted-lists", ["heap", "merge"]],
+    ["Find Smallest Range with K Lists", "Hard", "gfg:find-smallest-range-containing-elements-from-k-lists", ["heap", "merge"]],
   ]),
   ...makeProblems("topological-sort", [
     ["Course Schedule", "Medium", "course-schedule", ["graph", "topological-sort"]],
     ["Course Schedule II", "Medium", "course-schedule-ii", ["graph", "topological-sort"]],
-    ["Alien Dictionary", "Hard", "alien-dictionary", ["graph", "topological-sort"]],
-    ["Sequence Reconstruction", "Medium", "sequence-reconstruction", ["graph", "topological-sort"]],
+    ["Alien Dictionary", "Hard", "gfg:alien-dictionary", ["graph", "topological-sort"]],
+    ["Sequence Reconstruction", "Medium", "gfg:prerequisite-tasks", ["graph", "topological-sort"]],
     ["Minimum Height Trees", "Medium", "minimum-height-trees", ["graph", "topological-sort"]],
     ["Parallel Courses", "Hard", "parallel-courses", ["graph", "topological-sort"]],
     ["Find Eventual Safe States", "Medium", "find-eventual-safe-states", ["graph", "topological-sort"]],
@@ -374,6 +375,7 @@ const problems = [
   ]),
   ...extraProblems,
   ...extraProblemsBatch2,
+  ...dsProblems,
 ];
 
 patterns.forEach((p, i) => {
